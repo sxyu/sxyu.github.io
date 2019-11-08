@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<title>Alex Yu's Website</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="manifest" href="site.webmanifest">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav id="sidebar">
+            <div id="sidebar-wrapper">
+                <div class="sidebar-header">
+                    <h3>Alex Yu</h3>
+                    <code>Personal Website v4.0</code>
+                </div>
+
+                <ul class="list-unstyled components">
+                    <!-- <li class="active"> <a href="/">About</a> -->
+                    <!-- <li> <a href="teaching.html">Teaching</a> -->
+                    <!-- <li> <a href="interest.html">Contests, Interests</a> -->
+                    <!-- <li> <a href="projects.html">Projects</a> -->
+                    
+                    <li><a href="index.html">About</a></li>
+                    
+                    <li class="active"><a href="projects.html">Projects</a></li>
+                    
+                    <li><a href="contests.html">Contests + Interests</a></li>
+                    
+                    <li><a href="teaching.html">Teaching</a></li>
+                    
+                </ul>
+                <ul id="links" class="list-unstyled">
+                    <li>
+                        <a class="mail">
+                            <ion-icon name="mail"></ion-icon>
+                            &#115;&#x78;&#121;&#x75;<span style="display:none">&#114;&#x64;</span> at &#98;&#x65;&#x72;&#x6b;&#101;&#x6c;&#x65;&#121;&#x2e;&#x65;&#x64;&#x75;
+                        </a>
+                    <li> <a href="https://github.com/sxyu"><ion-icon name="logo-github"></ion-icon> sxyu</a>
+                    <li> <a href="https://linkedin.com/in/sx-yu"><ion-icon name="logo-linkedin"></ion-icon> sx-yu</a>
+                </ul>
+            </div>
+        </nav>
+
+        <div id="content">
+            <div class="container-fluid">
+                
+ <div class="row">
+    <div class="projs col-sm-12">
+        <h1>Projects</h1>
+        <ul>
+            <li>
+                Currently, I am leading the team developing the avatar tracking system for OpenARK (Open Source Augmented Reality Kit) at the FHL Vive center. You may find the latest development version in the <a href="https://github.com/sxyu/smplsynth">smplsynth</a> repository, which may eventually be integrated into OpenARK itself. The system is based on nonlinear programming using the SMPL model and a Random Forest for segmentation. I have also built a number of utilities for working with the SMPL model in C++.
+
+                <div>
+                <img src="img/avatar.jpg" alt="Avatar Tracking Demo" class="img-fluid">
+                </div>
+            <li>
+                I worked on the hand detection module for
+                <a href="https://github.com/augcog/OpenARK">OpenARK</a>: Open Augmented Reality Kit which is a simple system using an SVM and convex hull to extract hand keypoints.
+                <div>
+                <img src="img/vrdemo.jpg" alt="Cloud-based Hand Detection Demo" class="img-fluid">
+                </div>
+            <li>
+                <a href="https://github.com/sxyu/Quaternion-SR-UKF">Quaternion SRUKF</a> is a modern C++ implementation of Square Root Unscented Kalman Filter with support for quaternion vectors.
+            <li>
+                <a href="https://github.com/sxyu/FMM">FMM</a> is a C++ implementation of the Fast Marching Method in 2D for image segmentation.
+            <li>
+                <a href="https://github.com/sxyu/watplot">watplot</a> is a fast interactive visualization system for <em>SETI: Breakthrough Listen</em> radio telescope data written in C++.
+            <li>
+                I built the <a href="http://seti.berkeley.edu/opendata">Berkeley SETI Open Data Archive</a>, a modern web app for the public to access SETI data.
+            <li>
+                I did some work on deep-learning based <a href="https://github.com/yunfanz/AnomalyD">anomaly detection on SETI data</a>
+            <li>
+                Bacon2, a Python C++ extension, is a system for running the Hog Contest in CS 61A (the code is now private to prevent students from taking advantage of it). This is the successor to Bacon, which I created previously for the same purpose.
+            <li>
+                <a href="https://github.com/sxyu/Jiggly">Jiggly</a> is a Python web app I built for creating and collaborating on jigsaw-like vocabulary puzzles
+            <li>
+                <a href="https://hexane.tk">Hexane</a> is an online scientific calculator I created in high school supporting calculations involving significant figures
+            <li>
+                <a href="https://github.com/sxyu/Cantus-Core">Cantus</a> is a programming language, interpreter, and IDE I created in high school, written in .NET languages. 
+        </ul>
+    </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
+
+</html>
