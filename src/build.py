@@ -10,7 +10,7 @@ def register(path, menu_text):
 register('index.html', 'About')
 register('projects.html', 'Projects')
 register('contests.html', 'Contests + Interests')
-register('teaching.html', 'Teaching')
+#  register('teaching.html', 'Teaching')
 
 for path, page_id in nav:
     with open(os.path.join(dir_path, path), 'r') as f:
