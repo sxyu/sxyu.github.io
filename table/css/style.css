@@ -1,0 +1,342 @@
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+#content {
+    padding: 1em;
+}
+#navbar-attribution {
+    position: absolute;
+    right: 1em;
+    font-size: 0.8em;
+    color: #888
+}
+#sep-table {
+    user-select: none;
+}
+#sep-table-wrapper, #msep-table-wrapper, #mrel-table-wrapper {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+#sep-table-control .custom-file {
+    overflow:hidden
+}
+#sep-table-control button,
+    #sep-table-control .custom-file {
+    margin-top: 0.5em;
+}
+#tip-text-bottom {
+    margin-top: 0.5em;
+}
+.table-wrapper {
+    padding-top: 0.5em
+}
+#sep-table th,
+#sep-table td {
+    font-size: 0.8em;
+    line-height: 1.15em;
+    min-width: 100px;
+    color: #111;
+    padding: 0.5em 0.4em;
+    vertical-align: middle;
+}
+#sep-table-lessthan-sign {
+    position: relative;
+    overflow: hidden;
+    color: #888;
+    font-family: times, serif !important;
+}
+#sep-table .mrel-text {
+    color: #25a;
+}
+#sep-table .msep-text {
+    color: #387;
+}
+#sep-table .mrel-text.tight-bound,
+#sep-table .msep-text.tight-bound,
+#sep-table .func-text.tight-bound,
+#sep-table .func-text.tight-bound a {
+    color: #c2c2c2;
+}
+#sep-table .mrel-text.error-bound,
+#sep-table .msep-text.error-bound,
+#sep-table .func-text.error-bound,
+#sep-table .func-text.error-bound a {
+    color: #ff0000;
+    font-weight: 900;
+}
+#sep-table .func-text {
+    color: #717171;
+}
+#sep-table .sep-table-diagonal {
+    background-color: #888;
+}
+#sep-table .sep-table-select,
+ #mrel-table .mrel-table-select,
+ #msep-table .msep-table-select {
+    background-color: #ff7;
+}
+ #mrel-table .mrel-table-tight {
+    color: #929292;
+}
+#sep-table .sep-table-inspect {
+    background-color: #99eabb;
+}
+#sep-table .sep-table-inspect-path {
+    background-color: #bbffaa;
+}
+#sep-table .sep-table-select.sep-table-inspect {
+    background-color: #aaff77;
+}
+#sep-table .sep-table-select.sep-table-inspect-path {
+    background-color: #eeff55;
+}
+#mrel-table td, #mrel-table th,
+#msep-table td, #msep-table th {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-size: 0.8em;
+    vertical-align: middle;
+}
+#mrel-table .mrel-table-useless {
+    background-color: #fcc
+}
+#mrel-table .mrel-table-useless .delete {
+    color: #f00;
+}
+#mrel-add-error,
+#msep-add-error,
+#msep-popup-error,
+#import-error {
+    color: #f55;
+    position:relative;
+    top: 0.5em;
+}
+.table-action {
+    cursor: pointer
+}
+.measure {
+    font-family: times, serif !important;
+    font-weight: 500
+}
+.measure-deg-tilde {
+    position: absolute;
+    transform: translate(0.55em, -3px) scale(2.5,1)
+}
+
+#popup {
+    display: none;
+    background: rgba(240, 240, 240, 0.9);
+    padding: 1em;
+    position: absolute;
+    min-width: 400px;
+    z-index: 100;
+    max-width: 700px;
+}
+
+#popup-close-btn {
+    color: #222;
+    position: absolute;
+    text-align:center;
+    right: 1px;
+    top: 1px;
+    cursor: pointer;
+    padding: 2px;
+}
+
+#popup .popup-heading {
+    text-transform: uppercase;
+    font-size: 0.6em;
+}
+
+#popup .popup-heading-next {
+    margin-top: 1.5em;
+}
+
+#popup .popup-func {
+    font-size: 0.9em;
+    padding: 0;
+}
+
+#popup .popup-func-info {
+    font-size: 0.8em;
+    margin-top: -2px;
+    padding: 0 0 0.3em 0;
+    color: #555;
+    line-height: 1.15;
+}
+
+#popup .popup-attrib {
+    font-size: 12px;
+}
+
+#confirm-modal {
+    display:none;
+    background: rgba(245, 245, 245, 0.6);
+    position: fixed;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    z-index: 1000
+}
+
+#confirm-modal-inner {
+    background: rgba(240, 240, 240, 0.95);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    padding: 1em;
+    transform: translate(-50%, -50%);
+    min-width: 500px;
+}
+
+#confirm-modal-close-btn {
+    color: #222;
+    position: absolute;
+    text-align:center;
+    right: 1px;
+    top: 1px;
+    cursor: pointer;
+    padding: 2px;
+}
+
+#confirm-modal-inner > div {
+    margin-top: 0.5em;
+}
+
+tr, td {
+    transition: all 0.6s ease
+}
+
+.table-section {
+    padding-top: 0.8em;
+}
+.form-section {
+    padding-top: 1.0em;
+    border-left: 5px solid #333;
+    transition: border-left 0.4s
+    position: relative;
+}
+.form-section.editing {
+    border-left: 10px solid #007bff;
+}
+.table-title h4 {
+    padding-bottom: 0.5em;
+}
+
+#msep-controls {
+    padding-bottom: 1em;
+}
+
+#msep-popup {
+    position: absolute;
+    min-width: 400px;
+    font-size: 0.7em;
+    z-index: 100;
+    padding: 1em 1.5em;
+    background: rgba(240, 240, 240, 0.9);
+    display: none;
+    line-height: 1.1;
+}
+#msep-popup-close-btn {
+    color: #222;
+    position: absolute;
+    text-align:center;
+    right: 1px;
+    top: 1px;
+    cursor: pointer;
+    padding: 2px;
+}
+#msep-popup button {
+    font-size: 1.0em;
+}
+#msep-popup-same-label {
+    position: relative;
+    top: 6px;
+    left: 4px;
+}
+
+#msep-popup-measure {
+    font-size: 1.5em;
+    display: block;
+}
+
+#msep-popup .row {
+    position: relative;
+}
+
+.msep-measure-cell {
+    user-select: none;
+}
+
+table .actions-column {
+    min-width: 97px;
+}
+
+ @media only screen and (max-width: 1250px) {
+     #sep-table-wrapper, #msep-table-wrapper, #mrel-table-wrapper {
+         overflow: auto;
+     }
+     #sep-table th,
+     #sep-table td {
+         font-size: 0.75em;
+         line-height: 1.1em;
+         min-width: 50px;
+         padding: 0.21em;
+         vertical-align: top;
+     }
+     #mrel-table td, #mrel-table th,
+     #msep-table td, #msep-table th {
+         padding: 0.21em;
+         font-size: 0.75em;
+         line-height: 1.1em;
+     }
+ }
+
+ @media only screen and (max-width: 720px) {
+     #navbar-attribution {
+         position: static;
+         right: 1em;
+         font-size: 0.8em;
+         color: #888
+     }
+     #sep-table th,
+     #sep-table td {
+         font-size: 0.7em;
+         line-height: 1.05em;
+         padding: 0.2em;
+         vertical-align: top;
+     }
+     #mrel-table td, #mrel-table th,
+     #msep-table td, #msep-table th {
+         padding: 0.2em;
+         font-size: 0.7em;
+         line-height: 1.05em;
+     }
+     #mrel-table .material-icons,
+     #msep-table .material-icons {
+         font-size: 1.4em;
+     }
+     #popup .popup-func-info {
+         font-size: 0.7em;
+     }
+     #popup .popup-func {
+         font-size: 0.8em;
+     }
+     #confirm-modal-inner {
+         min-width: 85%;
+     }
+     #msep-popup {
+         min-width: 85%;
+     }
+     a.table-action {
+         padding: 3px;
+     }
+     table .actions-column {
+         min-width: 25px;
+     }
+ }

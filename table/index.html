@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Boolean Function Complexity Measures Table</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <body>
+        <div class="wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand">Boolean Function Complexity Measures</a>
+                <div id="navbar-attribution" class="my-2 my-lg-0">
+                    <span>&copy; Alex Yu 2019; adapted from <a href="https://arxiv.org/abs/1511.01937">ABDK16</a></span>
+                </div>
+            </nav>
+            <div id="popup">
+                <span id="popup-mrel-text"></span>
+                <a id="popup-close-btn"><i class="material-icons">close</i></a>
+            </div>
+
+            <div id="confirm-modal" class="confirm-modal-cancel">
+                <div id="confirm-modal-inner">
+                    <span id="confirm-modal-alert-text"></span>
+                    <a id="confirm-modal-close-btn" class="confirm-modal-cancel"><i class="material-icons">close</i></a>
+                    <div>
+                        <div class="btn-group" role="group">
+                            <button type="button" id="confirm-modal-yes-btn" class="btn btn-danger">Yes</button>
+                            <button type="button" id="confirm-modal-no-btn" class="btn btn-primary confirm-modal-cancel">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content">
+                <div class="container-fluid">
+                    <div class="table-section">
+                        <div class="row">
+                            <div class="col-sm-12" id="tip-text-top">
+                                <p><strong>Legend.</strong> X Y in row M, column N: for all f, M(f) = O(N(f)<sup>X</sup>) and exists f, M(f) = O(N(f)<sup>Y</sup>).<br/>
+                                <strong>Tip.</strong> Click a cell to view more information including how the tightest relation was obtained and references.</p>
+                            </div>
+                        </div>
+                        <div class="table-wrapper"  id="sep-table-wrapper">
+                            <table id="sep-table" class="table table-bordered"></table>
+                        </div>
+                        <div class="row" id="sep-table-control">
+                            <div class="col-sm-4">
+                                <div class="btn-group" role="group">
+                                    <button type="button" id="clear-btn" class="btn btn-danger">Clear</button>
+                                    <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
+                                    <button type="button" id="export-btn" class="btn btn-primary">Export</button>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="btn-group" role="group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="import-file" aria-describedby="fileHelp">
+                                        <label class="custom-file-label" for="import-file">
+                                            Select json file to import ...
+                                        </label>
+                                    </div>
+                                    <button type="button" id="import-btn" class="btn btn-success">Import</button>
+                                </div>
+                            </div>
+                            <div>
+                                <span id="import-error"></span>
+                            </div>
+                        </div>
+                        <div id="tip-text-bottom">
+                            Any modifications below will be saved, but on your computer only.
+                            To contribute, please use the &quot;export&quot; button above and send the file downloaded to sxyu at berkeley.edu.<br>
+                            To add custom complexity measures or change the order of measures and functions, please edit the exported JSON file (which should be human-readable) directly, then import it using the file selector above. The GUI for editing measures is not ready yet.
+                        </div>
+                    </div>
+                    <div class="table-section">
+                        <div class="table-wrapper" id="mrel-table-wrapper">
+                            <div class="table-title">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <h4>Relations</h4>
+                                        <p>Known asymptotic relations between measures. Click a row below to see cells using the relation in the table above. A gray row indicates the bound is tight, while red indicates the bound is superseded by another or contradicts a separation.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <table id="mrel-table" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>M1</th>
+                                        <th>M2</th>
+                                        <th>M1 = &Otilde;(M2<sup>X</sup>)</th>
+                                        <th>Description</th>
+                                        <th>Attribution</th>
+                                        <th class="actions-column"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mrel-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="mrel-add-section" class="row form-section">
+                        <form class="col-sm-12" id="mrel-form">
+                            <h5 id="mrel-add-text">Add Relation: M1 = &Otilde;(M2<sup>X</sup>)</h5>
+                            <div class="form-group row">
+                                <div class="col-sm-3">
+                                    <label for="mrel-m1"> M1</label>
+                                    <select class="form-control measure-selector" id="mrel-m1"></select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label for="mrel-m2">M2</label>
+                                    <select class="form-control measure-selector" id="mrel-m2"></select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label for="mrel-expon">Leading exponent (X)</label>
+                                    <input type="number" step="0.000001" class="form-control" id="mrel-expon" value="1">
+                                </div>
+                                <div class="col-sm-3">
+                                    <label for="mrel-desc">Description (Optional)</label>
+                                    <textarea class="form-control" id="mrel-desc" placeholder="Describe relation proof briefly"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-6">
+                                    <label for="mrel-attrib">Attributions (Optional)</label>
+                                    <textarea class="form-control" id="mrel-attrib" placeholder="Attributions for result (e.g. KT13; If multiple, put one per line). Leave empty if trivial."></textarea>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="mrel-urls">URLs for Attributions (Optional)</label>
+                                    <textarea class="form-control" id="mrel-urls" placeholder="Put a URL corresponding to each attribution, one per line in the same order, at most as many lines as attribution items (e.g. https://eccc.weizmann.ac.il/report/2013/168)"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-2">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" id="mrel-add-btn" class="btn btn-primary">Add</button>
+                                        <button type="button" id="mrel-cancel-btn" class="btn btn-danger">Cancel</button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span id="mrel-add-error"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="table-section">
+                        <div class="table-wrapper" id="msep-table-wrapper">
+                            <div class="table-title">
+                                <h4>Separations</h4>
+                                <p>Asymptotic complexity measure of functions (n<sup>X</sup>). Click any cell in a complexity measure column to edit the known lower/upper bounds of that measure for the function. Click the edit icon on the rightmost column to edit description and attributions.
+                                </p>
+                                <div class="btn-group" role="group" id="msep-controls">
+                                    <button type="button" id="msep-complete-all-btn" class="btn btn-secondary"
+                                                                                     title="Autofill all measures for each function i.e. try to fill in other complexity measures based on existing information and known relations between measures. E.g. if known R(f) > n^0.5 then automatically adds R0(f) > n^0.5">Autofill all</button>
+                                </div>
+                            </div>
+                            <table id="msep-table" class="table table-bordered">
+                                <thead>
+                                    <tr id="msep-table-header-row">
+                                    </tr>
+                                </thead>
+                                <tbody id="msep-table-body"></tbody>
+                            </table>
+                            <div id="msep-popup">
+                                <h6>Edit complexity of: <span id="msep-popup-func-name">&and;</span></h6>
+                                <p>Leave box blank below to indicate no upper bound or lower bound.</p>
+                                <div class="form-group row">
+                                    <div class="col-sm-2">
+                                        <span id="msep-popup-measure" class="measure">RC</span>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <label for="msep-popup-lb" title="Leave blank if unknown">Lower bound on exponent</label>
+                                        <input type="text" class="form-control" id="msep-popup-lb">
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <label for="msep-popup-ub" title="Leave blank if unknown">
+                                            Upper bound on exponent
+                                        </label>
+                                        <input type="text" class="form-control" id="msep-popup-ub" disabled>
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" id="msep-popup-same" class="form-check-input">
+                                                <span id="msep-popup-same-label">Same as lower bound</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a id="msep-popup-close-btn" class="msep-popup-cancel"><i class="material-icons">close</i></a>
+                                <div class="form-group row">
+                                    <div class="col-sm-4">
+                                        <div class="btn-group" role="group">
+                                            <button type="button" id="msep-popup-update-btn" class="btn btn-primary">Update</button>
+                                            <button type="button" id="msep-popup-auto-btn" class="btn btn-secondary" 
+                                                                                           title="Try to automatically bound this complexity measures based on other measures and known relations">Auto</button>
+                                            <button type="button" id="msep-popup-cancel-btn" class="btn btn-danger msep-popup-cancel">Cancel</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <span id="msep-popup-error"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row form-section">
+                        <form class="col-sm-12" id="msep-form">
+                            <h5 id="msep-add-text">Add Function</h5>
+                            <div class="form-group row">
+                                <div class="col-sm-3">
+                                    <label for="msep-name">Name (Supports HTML)</label>
+                                    <input type="text" class="form-control" id="msep-name" value="" placeholder="Identifier e.g. &amp;and;&amp;#x2218;&amp;or;">
+                                </div>
+                                <div class="col-sm-3">
+                                    <label for="msep-desc">Description (Optional)</label>
+                                    <textarea class="form-control" id="msep-desc" placeholder="Describe function briefly, possibly some proof"></textarea>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label for="msep-attrib">Attributions (Optional)</label>
+                                    <textarea class="form-control" id="msep-attrib" placeholder="Attributions for function or important results (e.g. ABB+15; If multiple, put one per line)"></textarea>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label for="msep-urls">URLs for Attributions (Optional)</label>
+                                    <textarea class="form-control" id="msep-urls" placeholder="Put a URL corresponding to each attribution, one per line in the same order, at most as many lines as attribution items"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-2">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" id="msep-add-btn" class="btn btn-primary">Add</button>
+                                        <button type="button" id="msep-cancel-btn" class="btn btn-danger">Cancel</button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span id="msep-add-error"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script src="js/main.js"></script>
+    </body>
