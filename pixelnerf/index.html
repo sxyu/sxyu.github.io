@@ -62,14 +62,14 @@
 		<div class="mx-auto">
             <ul class="nav">
 				<li class="nav-item text-center">
-					<a href="https://arxiv.org" class="nav-link">
+					<a class="nav-link disabled">
 					<svg style="width:24px;height:24px" viewBox="0 0 24 24">
 						<path fill="currentColor" d="M16 0H8C6.9 0 6 .9 6 2V18C6 19.1 6.9 20 8 20H20C21.1 20 22 19.1 22 18V6L16 0M20 18H8V2H15V7H20V18M4 4V22H20V24H4C2.9 24 2 23.1 2 22V4H4M10 10V12H18V10H10M10 14V16H15V14H10Z" />
 					</svg><br>
 					Paper
 					</a>
 				<li class="nav-item text-center">
-					<a href="https://github.com/sxyu/pixel-nerf" class="nav-link">
+					<a href="https://github.com/sxyu/pixel-nerf" class="nav-link disabled">
 						<svg style="width:24px;height:24px" viewBox="0 0 24 24">
 							<path fill="currentColor" d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
 						</svg><br>
@@ -231,7 +231,7 @@
 							</svg>
 						</div>
 						<div class="col-4">
-							<img src="img/teaser/dtu_outputs.gif" class="img-responsive">
+							<img src="img/teaser/dtu_outputs_sm.gif" class="img-responsive">
 						</div>
 					</div> <!-- row -->
 				</div>
@@ -252,7 +252,9 @@
 	<div class="row mb-4" id="overview-video">
 		<div class="col-md-8 mx-auto grey-container">
 			<h4 class="pb-2">Narrated Overview</h4>
-			<iframe width="100%" height="392" src="https://www.youtube.com/embed/voebZx7f32g" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<div class="embed-responsive embed-responsive-16by9">
+				<iframe class="embed-responsive-item" src="https://www.youtube.com/embed/voebZx7f32g" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			</div>
 		</div>
 	</div>
 	<div class="row mb-3">
@@ -311,22 +313,36 @@ Nevertheless, in terms of image metrics, we significantly outperform existing me
 			SRN performs extremely poorly here due to the lack of a consistent canonical space.
 			</p>
 			<div class="row pt-1 pb-1">
-				<div class="col">
+				<div class="col-6">
 					<div class="row gif-label">
 						<div class="col-6">2 Input Views</div>
 						<div class="col-3">SRN</div>
 						<div class="col-3"><strong>pixelNeRF</strong></div>
 					</div>
-					<img src="img/gif/two_000.gif" class="img-responsive" alt="two object results animated">
+					<div class="row no-gutters">
+						<div class="col">
+							<img src="img/gif/two_000_input.jpg" class="img-responsive" alt="two object input">
+						</div>
+						<div class="col">
+							<img src="img/gif/two_000_sm.gif" class="img-responsive" alt="two object results animated">
+						</div>
+					</div>
 				</div>
-				<div class="col">
+				<div class="col-6">
 					<div class="row gif-label">
 						<div class="col-3"></div>
 						<div class="col-3">1 Input View</div>
 						<div class="col-3">SRN</div>
 						<div class="col-3"><strong>pixelNeRF</strong></div>
 					</div>
-					<img src="img/gif/two_001.gif" class="img-responsive" alt="two object results animated">
+					<div class="row no-gutters">
+						<div class="col-6">
+							<img src="img/gif/two_001_input.jpg" class="img-responsive" alt="two object input">
+						</div>
+						<div class="col-6">
+							<img src="img/gif/two_001_sm.gif" class="img-responsive" alt="two object results animated">
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -344,7 +360,14 @@ Nevertheless, in terms of image metrics, we significantly outperform existing me
 					<div class="col-9">3 Input Views</div>
 					<div class="col-3"><strong>pixelNeRF</strong></div>
 				</div>
-				<img src="img/gif/dtu.gif" class="img-responsive" alt="DTU results animated">
+				<div class="row gif-label">
+					<div class="col-9">
+					<img src="img/gif/dtu_inputs.jpg" class="img-responsive" alt="DTU 3 input images">
+					</div>
+					<div class="col-3">
+					<img src="img/gif/dtu.gif" class="img-responsive" alt="DTU results animated">
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
