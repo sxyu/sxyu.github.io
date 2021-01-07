@@ -1,580 +1,580 @@
-<!DOCTYPE html>
+<DOCTYPE html>
 
-<title>pixelNeRF: Neural Radiance Fields from One or Few Images</title>
+    <title>pixelNeRF: Neural Radiance Fields from One or Few Images</title>
 
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-21408087-2"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-21408087-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
 
-    gtag('config', 'UA-21408087-2');
-</script>
+        gtag('config', 'UA-21408087-2');
+    </script>
 
-<meta charset="utf-8">
+    <meta charset="utf-8">
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-<link rel="stylesheet" href="css/style.css">
-<link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
 
-<style>
-    /* greek-ext */
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 300;
-        font-display: swap;
-        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fCBc4EsA.woff2) format('woff2');
-        unicode-range: U+1F00-1FFF;
-    }
+    <style>
+        /* greek-ext */
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 300;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fCBc4EsA.woff2) format('woff2');
+            unicode-range: U+1F00-1FFF;
+        }
 
-    /* greek */
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 300;
-        font-display: swap;
-        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fBxc4EsA.woff2) format('woff2');
-        unicode-range: U+0370-03FF;
-    }
+        /* greek */
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 300;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fBxc4EsA.woff2) format('woff2');
+            unicode-range: U+0370-03FF;
+        }
 
-    /* latin-ext */
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 300;
-        font-display: swap;
-        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fChc4EsA.woff2) format('woff2');
-        unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
-    }
+        /* latin-ext */
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 300;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fChc4EsA.woff2) format('woff2');
+            unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+        }
 
-    /* latin */
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 300;
-        font-display: swap;
-        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fBBc4.woff2) format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-    }
+        /* latin */
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 300;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fBBc4.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
 
-    /* greek-ext */
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu7mxKOzY.woff2) format('woff2');
-        unicode-range: U+1F00-1FFF;
-    }
+        /* greek-ext */
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu7mxKOzY.woff2) format('woff2');
+            unicode-range: U+1F00-1FFF;
+        }
 
-    /* greek */
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4WxKOzY.woff2) format('woff2');
-        unicode-range: U+0370-03FF;
-    }
+        /* greek */
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4WxKOzY.woff2) format('woff2');
+            unicode-range: U+0370-03FF;
+        }
 
-    /* latin-ext */
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu7GxKOzY.woff2) format('woff2');
-        unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
-    }
+        /* latin-ext */
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu7GxKOzY.woff2) format('woff2');
+            unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+        }
 
-    /* latin */
-    @font-face {
-        font-family: 'Roboto';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4mxK.woff2) format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-    }
-</style>
+        /* latin */
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4mxK.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+    </style>
 
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<body>
-    <div class="container">
-        <div class="row mb-2 mt-4" id="paper-title">
-            <h1 class="col-md-12 text-center">
-                pixelNeRF
-            </h1>
-            <h3 class="col-md-12 text-center">
-                Neural Radiance Fields from One or Few Images
-            </h3>
-            <h3 class="col-md-12 text-center">
-                <small title="Note: This is a joke">IEEE International Conference on Neural Radiance Fields (ICNeRF)</small>
-            </h3>
-        </div>
-
-        <div class="row" id="authors">
-            <div class="mx-auto text-center">
-                <ul class="list-inline mb-0">
-                    <li class="list-inline-item">
-                        <a href="https://alexyu.net">Alex Yu</a>
-
-                    <li class="list-inline-item">
-                        <a href="https://people.eecs.berkeley.edu/~vye/">Vickie Ye</a>
-
-                    <li class="list-inline-item">
-                        <a href="https://www.matthewtancik.com/">Matthew Tancik</a>
-
-                    <li class="list-inline-item">
-                        <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
-                </ul>
-                <p id="institution">
-                    UC Berkeley
-                </p>
+    <body>
+        <div class="container">
+            <div class="row mb-2 mt-4" id="paper-title">
+                <h1 class="col-md-12 text-center">
+                    pixelNeRF
+                </h1>
+                <h3 class="col-md-12 text-center">
+                    Neural Radiance Fields from One or Few Images
+                </h3>
+                <h3 class="col-md-12 text-center">
+                    <small title="Note: This is a joke">IEEE International Conference on Neural Radiance Fields (ICNeRF)</small>
+                </h3>
             </div>
-        </div>
-        <div class="row mb-2" id="links">
-            <div class="mx-auto">
-                <ul class="nav">
-                    <li class="nav-item text-center">
-                        <a href="http://arxiv.org/abs/2012.02190" class="nav-link">
-                            <svg style="width:48px;height:48px" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M16 0H8C6.9 0 6 .9 6 2V18C6 19.1 6.9 20 8 20H20C21.1 20 22 19.1 22 18V6L16 0M20 18H8V2H15V7H20V18M4 4V22H20V24H4C2.9 24 2 23.1 2 22V4H4M10 10V12H18V10H10M10 14V16H15V14H10Z" />
-                            </svg><br>
-                            Paper
-                        </a>
-                    <li class="nav-item text-center">
-                        <a href="https://github.com/sxyu/pixel-nerf" class="nav-link disabled">
-                            <svg style="width:48px;height:48px" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
-                            </svg><br>
-                            Code (WIP)
-                        </a>
-                    <li class="nav-item text-center">
-                        <a href="https://drive.google.com/drive/folders/1PsT3uKwqHHD2bEEHkIXB99AlIjtmrEiR?usp=sharing" class="nav-link">
-                            <svg style="width:48px;height:48px" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M12,3C7.58,3 4,4.79 4,7C4,9.21 7.58,11 12,11C16.42,11 20,9.21 20,7C20,4.79 16.42,3 12,3M4,9V12C4,14.21 7.58,16 12,16C16.42,16 20,14.21 20,12V9C20,11.21 16.42,13 12,13C7.58,13 4,11.21 4,9M4,14V17C4,19.21 7.58,21 12,21C16.42,21 20,19.21 20,17V14C20,16.21 16.42,18 12,18C7.58,18 4,16.21 4,14Z" />
-                            </svg><br>
-                            Data
-                        </a>
-                </ul>
-            </div>
-        </div>
-        <div class="row mb-3 pt-2">
-            <div class="col-md-8 mx-auto">
-                <div id="dynamic-teaser">
-                    <div class="row" id="teaser-one">
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="row gif-label">
-                                        <div class="col-5">Input</div>
-                                        <div class="col-2"></div>
-                                        <div class="col-5"><strong>pixelNeRF</strong></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <img src="img/teaser/single_00_input.png" class="img-responsive">
-                                        </div>
-                                        <div class="col-2 io-arrow">
-                                            <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                                <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
-                                            </svg>
-                                        </div>
-                                        <div class="col-5">
-                                            <img src="img/teaser/single_00.gif" class="img-responsive">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="row gif-label">
-                                        <div class="col-5">Input</div>
-                                        <div class="col-2"></div>
-                                        <div class="col-5"><strong>pixelNeRF</strong></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <img src="img/teaser/single_01_input.png" class="img-responsive">
-                                        </div>
-                                        <div class="col-2 io-arrow">
-                                            <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                                <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
-                                            </svg>
-                                        </div>
-                                        <div class="col-5">
-                                            <img src="img/teaser/single_01.gif" class="img-responsive">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="row gif-label">
-                                        <div class="col-5">Input</div>
-                                        <div class="col-2"></div>
-                                        <div class="col-5"><strong>pixelNeRF</strong></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <img src="img/teaser/single_02_input.png" class="img-responsive">
-                                        </div>
-                                        <div class="col-2 io-arrow">
-                                            <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                                <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
-                                            </svg>
-                                        </div>
-                                        <div class="col-5">
-                                            <img src="img/teaser/single_02.gif" class="img-responsive">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="row gif-label">
-                                        <div class="col-5">Input</div>
-                                        <div class="col-2"></div>
-                                        <div class="col-5"><strong>pixelNeRF</strong></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-5">
-                                            <img src="img/teaser/single_03_input.png" class="img-responsive">
-                                        </div>
-                                        <div class="col-2 io-arrow">
-                                            <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                                <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
-                                            </svg>
-                                        </div>
-                                        <div class="col-5">
-                                            <img src="img/teaser/single_03.gif" class="img-responsive">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> <!-- row -->
 
-                    <div class="row pt-3" id="teaser-two">
-                        <div class="col-sm-6">
-                            <div class="row gif-label">
-                                <div class="col-6">2 Input Views</div>
-                                <div class="col-3"></div>
-                                <div class="col-3"><strong>pixelNeRF</strong></div>
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <img src="img/teaser/two_00_input.jpg" class="img-responsive">
+            <div class="row" id="authors">
+                <div class="mx-auto text-center">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item">
+                            <a href="https://alexyu.net">Alex Yu</a>
+
+                        <li class="list-inline-item">
+                            <a href="https://people.eecs.berkeley.edu/~vye/">Vickie Ye</a>
+
+                        <li class="list-inline-item">
+                            <a href="https://www.matthewtancik.com/">Matthew Tancik</a>
+
+                        <li class="list-inline-item">
+                            <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
+                    </ul>
+                    <p id="institution">
+                        UC Berkeley
+                    </p>
+                </div>
+            </div>
+            <div class="row mb-2" id="links">
+                <div class="mx-auto">
+                    <ul class="nav">
+                        <li class="nav-item text-center">
+                            <a href="http://arxiv.org/abs/2012.02190" class="nav-link">
+                                <svg style="width:48px;height:48px" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M16 0H8C6.9 0 6 .9 6 2V18C6 19.1 6.9 20 8 20H20C21.1 20 22 19.1 22 18V6L16 0M20 18H8V2H15V7H20V18M4 4V22H20V24H4C2.9 24 2 23.1 2 22V4H4M10 10V12H18V10H10M10 14V16H15V14H10Z" />
+                                </svg><br>
+                                Paper
+                            </a>
+                        <li class="nav-item text-center">
+                            <a href="https://github.com/sxyu/pixel-nerf" class="nav-link">
+                                <svg style="width:48px;height:48px" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+                                </svg><br>
+                                Code
+                            </a>
+                        <li class="nav-item text-center">
+                            <a href="https://drive.google.com/drive/folders/1PsT3uKwqHHD2bEEHkIXB99AlIjtmrEiR?usp=sharing" class="nav-link">
+                                <svg style="width:48px;height:48px" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12,3C7.58,3 4,4.79 4,7C4,9.21 7.58,11 12,11C16.42,11 20,9.21 20,7C20,4.79 16.42,3 12,3M4,9V12C4,14.21 7.58,16 12,16C16.42,16 20,14.21 20,12V9C20,11.21 16.42,13 12,13C7.58,13 4,11.21 4,9M4,14V17C4,19.21 7.58,21 12,21C16.42,21 20,19.21 20,17V14C20,16.21 16.42,18 12,18C7.58,18 4,16.21 4,14Z" />
+                                </svg><br>
+                                Data
+                            </a>
+                    </ul>
+                </div>
+            </div>
+            <div class="row mb-3 pt-2">
+                <div class="col-md-8 mx-auto">
+                    <div id="dynamic-teaser">
+                        <div class="row" id="teaser-one">
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="row gif-label">
+                                            <div class="col-5">Input</div>
+                                            <div class="col-2"></div>
+                                            <div class="col-5"><strong>pixelNeRF</strong></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-5">
+                                                <img src="img/teaser/single_00_input.png" class="img-responsive">
+                                            </div>
+                                            <div class="col-2 io-arrow">
+                                                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
+                                                </svg>
+                                            </div>
+                                            <div class="col-5">
+                                                <img src="img/teaser/single_00.gif" class="img-responsive">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="row gif-label">
+                                            <div class="col-5">Input</div>
+                                            <div class="col-2"></div>
+                                            <div class="col-5"><strong>pixelNeRF</strong></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-5">
+                                                <img src="img/teaser/single_01_input.png" class="img-responsive">
+                                            </div>
+                                            <div class="col-2 io-arrow">
+                                                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
+                                                </svg>
+                                            </div>
+                                            <div class="col-5">
+                                                <img src="img/teaser/single_01.gif" class="img-responsive">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-3 io-arrow">
-                                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                        <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
-                                    </svg>
-                                </div>
-                                <div class="col-3">
-                                    <img src="img/teaser/two_00.gif" class="img-responsive">
-                                </div>
                             </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="row gif-label">
-                                <div class="col-6">2 Input Views</div>
-                                <div class="col-3"></div>
-                                <div class="col-3"><strong>pixelNeRF</strong></div>
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <img src="img/teaser/two_01_input.jpg" class="img-responsive">
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="row gif-label">
+                                            <div class="col-5">Input</div>
+                                            <div class="col-2"></div>
+                                            <div class="col-5"><strong>pixelNeRF</strong></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-5">
+                                                <img src="img/teaser/single_02_input.png" class="img-responsive">
+                                            </div>
+                                            <div class="col-2 io-arrow">
+                                                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
+                                                </svg>
+                                            </div>
+                                            <div class="col-5">
+                                                <img src="img/teaser/single_02.gif" class="img-responsive">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="row gif-label">
+                                            <div class="col-5">Input</div>
+                                            <div class="col-2"></div>
+                                            <div class="col-5"><strong>pixelNeRF</strong></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-5">
+                                                <img src="img/teaser/single_03_input.png" class="img-responsive">
+                                            </div>
+                                            <div class="col-2 io-arrow">
+                                                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
+                                                </svg>
+                                            </div>
+                                            <div class="col-5">
+                                                <img src="img/teaser/single_03.gif" class="img-responsive">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-3 io-arrow">
-                                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                        <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
-                                    </svg>
-                                </div>
-                                <div class="col-3">
-                                    <img src="img/teaser/two_01.gif" class="img-responsive">
-                                </div>
-                            </div>
-                        </div>
-                    </div> <!-- row -->
-                    <div id="teaser-dtu" class="pt-3 pb-4">
-                        <div class="row gif-label pb-1 no-gutters">
-                            <div class="col-6">3 Input Views</div>
-                            <div class="col-2"></div>
-                            <div class="col-2"><strong>pixelNeRF</strong></div>
-                            <div class="col-2">3-view NeRF</div>
-                        </div>
-                        <div class="row no-gutters">
-                            <div class="col-6">
-                                <img src="img/teaser/dtu_inputs.jpg" class="img-responsive">
-                            </div>
-                            <div class="col-2 io-arrow">
-                                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
-                                </svg>
-                            </div>
-                            <div class="col-4">
-                                <img src="img/teaser/dtu_outputs_sm.gif" class="img-responsive">
                             </div>
                         </div> <!-- row -->
-                    </div>
-                </div> <!-- dynamic-teaser -->
-                <!-- <img id="teaser" src="img/teaser.png" class="img-responsive" alt="teaser figure"> -->
-                <p class="text-justify">
-                    We propose pixelNeRF, a learning framework that predicts a continuous neural scene representation conditioned on
-                    one or few input images.
-                    The existing approach for
-                    constructing neural radiance fields&nbsp;<a href="https://www.matthewtancik.com/nerf">[Mildenhall et al. 2020]</a>
-                    involves optimizing the representation to every scene independently, requiring many calibrated views and significant compute time.
-                    We take a step towards resolving these shortcomings
-                    by introducing an architecture that conditions a NeRF on image inputs in a fully convolutional manner. This allows the network to be trained across multiple scenes to learn a scene prior, enabling it to perform novel view synthesis in a feed-forward manner from a sparse set of views (as few as one).
-                </p>
 
-            </div>
-        </div>
-        <div class="row mb-4" id="overview-video">
-            <div class="col-md-8 mx-auto grey-container">
-                <h4 class="pb-2">Narrated Overview</h4>
-                <div class="embed-responsive embed-responsive-16by9">
-                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/voebZx7f32g" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <div class="row pt-3" id="teaser-two">
+                            <div class="col-sm-6">
+                                <div class="row gif-label">
+                                    <div class="col-6">2 Input Views</div>
+                                    <div class="col-3"></div>
+                                    <div class="col-3"><strong>pixelNeRF</strong></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <img src="img/teaser/two_00_input.jpg" class="img-responsive">
+                                    </div>
+                                    <div class="col-3 io-arrow">
+                                        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="col-3">
+                                        <img src="img/teaser/two_00.gif" class="img-responsive">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row gif-label">
+                                    <div class="col-6">2 Input Views</div>
+                                    <div class="col-3"></div>
+                                    <div class="col-3"><strong>pixelNeRF</strong></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <img src="img/teaser/two_01_input.jpg" class="img-responsive">
+                                    </div>
+                                    <div class="col-3 io-arrow">
+                                        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="col-3">
+                                        <img src="img/teaser/two_01.gif" class="img-responsive">
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- row -->
+                        <div id="teaser-dtu" class="pt-3 pb-4">
+                            <div class="row gif-label pb-1 no-gutters">
+                                <div class="col-6">3 Input Views</div>
+                                <div class="col-2"></div>
+                                <div class="col-2"><strong>pixelNeRF</strong></div>
+                                <div class="col-2">3-view NeRF</div>
+                            </div>
+                            <div class="row no-gutters">
+                                <div class="col-6">
+                                    <img src="img/teaser/dtu_inputs.jpg" class="img-responsive">
+                                </div>
+                                <div class="col-2 io-arrow">
+                                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
+                                    </svg>
+                                </div>
+                                <div class="col-4">
+                                    <img src="img/teaser/dtu_outputs_sm.gif" class="img-responsive">
+                                </div>
+                            </div> <!-- row -->
+                        </div>
+                    </div> <!-- dynamic-teaser -->
+                    <!-- <img id="teaser" src="img/teaser.png" class="img-responsive" alt="teaser figure"> -->
+                    <p class="text-justify">
+                        We propose pixelNeRF, a learning framework that predicts a continuous neural scene representation conditioned on
+                        one or few input images.
+                        The existing approach for
+                        constructing neural radiance fields&nbsp;<a href="https://www.matthewtancik.com/nerf">[Mildenhall et al. 2020]</a>
+                        involves optimizing the representation to every scene independently, requiring many calibrated views and significant compute time.
+                        We take a step towards resolving these shortcomings
+                        by introducing an architecture that conditions a NeRF on image inputs in a fully convolutional manner. This allows the network to be trained across multiple scenes to learn a scene prior, enabling it to perform novel view synthesis in a feed-forward manner from a sparse set of views (as few as one).
+                    </p>
+
                 </div>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-8 mx-auto">
-                <p class="text-justify">
-                    Leveraging the volume rendering approach of NeRF, our model can be trained directly from images with no explicit 3D supervision.
-                    We conduct extensive experiments on ShapeNet benchmarks for single image novel view synthesis tasks with held-out objects as well as entire unseen categories.
-                    We further demonstrate the flexibility of pixelNeRF by demonstrating it on multi-object ShapeNet scenes and real scenes from the DTU dataset. In all cases, pixelNeRF outperforms current state-of-the-art baselines for novel view synthesis and single image 3D reconstruction.
-                </p>
-                <img src="img/pipeline.png" class="img-responsive" alt="pipeline">
-            </div>
-        </div>
-        <div class="row mb-4">
-            <div class="col-md-8 mx-auto">
-                <h4>Feed-forward NeRF from One View</h4>
-                <p class="text-justify">
-                    Using multiview image supervision, we train a single pixelNeRF to 13 largest object categories
-                    in ShapeNet in order to perform novel-view synthesis on unseen objects.
-                    Our approach operates in <strong>view-space</strong>&mdash;as opposed to canonical&mdash;and requires <strong>no test-time optimization</strong>.
-                    Nevertheless, in terms of image metrics, we significantly outperform existing methods quantitatively, as shown in the paper.
-                </p>
-                <div class="row pt-1 pb-1">
-                    <div class="col-md-6">
-                        <div class="row gif-label">
-                            <div class="col-2">Input</div>
-                            <div class="col-2">SoftRas</div>
-                            <div class="col-2">DVR</div>
-                            <div class="col-2">SRN</div>
-                            <div class="col-2"><strong>pixelNeRF</strong></div>
-                            <div class="col-2">GT</div>
-                        </div>
-                        <img src="img/gif/shapenet_000.gif" class="img-responsive" alt="shapenet results animated">
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row gif-label">
-                            <div class="col-2">Input</div>
-                            <div class="col-2">SoftRas</div>
-                            <div class="col-2">DVR</div>
-                            <div class="col-2">SRN</div>
-                            <div class="col-2"><strong>pixelNeRF</strong></div>
-                            <div class="col-2">GT</div>
-                        </div>
-                        <img src="img/gif/shapenet_001.gif" class="img-responsive" alt="shapenet results animated">
+            <div class="row mb-4" id="overview-video">
+                <div class="col-md-8 mx-auto grey-container">
+                    <h4 class="pb-2">Narrated Overview</h4>
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/voebZx7f32g" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-8 mx-auto">
-                <h4>Scene-level Representation</h4>
-                <p class="text-justify">
-                    Since our method requires <strong>neither canonical space nor object-level information such as masks</strong>,
-                    it can represent scenes with multiple objects, where a canonical space is unavailable,
-                    without modification.
-                    Our method can also <strong>seemlessly integrate multiple views</strong> at test-time to obtain better results.
-                    SRN performs extremely poorly here due to the lack of a consistent canonical space.
-                </p>
-                <div class="row pt-1 pb-1">
-                    <div class="col-6">
+            <div class="row mb-3">
+                <div class="col-md-8 mx-auto">
+                    <p class="text-justify">
+                        Leveraging the volume rendering approach of NeRF, our model can be trained directly from images with no explicit 3D supervision.
+                        We conduct extensive experiments on ShapeNet benchmarks for single image novel view synthesis tasks with held-out objects as well as entire unseen categories.
+                        We further demonstrate the flexibility of pixelNeRF by demonstrating it on multi-object ShapeNet scenes and real scenes from the DTU dataset. In all cases, pixelNeRF outperforms current state-of-the-art baselines for novel view synthesis and single image 3D reconstruction.
+                    </p>
+                    <img src="img/pipeline.png" class="img-responsive" alt="pipeline">
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-8 mx-auto">
+                    <h4>Feed-forward NeRF from One View</h4>
+                    <p class="text-justify">
+                        Using multiview image supervision, we train a single pixelNeRF to 13 largest object categories
+                        in ShapeNet in order to perform novel-view synthesis on unseen objects.
+                        Our approach operates in <strong>view-space</strong>&mdash;as opposed to canonical&mdash;and requires <strong>no test-time optimization</strong>.
+                        Nevertheless, in terms of image metrics, we significantly outperform existing methods quantitatively, as shown in the paper.
+                    </p>
+                    <div class="row pt-1 pb-1">
+                        <div class="col-md-6">
+                            <div class="row gif-label">
+                                <div class="col-2">Input</div>
+                                <div class="col-2">SoftRas</div>
+                                <div class="col-2">DVR</div>
+                                <div class="col-2">SRN</div>
+                                <div class="col-2"><strong>pixelNeRF</strong></div>
+                                <div class="col-2">GT</div>
+                            </div>
+                            <img src="img/gif/shapenet_000.gif" class="img-responsive" alt="shapenet results animated">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row gif-label">
+                                <div class="col-2">Input</div>
+                                <div class="col-2">SoftRas</div>
+                                <div class="col-2">DVR</div>
+                                <div class="col-2">SRN</div>
+                                <div class="col-2"><strong>pixelNeRF</strong></div>
+                                <div class="col-2">GT</div>
+                            </div>
+                            <img src="img/gif/shapenet_001.gif" class="img-responsive" alt="shapenet results animated">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-8 mx-auto">
+                    <h4>Scene-level Representation</h4>
+                    <p class="text-justify">
+                        Since our method requires <strong>neither canonical space nor object-level information such as masks</strong>,
+                        it can represent scenes with multiple objects, where a canonical space is unavailable,
+                        without modification.
+                        Our method can also <strong>seemlessly integrate multiple views</strong> at test-time to obtain better results.
+                        SRN performs extremely poorly here due to the lack of a consistent canonical space.
+                    </p>
+                    <div class="row pt-1 pb-1">
+                        <div class="col-6">
+                            <div class="row gif-label">
+                                <div class="col-6">2 Input Views</div>
+                                <div class="col-3">SRN</div>
+                                <div class="col-3"><strong>pixelNeRF</strong></div>
+                            </div>
+                            <div class="row no-gutters">
+                                <div class="col">
+                                    <img src="img/gif/two_000_input.jpg" class="img-responsive" alt="two object input">
+                                </div>
+                                <div class="col">
+                                    <img src="img/gif/two_000_sm.gif" class="img-responsive" alt="two object results animated">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="row gif-label">
+                                <div class="col-3"></div>
+                                <div class="col-3">1 Input View</div>
+                                <div class="col-3">SRN</div>
+                                <div class="col-3"><strong>pixelNeRF</strong></div>
+                            </div>
+                            <div class="row no-gutters">
+                                <div class="col-6">
+                                    <img src="img/gif/two_001_input.jpg" class="img-responsive" alt="two object input">
+                                </div>
+                                <div class="col-6">
+                                    <img src="img/gif/two_001_sm.gif" class="img-responsive" alt="two object results animated">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-8 mx-auto">
+                    <h4>Real-world Scenes</h4>
+                    <p class="text-justify">
+                        We show that our method can also conduct wide-baseline view synthesis on more complex real scenes from the <a href="http://roboimagedata.compute.dtu.dk/?page_id=36">DTU MVS</a> dataset,
+                        producing reasonable results when given only 1-3 views at inference time.
+                        Moreover, it is feed-forward without requiring test-time optimization for each scene.
+                    </p>
+                    <div>
                         <div class="row gif-label">
-                            <div class="col-6">2 Input Views</div>
-                            <div class="col-3">SRN</div>
+                            <div class="col-9">3 Input Views</div>
                             <div class="col-3"><strong>pixelNeRF</strong></div>
                         </div>
-                        <div class="row no-gutters">
-                            <div class="col">
-                                <img src="img/gif/two_000_input.jpg" class="img-responsive" alt="two object input">
-                            </div>
-                            <div class="col">
-                                <img src="img/gif/two_000_sm.gif" class="img-responsive" alt="two object results animated">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
                         <div class="row gif-label">
-                            <div class="col-3"></div>
-                            <div class="col-3">1 Input View</div>
-                            <div class="col-3">SRN</div>
-                            <div class="col-3"><strong>pixelNeRF</strong></div>
-                        </div>
-                        <div class="row no-gutters">
-                            <div class="col-6">
-                                <img src="img/gif/two_001_input.jpg" class="img-responsive" alt="two object input">
+                            <div class="col-9">
+                                <img src="img/gif/dtu_inputs.jpg" class="img-responsive" alt="DTU 3 input images">
                             </div>
-                            <div class="col-6">
-                                <img src="img/gif/two_001_sm.gif" class="img-responsive" alt="two object results animated">
+                            <div class="col-3">
+                                <img src="img/gif/dtu.gif" class="img-responsive" alt="DTU results animated">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row mb-4">
-            <div class="col-md-8 mx-auto">
-                <h4>Real-world Scenes</h4>
-                <p class="text-justify">
-                    We show that our method can also conduct wide-baseline view synthesis on more complex real scenes from the <a href="http://roboimagedata.compute.dtu.dk/?page_id=36">DTU MVS</a> dataset,
-                    producing reasonable results when given only 1-3 views at inference time.
-                    Moreover, it is feed-forward without requiring test-time optimization for each scene.
-                </p>
-                <div>
-                    <div class="row gif-label">
-                        <div class="col-9">3 Input Views</div>
-                        <div class="col-3"><strong>pixelNeRF</strong></div>
-                    </div>
-                    <div class="row gif-label">
-                        <div class="col-9">
-                            <img src="img/gif/dtu_inputs.jpg" class="img-responsive" alt="DTU 3 input images">
+            <div class="row mb-4">
+                <div class="col-md-8 mx-auto">
+                    <h4>Generalization</h4>
+                    <p class="text-justify">
+                        To demonstrate generalization capabilities,
+                        we apply a model trained on ShapeNet planes, cars, and chairs to unseen ShapeNet categories.
+                    </p>
+                    <div class="row pt-1 pb-1">
+                        <div class="col-md-6">
+                            <div class="row gif-label ten-col">
+                                <div class="col-2">Input</div>
+                                <div class="col-2">DVR</div>
+                                <div class="col-2">SRN</div>
+                                <div class="col-2"><strong>pixelNeRF</strong></div>
+                                <div class="col-2">GT</div>
+                            </div>
+                            <img src="img/gif/gen_000.gif" class="img-responsive" alt="shapenet unseen category results animated">
                         </div>
-                        <div class="col-3">
-                            <img src="img/gif/dtu.gif" class="img-responsive" alt="DTU results animated">
+                        <div class="col-md-6">
+                            <div class="row gif-label ten-col">
+                                <div class="col-2">Input</div>
+                                <div class="col-2">DVR</div>
+                                <div class="col-2">SRN</div>
+                                <div class="col-2"><strong>pixelNeRF</strong></div>
+                                <div class="col-2">GT</div>
+                            </div>
+                            <img src="img/gif/gen_001.gif" class="img-responsive" alt="shapenet unseen category results animated">
+                        </div>
+                    </div>
+                    <p class="text-justify pt-1">
+                        Separately, we apply a pretrained model on real car images after background removal.
+                    </p>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="row gif-label">
+                                <div class="col-6">Input</div>
+                                <div class="col-6"><strong>pixelNeRF</strong></div>
+                            </div>
+                            <img src="img/gif/car_00.gif" class="img-responsive" alt="car results animated">
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="row gif-label">
+                                <div class="col-6">Input</div>
+                                <div class="col-6"><strong>pixelNeRF</strong></div>
+                            </div>
+                            <img src="img/gif/car_01.gif" class="img-responsive" alt="car results animated">
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="row gif-label">
+                                <div class="col-6">Input</div>
+                                <div class="col-6"><strong>pixelNeRF</strong></div>
+                            </div>
+                            <img src="img/gif/car_02.gif" class="img-responsive" alt="car results animated">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <img src="img/gif/car_03.gif" class="img-responsive" alt="car results animated">
+                        </div>
+                        <div class="col-sm-4">
+                            <img src="img/gif/car_04.gif" class="img-responsive" alt="car results animated">
+                        </div>
+                        <div class="col-sm-4">
+                            <img src="img/gif/car_05.gif" class="img-responsive" alt="car results animated">
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row mb-4">
-            <div class="col-md-8 mx-auto">
-                <h4>Generalization</h4>
-                <p class="text-justify">
-                    To demonstrate generalization capabilities,
-                    we apply a model trained on ShapeNet planes, cars, and chairs to unseen ShapeNet categories.
-                </p>
-                <div class="row pt-1 pb-1">
-                    <div class="col-md-6">
-                        <div class="row gif-label ten-col">
-                            <div class="col-2">Input</div>
-                            <div class="col-2">DVR</div>
-                            <div class="col-2">SRN</div>
-                            <div class="col-2"><strong>pixelNeRF</strong></div>
-                            <div class="col-2">GT</div>
-                        </div>
-                        <img src="img/gif/gen_000.gif" class="img-responsive" alt="shapenet unseen category results animated">
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row gif-label ten-col">
-                            <div class="col-2">Input</div>
-                            <div class="col-2">DVR</div>
-                            <div class="col-2">SRN</div>
-                            <div class="col-2"><strong>pixelNeRF</strong></div>
-                            <div class="col-2">GT</div>
-                        </div>
-                        <img src="img/gif/gen_001.gif" class="img-responsive" alt="shapenet unseen category results animated">
-                    </div>
-                </div>
-                <p class="text-justify pt-1">
-                    Separately, we apply a pretrained model on real car images after background removal.
-                </p>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <div class="row gif-label">
-                            <div class="col-6">Input</div>
-                            <div class="col-6"><strong>pixelNeRF</strong></div>
-                        </div>
-                        <img src="img/gif/car_00.gif" class="img-responsive" alt="car results animated">
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="row gif-label">
-                            <div class="col-6">Input</div>
-                            <div class="col-6"><strong>pixelNeRF</strong></div>
-                        </div>
-                        <img src="img/gif/car_01.gif" class="img-responsive" alt="car results animated">
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="row gif-label">
-                            <div class="col-6">Input</div>
-                            <div class="col-6"><strong>pixelNeRF</strong></div>
-                        </div>
-                        <img src="img/gif/car_02.gif" class="img-responsive" alt="car results animated">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <img src="img/gif/car_03.gif" class="img-responsive" alt="car results animated">
-                    </div>
-                    <div class="col-sm-4">
-                        <img src="img/gif/car_04.gif" class="img-responsive" alt="car results animated">
-                    </div>
-                    <div class="col-sm-4">
-                        <img src="img/gif/car_05.gif" class="img-responsive" alt="car results animated">
-                    </div>
+            <div class="row mb-3">
+                <div class="col-md-8 mx-auto">
+                    <h4>Related Links</h4>
+                    <ul>
+                        <li>
+                            NeRF was introduced in <a href="https://www.matthewtancik.com/nerf">Mildenhall et al. (2020)</a>
+                        <li>
+                            Local image features were used in the related regime of implicit surfaces in
+                            <a href="https://shunsukesaito.github.io/PIFu/">Saito et al. (2019)</a>
+                            and
+                            <a href="https://arxiv.org/abs/1905.10711">Xu et al. (2019)</a>
+                        <li>
+                            Our MLP architecture is
+                            inspired by
+                            <a href="https://avg.is.tuebingen.mpg.de/publications/niemeyer2020cvpr">DVR</a>
+                        <li>
+                            Parts of our
+                            PyTorch NeRF implementation are taken from
+                            <a href="https://github.com/kwea123/nerf_pl">kwea123</a>
+                        <li>
+                            Also see the concurrent work
+                            <a href="https://arxiv.org/abs/2010.04595">GRF</a>
+                            which also introduces image features for NeRF, showing image features can even improve NeRF when a large number of views are available.
+                    </ul>
                 </div>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-8 mx-auto">
-                <h4>Related Links</h4>
-                <ul>
-                    <li>
-                        NeRF was introduced in <a href="https://www.matthewtancik.com/nerf">Mildenhall et al. (2020)</a>
-                    <li>
-                        Local image features were used in the related regime of implicit surfaces in
-                        <a href="https://shunsukesaito.github.io/PIFu/">Saito et al. (2019)</a>
-                        and
-                        <a href="https://arxiv.org/abs/1905.10711">Xu et al. (2019)</a>
-                    <li>
-                        Our MLP architecture is
-                        inspired by
-                        <a href="https://avg.is.tuebingen.mpg.de/publications/niemeyer2020cvpr">DVR</a>
-                    <li>
-                        Parts of our
-                        PyTorch NeRF implementation are taken from
-                        <a href="https://github.com/kwea123/nerf_pl">kwea123</a>
-                    <li>
-                        Also see the concurrent work
-                        <a href="https://arxiv.org/abs/2010.04595">GRF</a>
-                        which also introduces image features for NeRF, showing image features can even improve NeRF when a large number of views are available.
-                </ul>
-            </div>
-        </div>
-        <div class="row mb-4">
-            <div class="col-md-8 mx-auto">
-                <h4 class="mb-3">Bibtex</h4>
-                <textarea id="bibtex" class="form-control" readonly>@misc{yu2020pixelnerf,
+            <div class="row mb-4">
+                <div class="col-md-8 mx-auto">
+                    <h4 class="mb-3">Bibtex</h4>
+                    <textarea id="bibtex" class="form-control" readonly>@misc{yu2020pixelnerf,
       title={pixelNeRF: Neural Radiance Fields from One or Few Images},
       author={Alex Yu and Vickie Ye and Matthew Tancik and Angjoo Kanazawa},
       year={2020},
 }</textarea>
+                </div>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-8 mx-auto">
-                <h4>Acknowledgements</h4>
-                <p class="text-justify">
-                    We thank Shubham Goel and Hang Gao for comments on the text. We also thank
-                    Emilien Dupont and Vincent Sitzmann for helpful discussions.
-                    This website is inspired by the template of <a href="http://mgharbi.com/">Micha&euml;l Gharbi</a>.
-                </p>
-                <p class="text-justify">
-                    Please send any questions or comments to <a href="https://alexyu.net">Alex Yu</a>.
-                </p>
+            <div class="row mb-3">
+                <div class="col-md-8 mx-auto">
+                    <h4>Acknowledgements</h4>
+                    <p class="text-justify">
+                        We thank Shubham Goel and Hang Gao for comments on the text. We also thank
+                        Emilien Dupont and Vincent Sitzmann for helpful discussions.
+                        This website is inspired by the template of <a href="http://mgharbi.com/">Micha&euml;l Gharbi</a>.
+                    </p>
+                    <p class="text-justify">
+                        Please send any questions or comments to <a href="https://alexyu.net">Alex Yu</a>.
+                    </p>
+                </div>
             </div>
-        </div>
-    </div> <!-- container -->
-</body>
+        </div> <!-- container -->
+    </body>
