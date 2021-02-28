@@ -1,11 +1,13 @@
 {% extends "template.html" %}
 {% block content %}
- <div class="row">
+<div class="row">
     <div class="about col-sm-12">
         <h1>About</h1>
         <p>
-        Hi! I am a rising fourth-year CS and applied math double major at UC Berkeley.
+        Hi! I am a senior CS and applied math double major at UC Berkeley.
         Currently, I am working on 3D human-related computer vision research with Prof. Angjoo Kanazawa.
+        My topics of interest are &quot;at the interesection&quot; of vision and graphics. Recently, I am particularly interested in volume rendering both
+        applied to photogrammetry (as in NeRF) and as an alternative to polygons and PBR.
         </p>
         <p>
         Over the past few years I have explored several distinct areas of computer science.
@@ -13,91 +15,106 @@
         Before that, I worked on some human and hand pose tracking at the FHL Vive Center and anomaly detection models for SETI.
         </p>
         <p>
-        I am a member of UGTCS (the Undergrad CS Theory club) and XR @ Berkeley. I am also a fairly inactive member of the Canadian Student Association.
-        </p>
-        <p>
-        Prior to Berkeley, I attended University Hill Secondary School in the amazing city of Vancouver, Canada.
-        I was born in Zhejiang province, China and lived for some time in Hangzhou.
+        Prior to Berkeley, I lived in Vancouver, Canada for many years.
+        I was born in Zhejiang province, China.
         </p>
     </div>
     <div class="col-sm-12">
         <h2>Experience</h2>
         <ul class="timeline">
             <li>
-                <strong>Fall 2020</strong> | Undergraduate Researcher @ Kanazawa AI Research, BAIR
-            <li>
-                <strong>Fall 2019</strong> | UGSI, CS 61A @ UC Berkeley
-                <p>Taught discussion and lab (no-prior-experience section)</p> <li>
-                <strong>Summer 2019</strong> | SWE Intern, Google
-                <p>Built banking features for Google Assistant as part of the Actions on Google (under Google Assistant) team.</p>
-            <li>
-                <strong>Fall 2017-Fall 2019</strong> | Research Assistant, FHL Vive Center
-                <p>Working on avatar tracking and hand detection projects under the umbrella of OpenARK (open AR kit) at VR/AR Lab managed by Dr. Allen Yang, sometimes collaborating with HTC and Ford researchers.</p>
-            <li>
-                <strong>Spring 2019</strong> | URAP Apprentice, SETI: Breakthrough Listen
-                <p>Created visualization tools and explored ML anomaly detection models for Search for Extraterrestrial Intellegence (SETI) working with Dr. Gerry Zhang.</p>
+                <strong>Summer 2021</strong> | Incoming Research Intern, Adobe Research
+                <p>Advisor: Oliver Wang</p>
+                <li>
+                    <strong>Fall 2020</strong> | Undergraduate Researcher, Kanazawa AI Research, BAIR
+                    <p>Working on Neural Radiance Fields</p>
+                    <li>
+                        <strong>Fall 2019</strong> | UGSI, CS 61A @ UC Berkeley
+                        <p>One of the many TAs who taught discussion and lab under Dr. John Denero. Responsible for the traditional Hog Contest for several semesters.</p>
+                        <li>
+                            <strong>Summer 2019</strong> | SWE Intern, Google
+                            <p>Built banking features for Google Assistant as part of the Actions on Google (under Google Assistant) team.</p>
+                            <li>
+                                <strong>Fall 2017-Fall 2019</strong> | Research Assistant, FHL Vive Center
+                                <p>Working on avatar tracking and hand detection projects associated with OpenARK
+                                <li>
+                                    <strong>Spring 2019</strong> | URAP Apprentice, SETI: Breakthrough Listen
+                                    <p>Created visualization tools and explored ML anomaly detection models for Search for Extraterrestrial Intellegence (SETI) working with Dr. Gerry Zhang.</p>
         </ul>
     </div>
     <div class="col-sm-12">
         <h2>Publications</h2>
         <ul class="publications">
             <li>
-                <p> <strong>pixelNeRF: Neural Radiance Fields from One or Few Images</strong> Alex Yu, Vickie Ye, Matt Tancik, Angjoo Kanazawa<br/>
+                <p> <strong>pixelNeRF: Neural Radiance Fields from One or Few Images</strong> Alex Yu, Vickie Ye, Matt Tancik, Angjoo Kanazawa<br />
                 <em>Preprint <a href="/pixelnerf">Website</a></em>
-            <li>
-                <p> <strong>Real-Time Hand Model Estimation from Depth Images for Wearable Augmented Reality Glasses</strong> Bill Zhou, Alex Yu, Joseph Menke, and Allen Yang<br/>
-                <em>IEEE International Symposium on Mixed and Augmented Reality (ISMAR) 2019</em>
-            <li>
-                <p><strong>The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving</strong>
-                Matthew Lebofsky et al.<br/>
-                <em>Publications of the Astronomical Society of the Pacific (PASP)</em>
+                <li>
+                    <p> <strong>Real-Time Hand Model Estimation from Depth Images for Wearable Augmented Reality Glasses</strong> Bill Zhou, Alex Yu, Joseph Menke, and Allen Yang<br />
+                    <em>IEEE International Symposium on Mixed and Augmented Reality (ISMAR) 2019</em>
+                    <li>
+                        <p><strong>The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving</strong>
+                        Matthew Lebofsky et al.<br />
+                        <em>Publications of the Astronomical Society of the Pacific (PASP)</em>
         </ul>
     </div>
     <div class="coursework col-sm-12">
         <h2>Coursework</h2>
-        <h4>Fall 2021</h4>
-        <ul>
-            <li>CS 294-173: Learning for 3D Vision</li>
-            <li>Math 202A: Intro to Topology and Analysis</li>
-        </ul>
-        <h4>Spring 2020</h4>
-        <ul>
-            <li>CS 271: Randomized Algorithms</li>
-            <li>CS 294-92: Analysis of Boolean Functions</li>
-        </ul>
-        <h4>Fall 2019</h4>
-        <ul>
-            <li>EE 229A: Information Theory and Coding</li>
-            <li>Math 104: Real Analysis</li>
-            <li>Math 113: Abstract Algebra</li>
-            <li>CS 61C: Great Ideas in Computer Architecture</li>
-            <li>CS 294-137: Virtual Reality and Immersive Computing</li>
-            <li>CS 375: CS Education</li>
-        </ul>
-        <h4>Spring 2019</h4>
-        <ul>
-            <li>CS 270: Graduate Algorithms</li>
-            <li>EECS 126: Probability and Random Processes</li>
-            <li>CS 172: Computability and Complexity</li>
-        </ul>
-        <h4>Fall 2018</h4>
-        <ul>
-            <li>CS 170: Algorithms</li>
-            <li>CS 189: Machine Learning</li>
-            <li>Math 110: Linear Algebra</li>
-            <li>Math 53: Multivariable Calculus</li>
-        </ul>
-        <h4>Spring 2018</h4>
-        <ul>
-            <li>EE 16B: Designing Information Devices and Systems II</li>
-            <li>CS 61B: Data Structures</li>
-            <li>Math 54: Linear Algebra and Differential Equations</li>
-        </ul>
-        <h4>Fall 2017</h4>
-        <ul>
-            <li>CS 61A: Structure and Interpretation of Computer Programs</li>
-            <li>CS 70: Discrete Mathematics and Probability Theory</li>
-        </ul>
+        <p>
+        <a class="btn btn-secondary" data-toggle="collapse" href="#coursework-collapse" role="button" aria-expanded="false" aria-controls="coursework-collapse">
+            Show
+        </a>
+        </p>
+        <div class="collapse" id="coursework-collapse">
+            <h4>Spring 2021</h4>
+            <ul>
+                <li>Math 128A: Numerical Analysis</li>
+                <li>Math 185: Complex Analysis</li>
+                <li>CS 184: Computer Graphics</li>
+            </ul>
+            <h4>Fall 2020</h4>
+            <ul>
+                <li>CS 294-173: Learning for 3D Vision</li>
+                <li>Math 202A: Intro to Topology and Analysis</li>
+            </ul>
+            <h4>Spring 2020</h4>
+            <ul>
+                <li>CS 271: Randomized Algorithms</li>
+                <li>CS 294-92: Analysis of Boolean Functions</li>
+            </ul>
+            <h4>Fall 2019</h4>
+            <ul>
+                <li>EE 229A: Information Theory and Coding</li>
+                <li>Math 104: Real Analysis</li>
+                <li>Math 113: Abstract Algebra</li>
+                <li>CS 61C: Great Ideas in Computer Architecture</li>
+                <li>CS 294-137: Virtual Reality and Immersive Computing</li>
+                <li>CS 375: CS Education</li>
+            </ul>
+            <h4>Spring 2019</h4>
+            <ul>
+                <li>CS 270: Graduate Algorithms</li>
+                <li>EECS 126: Probability and Random Processes</li>
+                <li>CS 172: Computability and Complexity</li>
+            </ul>
+            <h4>Fall 2018</h4>
+            <ul>
+                <li>CS 170: Algorithms</li>
+                <li>CS 189: Machine Learning</li>
+                <li>Math 110: Linear Algebra</li>
+                <li>Math 53: Multivariable Calculus</li>
+            </ul>
+            <h4>Spring 2018</h4>
+            <ul>
+                <li>EE 16B: Designing Information Devices and Systems II</li>
+                <li>CS 61B: Data Structures</li>
+                <li>Math 54: Linear Algebra and Differential Equations</li>
+            </ul>
+            <h4>Fall 2017</h4>
+            <ul>
+                <li>CS 61A: Structure and Interpretation of Computer Programs</li>
+                <li>CS 70: Discrete Mathematics and Probability Theory</li>
+            </ul>
+        </div>
     </div>
 </div>
 {% endblock %}
