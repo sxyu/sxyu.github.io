@@ -22,40 +22,74 @@
     <div class="col-sm-12">
         <h2>Experience</h2>
         <ul class="timeline">
-            <li>
-                <strong>Summer 2021</strong> | Incoming Research Intern, Adobe Research
-                <p>Advisor: Oliver Wang</p>
-                <li>
-                    <strong>Fall 2020</strong> | Undergraduate Researcher, Kanazawa AI Research, BAIR
-                    <p>Working on Neural Radiance Fields</p>
-                    <li>
-                        <strong>Fall 2019</strong> | UGSI, CS 61A @ UC Berkeley
-                        <p>One of the many TAs who taught discussion and lab under Dr. John Denero. Responsible for the traditional Hog Contest for several semesters.</p>
-                        <li>
-                            <strong>Summer 2019</strong> | SWE Intern, Google
-                            <p>Built banking features for Google Assistant as part of the Actions on Google (under Google Assistant) team.</p>
-                            <li>
-                                <strong>Fall 2017-Fall 2019</strong> | Research Assistant, FHL Vive Center
-                                <p>Working on avatar tracking and hand detection projects associated with OpenARK
-                                <li>
-                                    <strong>Spring 2019</strong> | URAP Apprentice, SETI: Breakthrough Listen
-                                    <p>Created visualization tools and explored ML anomaly detection models for Search for Extraterrestrial Intellegence (SETI) working with Dr. Gerry Zhang.</p>
+            {% for entry in timeline %}
+            <li class="timeline-entry">
+                <strong>{{ entry.time }}</strong> | {{ entry.position }}, {{ entry.org }}
+                <p>{{ entry.description }}</p>
+            </li>
+            {% endfor %}
         </ul>
     </div>
     <div class="col-sm-12">
         <h2>Publications</h2>
-        <ul class="publications">
-            <li>
+        <div id="pubs">
+            {% for pub in pubs %}
+            <div class="pub row pt-2 pb-2">
+                <div class="col-sm-2 pub-preview">
+                    {% if "image" in pub %}
+                    <img src="{{ pub.image }}" alt="{{ pub }} image">
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <h4>{{ pub.title }}</h4>
+                    <div class="pub-authors">
+                    {{ pub.authors }}
+                    </div>
+                    <div class="pub-venue">
+                        <small>
+                        {{ pub.venue }}
+                        </small>
+                    </div>
+                    <div class="pub-links">
+                    {% if "arxiv_link" in pub %}
+                    <a href="{{ pub.arxiv_link }}">arXiv</a>
+                    {% endif %}
+                    {% if "paper_link" in pub %}
+                    <a href="{{ pub.paper_link }}">paper</a>
+                    {% endif %}
+                    {% if "web_link" in pub %}
+                    <a href="{{ pub.web_link }}">Website</a>
+                    {% endif %}
+                    {% if "video_link" in pub %}
+                    <a href="{{ pub.video_link }}">Video</a>
+                    {% endif %}
+                    </div>
+                    <div class="pub-description pt-1">
+                        {% if "abstract" in pub %}
+                        <p class="pub-abstract">
+                        {{ pub.abstract }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <!--
+            <div>
                 <p> <strong>pixelNeRF: Neural Radiance Fields from One or Few Images</strong> Alex Yu, Vickie Ye, Matt Tancik, Angjoo Kanazawa<br />
-                <em>Preprint <a href="/pixelnerf">Website</a></em>
-                <li>
-                    <p> <strong>Real-Time Hand Model Estimation from Depth Images for Wearable Augmented Reality Glasses</strong> Bill Zhou, Alex Yu, Joseph Menke, and Allen Yang<br />
-                    <em>IEEE International Symposium on Mixed and Augmented Reality (ISMAR) 2019</em>
-                    <li>
-                        <p><strong>The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving</strong>
-                        Matthew Lebofsky et al.<br />
-                        <em>Publications of the Astronomical Society of the Pacific (PASP)</em>
-        </ul>
+                <em>IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) 2021  <a href="/pixelnerf">Website</a></em>
+            </div>
+            <div>
+                <p> <strong>Real-Time Hand Model Estimation from Depth Images for Wearable Augmented Reality Glasses</strong> Bill Zhou, Alex Yu, Joseph Menke, and Allen Yang<br />
+                <em>IEEE International Symposium on Mixed and Augmented Reality (ISMAR) 2019</em>
+            </div>
+            <div>
+                <p><strong>The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving</strong>
+                Matthew Lebofsky et al.<br />
+                <em>Publications of the Astronomical Society of the Pacific (PASP)</em>
+            </div>
+            -->
+        </div>
     </div>
     <div class="coursework col-sm-12">
         <h2>Coursework</h2>
@@ -65,55 +99,7 @@
         </a>
         </p>
         <div class="collapse" id="coursework-collapse">
-            <h4>Spring 2021</h4>
-            <ul>
-                <li>Math 128A: Numerical Analysis</li>
-                <li>Math 185: Complex Analysis</li>
-                <li>CS 184: Computer Graphics</li>
-            </ul>
-            <h4>Fall 2020</h4>
-            <ul>
-                <li>CS 294-173: Learning for 3D Vision</li>
-                <li>Math 202A: Intro to Topology and Analysis</li>
-            </ul>
-            <h4>Spring 2020</h4>
-            <ul>
-                <li>CS 271: Randomized Algorithms</li>
-                <li>CS 294-92: Analysis of Boolean Functions</li>
-            </ul>
-            <h4>Fall 2019</h4>
-            <ul>
-                <li>EE 229A: Information Theory and Coding</li>
-                <li>Math 104: Real Analysis</li>
-                <li>Math 113: Abstract Algebra</li>
-                <li>CS 61C: Great Ideas in Computer Architecture</li>
-                <li>CS 294-137: Virtual Reality and Immersive Computing</li>
-                <li>CS 375: CS Education</li>
-            </ul>
-            <h4>Spring 2019</h4>
-            <ul>
-                <li>CS 270: Graduate Algorithms</li>
-                <li>EECS 126: Probability and Random Processes</li>
-                <li>CS 172: Computability and Complexity</li>
-            </ul>
-            <h4>Fall 2018</h4>
-            <ul>
-                <li>CS 170: Algorithms</li>
-                <li>CS 189: Machine Learning</li>
-                <li>Math 110: Linear Algebra</li>
-                <li>Math 53: Multivariable Calculus</li>
-            </ul>
-            <h4>Spring 2018</h4>
-            <ul>
-                <li>EE 16B: Designing Information Devices and Systems II</li>
-                <li>CS 61B: Data Structures</li>
-                <li>Math 54: Linear Algebra and Differential Equations</li>
-            </ul>
-            <h4>Fall 2017</h4>
-            <ul>
-                <li>CS 61A: Structure and Interpretation of Computer Programs</li>
-                <li>CS 70: Discrete Mathematics and Probability Theory</li>
-            </ul>
+            {% include "coursework.html" %}
         </div>
     </div>
 </div>

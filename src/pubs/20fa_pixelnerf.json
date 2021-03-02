@@ -1,0 +1,10 @@
+{
+    "title": "pixelNeRF: Neural Radiance Fields from One or Few Images",
+    "authors": "Alex Yu, Vickie Ye, Matt Tancik, Angjoo Kanazawa",
+    "venue": "CVPR 2021",
+    "arxiv_link": "http://arxiv.org/abs/2012.02190",
+    "web_link": "/pixelnerf",
+    "video_link": "https://youtu.be/voebZx7f32g",
+    "image": "img/pixelnerf.jpg",
+    "abstract": "We propose pixelNeRF, a learning framework that predicts a continuous neural scene representation conditioned on one or few input images. The existing approach for constructing neural radiance fields involves optimizing the representation to every scene independently, requiring many calibrated views and significant compute time. We take a step towards resolving these shortcomings by introducing an architecture that conditions a NeRF on image inputs in a fully convolutional manner. This allows the network to be trained across multiple scenes to learn a scene prior, enabling it to perform novel view synthesis in a feed-forward manner from a sparse set of views (as few as one)."
+}

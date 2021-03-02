@@ -39,14 +39,7 @@
                 </div>
 
                 <ul class="list-unstyled components">
-                    <!-- <li class="active"> <a href="/">About</a> -->
-                    <!-- <li> <a href="teaching.html">Teaching</a> -->
-                    <!-- <li> <a href="interest.html">Contests, Interests</a> -->
-                    <!-- <li> <a href="projects.html">Projects</a> -->
-                    {% for href, id in navigation %}
-                    <li{% if id == active_page %} class="active" {% endif
-                                                  %}><a href="{{ href|e }}">{{ id|e }}</a></li>
-                        {% endfor %}
+                    {% for href, id in navigation %} <li{% if id == active_page %} class="active" {% endif %}> <a href="{{ href|e }}">{{ id|e }}</a> </li> {% endfor %}
                 </ul>
                 <ul id="links" class="list-unstyled">
                     <li>

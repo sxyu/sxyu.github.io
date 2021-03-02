@@ -1,0 +1,8 @@
+{
+    "title": "The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving",
+    "authors": "Matthew Lebofsky et al.",
+    "venue": "Publications of the Astronomical Society of the Pacific (PASP)",
+    "arxiv_link": "https://arxiv.org/abs/1906.07391",
+    "image": "img/bl.png",
+    "abstract": "Breakthrough Listen is the most comprehensive and sensitive search for extraterrestrial intelligence (SETI) to date, employing a collection of international observational facilities including both radio and optical telescopes. During the first three years of the Listen program, thousands of targets have been observed with the Green Bank Telescope (GBT), Parkes Telescope and Automated Planet Finder. At GBT and Parkes, observations have been performed ranging from 700 MHz to 26 GHz, with raw data volumes averaging over 1PB / day... In this paper, we describe the hardware and software pipeline used for collection, reduction, archival, and public dissemination of Listen data."
+}
