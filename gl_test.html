@@ -1,0 +1,16 @@
+<html>
+<p id="gl-enable">WebGL enabled: No</pa>
+<p>OpenGL Texture Size Limit <span id="tex-limit"></span></p>
+<p>High int <span id="high-int-limit"></span></p>
+<p>High float <span id="high-float-limit"></span></p>
+
+<script>
+var canvas = document.createElement('canvas');
+var gl = canvas.getContext('webgl');
+document.getElementById('gl-enable').innerHTML = 'WebGL enabled: Yes';
+document.getElementById('tex-limit').innerHTML = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+document.getElementById('high-int-limit').innerHTML = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_INT).rangeMax + ' bit';
+document.getElementById('high-float-limit').innerHTML = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision;
+</script>
+</html>
+
