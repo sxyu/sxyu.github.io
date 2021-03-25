@@ -1,400 +1,400 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 
-    <title>PlenOctrees for Real-time Rendering of Neural Radiance Fields</title>
+<title>PlenOctrees for Real-time Rendering of Neural Radiance Fields</title>
 
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-21408087-2"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-21408087-2"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
 
-        gtag('config', 'UA-21408087-2');
-    </script>
+    gtag('config', 'UA-21408087-2');
+</script>
 
-    <meta charset="utf-8">
+<meta charset="utf-8">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com">
 
-    <style>
-        /* greek-ext */
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 300;
-            font-display: swap;
-            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fCBc4EsA.woff2) format('woff2');
-            unicode-range: U+1F00-1FFF;
-        }
+<style>
+    /* greek-ext */
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fCBc4EsA.woff2) format('woff2');
+        unicode-range: U+1F00-1FFF;
+    }
 
-        /* greek */
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 300;
-            font-display: swap;
-            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fBxc4EsA.woff2) format('woff2');
-            unicode-range: U+0370-03FF;
-        }
+    /* greek */
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fBxc4EsA.woff2) format('woff2');
+        unicode-range: U+0370-03FF;
+    }
 
-        /* latin-ext */
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 300;
-            font-display: swap;
-            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fChc4EsA.woff2) format('woff2');
-            unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
-        }
+    /* latin-ext */
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fChc4EsA.woff2) format('woff2');
+        unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
 
-        /* latin */
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 300;
-            font-display: swap;
-            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fBBc4.woff2) format('woff2');
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-        }
+    /* latin */
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmSU5fBBc4.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
 
-        /* greek-ext */
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 400;
-            font-display: swap;
-            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu7mxKOzY.woff2) format('woff2');
-            unicode-range: U+1F00-1FFF;
-        }
+    /* greek-ext */
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu7mxKOzY.woff2) format('woff2');
+        unicode-range: U+1F00-1FFF;
+    }
 
-        /* greek */
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 400;
-            font-display: swap;
-            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4WxKOzY.woff2) format('woff2');
-            unicode-range: U+0370-03FF;
-        }
+    /* greek */
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4WxKOzY.woff2) format('woff2');
+        unicode-range: U+0370-03FF;
+    }
 
-        /* latin-ext */
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 400;
-            font-display: swap;
-            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu7GxKOzY.woff2) format('woff2');
-            unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
-        }
+    /* latin-ext */
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu7GxKOzY.woff2) format('woff2');
+        unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
 
-        /* latin */
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 400;
-            font-display: swap;
-            src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4mxK.woff2) format('woff2');
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-        }
-    </style>
+    /* latin */
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4mxK.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+</style>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <body>
-        <div class="container">
-            <div class="row mb-2 mt-4" id="paper-title">
-                <h1 class="col-md-12 text-center">
-                    PlenOctrees
-                </h1>
-                <h3 class="col-md-12 text-center">
-                    For Real-time Rendering of Neural Radiance Fields
-                </h3>
-                <h3 class="col-md-12 text-center">
-                    <small></small>
-                </h3>
+<body>
+    <div class="container">
+        <div class="row mb-2 mt-4" id="paper-title">
+            <h1 class="col-md-12 text-center">
+                PlenOctrees
+            </h1>
+            <h3 class="col-md-12 text-center">
+                For Real-time Rendering of Neural Radiance Fields
+            </h3>
+            <h3 class="col-md-12 text-center">
+                <small></small>
+            </h3>
+        </div>
+
+        <div class="row" id="authors">
+            <div class="mx-auto text-center">
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item">
+                        <a href="https://alexyu.net">Alex Yu</a>
+                        <sup>1</sup>
+                    </li>
+
+                    <li class="list-inline-item">
+                        <a href="https://www.liruilong.cn">Ruilong Li</a>
+                        <sup>1,2</sup>
+                    </li>
+
+                    <li class="list-inline-item">
+                        <a href="https://www.matthewtancik.com">Matthew Tancik</a>
+                        <sup>1</sup>
+                    </li>
+
+                    <li class="list-inline-item">
+                        <a href="https://www.hao-li.com">Hao Li</a>
+                        <sup>1,3</sup>
+                    </li>
+
+                    <li class="list-inline-item">
+                        <a href="https://www2.eecs.berkeley.edu/Faculty/Homepages/yirenng.html">Ren Ng</a>
+                        <sup>1</sup>
+                    </li>
+
+                    <li class="list-inline-item">
+                        <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
+                        <sup>1</sup>
+                    </li>
+                </ul>
+                <ul class="list-inline mb-0" id="institution">
+                    <li class="list-inline-item">
+                        <sup>1</sup>
+                        UC Berkeley
+                    </li>
+                    <li class="list-inline-item">
+                        <sup>2</sup>
+                        USC ICT
+                    </li>
+                    <li class="list-inline-item">
+                        <sup>3</sup>
+                        Pinscreen
+                    </li>
+                </ul>
             </div>
-
-            <div class="row" id="authors">
-                <div class="mx-auto text-center">
-                    <ul class="list-inline mb-0">
-                        <li class="list-inline-item">
-                            <a href="https://alexyu.net">Alex Yu</a>
-                            <sup>1</sup>
-                        </li>
-
-                        <li class="list-inline-item">
-                            <a href="https://www.liruilong.cn">Ruilong Li</a>
-                            <sup>1,2</sup>
-                        </li>
-
-                        <li class="list-inline-item">
-                            <a href="https://www.matthewtancik.com">Matthew Tancik</a>
-                            <sup>1</sup>
-                        </li>
-
-                        <li class="list-inline-item">
-                            <a href="https://www.hao-li.com">Hao Li</a>
-                            <sup>1,3</sup>
-                        </li>
-
-                        <li class="list-inline-item">
-                            <a href="https://www2.eecs.berkeley.edu/Faculty/Homepages/yirenng.html">Ren Ng</a>
-                            <sup>1</sup>
-                        </li>
-
-                        <li class="list-inline-item">
-                            <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
-                            <sup>1</sup>
-                        </li>
-                    </ul>
-                    <ul class="list-inline mb-0" id="institution">
-                        <li class="list-inline-item">
-                            <sup>1</sup>
-                            UC Berkeley
-                        </li>
-                        <li class="list-inline-item">
-                            <sup>2</sup>
-                            USC ICT
-                        </li>
-                        <li class="list-inline-item">
-                            <sup>3</sup>
-                            Pinscreen
-                        </li>
-                    </ul>
+        </div>
+        <div class="row mb-2" id="links">
+            <div class="mx-auto">
+                <ul class="nav">
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link">
+                            <svg style="width:48px;height:48px" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M16 0H8C6.9 0 6 .9 6 2V18C6 19.1 6.9 20 8 20H20C21.1 20 22 19.1 22 18V6L16 0M20 18H8V2H15V7H20V18M4 4V22H20V24H4C2.9 24 2 23.1 2 22V4H4M10 10V12H18V10H10M10 14V16H15V14H10Z" />
+                            </svg><br>
+                            Paper
+                        </a>
+                    <li class="nav-item text-center">
+                        <a href="#" class="nav-link">
+                            <svg style="width:48px;height:48px" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+                            </svg><br>
+                            Code
+                        </a>
+                </ul>
+            </div>
+        </div>
+        <div class="row mb-3 pt-2">
+            <div class="col-md-8 mx-auto">
+                <div class="embed-responsive embed-responsive-16by9 pb-3">
+                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/obrmH1T5mfI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
+                <!-- <img id="teaser" src="img/teaser.png" class="img-responsive" alt="teaser figure"> -->
+                <p class="text-justify mt-2">
+                    We propose a framework that enables real-time rendering of <a href="http://tancik.com/nerf">Neural Radiance Fields (NeRFs)</a>
+                    using plenoptic octrees, or &quot;PlenOctrees&quot;.
+                    Our method can render at more than 150 fps at 800x800px resolution, which is over 3000x faster than conventional NeRFs, without sacrificing quality.
+                </p>
             </div>
-            <div class="row mb-2" id="links">
-                <div class="mx-auto">
-                    <ul class="nav">
-                        <li class="nav-item text-center">
-                            <a href="#" class="nav-link">
-                                <svg style="width:48px;height:48px" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M16 0H8C6.9 0 6 .9 6 2V18C6 19.1 6.9 20 8 20H20C21.1 20 22 19.1 22 18V6L16 0M20 18H8V2H15V7H20V18M4 4V22H20V24H4C2.9 24 2 23.1 2 22V4H4M10 10V12H18V10H10M10 14V16H15V14H10Z" />
-                                </svg><br>
-                                Paper
-                            </a>
-                        <li class="nav-item text-center">
-                            <a href="#" class="nav-link">
-                                <svg style="width:48px;height:48px" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
-                                </svg><br>
-                                Code
-                            </a>
-                    </ul>
-                </div>
-            </div>
-            <div class="row mb-3 pt-2">
-                <div class="col-md-8 mx-auto">
-                    <div class="embed-responsive embed-responsive-16by9 pb-3">
-                        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/obrmH1T5mfI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                    </div>
-                    <!-- <img id="teaser" src="img/teaser.png" class="img-responsive" alt="teaser figure"> -->
-                    <p class="text-justify mt-2">
-                        We propose a framework that enables real-time rendering of <a href="http://tancik.com/nerf">Neural Radiance Fields (NeRFs)</a>
-                        using plenoptic octrees, or &quot;PlenOctrees&quot;.
-                        Our method can render at more than 150 fps at 800x800px resolution, which is over 3000x faster than conventional NeRFs, without sacrificing quality.
-                    </p>
-                </div>
-            </div>
-            <div class="row mb-3 pt-2">
-                <div class="col-md-8 mx-auto">
-                    <img class="img-responsive" src="img/pipeline.png" alt="Pipeline (figure 2)">
-                    <p class="text-justify">
-                        Real-time performance is achieved by pre-tabulating the NeRF into an octree-based radiance field that we call PlenOctrees. In order to preserve view-dependent effects such as specularities, we propose to encode appearances via closed-form spherical basis functions.
-                        Specifically, we show that it is possible to train NeRFs to predict a spherical harmonic representation of radiance, removing the viewing direction as input to the neural network.
-                        Furthermore, we show that our PlenOctrees can be directly optimized to further minimize the reconstruction loss, which leads to equal or better quality than competing methods.
-                        We further show that this octree optimization step can be used to accelerate the training time, as we no longer need to wait for the NeRF training to converge fully.
-                        Our real-time neural rendering approach may potentially enable new applications such as 6-DOF industrial and product visualizations, as well as next generation AR/VR systems.
-                    </p>
+        </div>
+        <div class="row mb-3 pt-2">
+            <div class="col-md-8 mx-auto">
+                <img class="img-responsive" src="img/pipeline.png" alt="Pipeline (figure 2)">
+                <p class="text-justify">
+                    Real-time performance is achieved by pre-tabulating the NeRF into an octree-based radiance field that we call PlenOctrees. In order to preserve view-dependent effects such as specularities, we propose to encode appearances via closed-form spherical basis functions.
+                    Specifically, we show that it is possible to train NeRFs to predict a spherical harmonic representation of radiance, removing the viewing direction as input to the neural network.
+                    Furthermore, we show that our PlenOctrees can be directly optimized to further minimize the reconstruction loss, which leads to equal or better quality than competing methods.
+                    We further show that this octree optimization step can be used to accelerate the training time, as we no longer need to wait for the NeRF training to converge fully.
+                    Our real-time neural rendering approach may potentially enable new applications such as 6-DOF industrial and product visualizations, as well as next generation AR/VR systems.
+                </p>
 
-                </div>
             </div>
-            <div class="row mb-4" id="demo-section">
-                <div class="col-md-8 mx-auto grey-container">
-                    <h4 class="pb-2">Real-time Online Demo</h4>
-                    <p class="text-justify">
-                        We're excited to present a live demo that works in modern browsers.
-                        Click on one of the scenes below to open the demo app.
-                        Please do be mindful of bandwidth while using this demo.
-                    </p>
-                    <p class="text-justify">
-                        <strong>Note:</strong> Our full models are on the order of 2GB in size;
-                        for online viewing,
-                        the octrees used are <em>lower resolution, quantized</em> versions
-                        of 34-125MB, losing approximately 0.5-1.5 dB in PSNR.
-                    </p>
+        </div>
+        <div class="row mb-4" id="demo-section">
+            <div class="col-md-8 mx-auto grey-container">
+                <h4 class="pb-2">Real-time Online Demo</h4>
+                <p class="text-justify">
+                    We're excited to present a live demo that works in modern browsers.
+                    Click on one of the scenes below to open the demo app.
+                    Please do be mindful of bandwidth while using this demo.
+                </p>
+                <p class="text-justify">
+                    <strong>Note:</strong> Our full models are on the order of 2GB in size;
+                    for online viewing,
+                    the octrees used are <em>lower resolution, quantized</em> versions
+                    of 34-125MB, losing approximately 0.5-1.5 dB in PSNR.
+                </p>
 
-                    <p class="text-justify" id="demo-warning">
-                    </p>
-                    <div id="demo-container" class="flex-container pb-3">
-                        <div class="row pb-1">
-                            <div class="col-md-4">
-                                <div class="card demo-card">
-                                    <img class="card-img-top" src="img/preview/chair.png" alt="Chair">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/chair.npz" class="stretched-link">Chair</a>
-                                        </h5>
-                                        <p class="card-text">65 MB</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card demo-card">
-                                    <img class="card-img-top" src="img/preview/drums.png" alt="Drums">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/drums.npz" class="stretched-link">Drums</a>
-                                        </h5>
-                                        <p class="card-text">75 MB</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card demo-card">
-                                    <img class="card-img-top" src="img/preview/ficus.png" alt="Ficus">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/ficus.npz" class="stretched-link">Ficus</a>
-                                        </h5>
-                                        <p class="card-text">48 MB</p>
-                                    </div>
+                <p class="text-justify" id="demo-warning">
+                </p>
+                <div id="demo-container" class="flex-container pb-3">
+                    <div class="row pb-1">
+                        <div class="col-md-4">
+                            <div class="card demo-card">
+                                <img class="card-img-top" src="img/preview/chair.png" alt="Chair">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/chair.npz" class="stretched-link">Chair</a>
+                                    </h5>
+                                    <p class="card-text">65 MB</p>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="row pb-2">
-                            <div class="col-md-4">
-                                <div class="card demo-card">
-                                    <img class="card-img-top" src="img/preview/hotdog.png" alt="Hotdog">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/hotdog.npz" class="stretched-link">Hotdog</a>
-                                        </h5>
-                                        <p class="card-text">67 MB</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card demo-card">
-                                    <img class="card-img-top" src="img/preview/lego.png" alt="Lego">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/lego.npz" class="stretched-link">Lego</a>
-                                        </h5>
-                                        <p class="card-text">125 MB</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card demo-card">
-                                    <img class="card-img-top" src="img/preview/materials.png" alt="Materials">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/materials.npz" class="stretched-link">Materials</a>
-                                        </h5>
-                                        <p class="card-text">76 MB</p>
-                                    </div>
+                        <div class="col-md-4">
+                            <div class="card demo-card">
+                                <img class="card-img-top" src="img/preview/drums.png" alt="Drums">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/drums.npz" class="stretched-link">Drums</a>
+                                    </h5>
+                                    <p class="card-text">75 MB</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="row pb-2">
-                            <div class="col-md-4">
-                                <div class="card demo-card">
-                                    <img class="card-img-top" src="img/preview/mic.png" alt="Mic">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/mic.npz" class="stretched-link">Mic</a>
-                                        </h5>
-                                        <p class="card-text">34 MB</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card demo-card">
-                                    <img class="card-img-top" src="img/preview/ship.png" alt="Ship">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/ship.npz" class="stretched-link">Ship</a>
-                                        </h5>
-                                        <p class="card-text">104 MB</p>
-                                    </div>
+                        <div class="col-md-4">
+                            <div class="card demo-card">
+                                <img class="card-img-top" src="img/preview/ficus.png" alt="Ficus">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/ficus.npz" class="stretched-link">Ficus</a>
+                                    </h5>
+                                    <p class="card-text">48 MB</p>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="row pb-2">
+                        <div class="col-md-4">
+                            <div class="card demo-card">
+                                <img class="card-img-top" src="img/preview/hotdog.png" alt="Hotdog">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/hotdog.npz" class="stretched-link">Hotdog</a>
+                                    </h5>
+                                    <p class="card-text">67 MB</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card demo-card">
+                                <img class="card-img-top" src="img/preview/lego.png" alt="Lego">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/lego.npz" class="stretched-link">Lego</a>
+                                    </h5>
+                                    <p class="card-text">125 MB</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card demo-card">
+                                <img class="card-img-top" src="img/preview/materials.png" alt="Materials">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/materials.npz" class="stretched-link">Materials</a>
+                                    </h5>
+                                    <p class="card-text">76 MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pb-2">
+                        <div class="col-md-4">
+                            <div class="card demo-card">
+                                <img class="card-img-top" src="img/preview/mic.png" alt="Mic">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/mic.npz" class="stretched-link">Mic</a>
+                                    </h5>
+                                    <p class="card-text">34 MB</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card demo-card">
+                                <img class="card-img-top" src="img/preview/ship.png" alt="Ship">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="demo?load=https://storage.googleapis.com/nerf_data/plenoctree/ship.npz" class="stretched-link">Ship</a>
+                                    </h5>
+                                    <p class="card-text">104 MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="row mb-4">
-                <div class="col-md-8 mx-auto">
-                    <h4 class="mb-3">BibTeX</h4>
-                    <textarea id="bibtex" class="form-control" readonly>@inproceedings{yu2021plenoctrees,
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <h4 class="mb-3">BibTeX</h4>
+                <textarea id="bibtex" class="form-control" readonly>@inproceedings{yu2021plenoctrees,
       title={PlenOctrees for Real-time Rendering of Neural Radiance Fields},
       author={Alex Yu and Ruilong Li and Matthew Tancik and Hao Li and Ren Ng and Angjoo Kanazawa},
       year={2021},
       booktitle={arXiv},
 }</textarea>
-                </div>
             </div>
-            <div class="row mb-3">
-                <div class="col-md-8 mx-auto">
-                    <h4>Concurrent Real-time NeRF Rendering Work</h4>
-                    <p class="text-justify">
-                        Recently, several competing fast NeRF rendering papers have
-                        been released.
-                        Please also check out their amazing work.
-                    </p>
-                    <ul>
-                        <li><a href="https://arxiv.org/abs/2103.10380">
-                                FastNeRF by Garbin et al.</a> Using voxel grid caching.
-                    </ul>
-                </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-8 mx-auto">
+                <h4>Concurrent Real-time NeRF Rendering Work</h4>
+                <p class="text-justify">
+                    Recently, several competing fast NeRF rendering papers have
+                    been released.
+                    Please also check out their amazing work.
+                </p>
+                <ul>
+                    <li><a href="https://arxiv.org/abs/2103.10380">
+                            FastNeRF by Garbin et al.</a> Using voxel grid caching.
+                </ul>
             </div>
-            <div class="row mb-3">
-                <div class="col-md-8 mx-auto">
-                    <h4>Acknowledgements</h4>
-                    <p class="text-justify">
-                        We thank Vickie Ye and Ben Recht for comments on the text and
-                        BAIR commons for an allocation of GCP credits.
-                        This website is in part based on the template of <a href="http://mgharbi.com/">Micha&euml;l Gharbi</a>.
-                    </p>
-                </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-8 mx-auto">
+                <h4>Acknowledgements</h4>
+                <p class="text-justify">
+                    We thank Vickie Ye and Ben Recht for comments on the text and
+                    BAIR commons for an allocation of GCP credits.
+                    This website is in part based on the template of <a href="http://mgharbi.com/">Micha&euml;l Gharbi</a>.
+                </p>
             </div>
-        </div> <!-- container -->
-        <script>
-            window.mobileAndTabletCheck = function() {
-                let check = false;
-                (function(a) {
-                    if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true;
-                })(navigator.userAgent || navigator.vendor || window.opera);
-                return check;
-            };
+        </div>
+    </div> <!-- container -->
+    <script>
+        window.mobileAndTabletCheck = function() {
+            let check = false;
+            (function(a) {
+                if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true;
+            })(navigator.userAgent || navigator.vendor || window.opera);
+            return check;
+        };
 
-            if (mobileAndTabletCheck()) {
-                document.getElementById('demo-warning').style.display = 'block';
-                document.getElementById('demo-container').style.display = 'none';
-                document.getElementById('demo-warning').innerHTML = "Unfortunately, mobile and tablet devices are not currently supported due to WebGL compatibility issues. We hope to support this in the future.";
-            } else {
-                var canvas = document.createElement('canvas');
-                var gl = canvas.getContext('webgl');
-                var tex_limit = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-                if (gl && gl instanceof WebGLRenderingContext) {
-                    const REQUIRED_TEX_LIMIT = 8192;
-                    if (tex_limit < REQUIRED_TEX_LIMIT) {
-                        document.getElementById('demo-warning').style.display = 'block';
-                        document.getElementById('demo-container').style.display = 'none';
-                        document.getElementById('demo-warning').innerHTML = "Your GPU's maximum texture size is: " + tex_limit + " which is less than the minimum required (" + REQUIRED_TEX_LIMIT + ").  Please try another device, if possible.";
-                    }
-                } else {
+        if (mobileAndTabletCheck()) {
+            document.getElementById('demo-warning').style.display = 'block';
+            document.getElementById('demo-container').style.display = 'none';
+            document.getElementById('demo-warning').innerHTML = "Unfortunately, mobile and tablet devices are not currently supported due to WebGL compatibility issues. We hope to support this in the future.";
+        } else {
+            var canvas = document.createElement('canvas');
+            var gl = canvas.getContext('webgl');
+            var tex_limit = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+            if (gl && gl instanceof WebGLRenderingContext) {
+                const REQUIRED_TEX_LIMIT = 8192;
+                if (tex_limit < REQUIRED_TEX_LIMIT) {
                     document.getElementById('demo-warning').style.display = 'block';
                     document.getElementById('demo-container').style.display = 'none';
-                    document.getElementById('demo-warning').innerHTML = "Your browser does not support WebGL, or WebGL was disabled. Please use a modern browser like Chrome or Firefox.";
+                    document.getElementById('demo-warning').innerHTML = "Your GPU's maximum texture size is: " + tex_limit + " which is less than the minimum required (" + REQUIRED_TEX_LIMIT + ").  Please try another device, if possible.";
                 }
+            } else {
+                document.getElementById('demo-warning').style.display = 'block';
+                document.getElementById('demo-container').style.display = 'none';
+                document.getElementById('demo-warning').innerHTML = "Your browser does not support WebGL, or WebGL was disabled. Please use a modern browser like Chrome or Firefox.";
             }
-        </script>
-    </body>
+        }
+    </script>
+</body>
