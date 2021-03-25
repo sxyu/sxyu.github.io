@@ -81,9 +81,9 @@
     <div class="about col-sm-12">
         <h1>About</h1>
         <p>
-        Hi! I am a senior CS and applied math double major at UC Berkeley.
+        Hi! I am a undergrad senior at UC Berkeley studying CS and applied math.
         Currently, I am working on 3D human-related computer vision research with Prof. Angjoo Kanazawa.
-        My interest is at the interesection of vision and graphics. Recently, I am particularly interested in volume rendering both applied to photogrammetry and as an alternative to polygons and physically-based rendering.
+        My interest is at the interesection of vision and graphics. Recently, I am particularly interested in volume rendering and neural representations.
         </p>
         <p>
         Over the past few years I have explored several distinct areas of computer science.
@@ -138,7 +138,45 @@
             <div class="pub row pt-2 pb-2">
                 <div class="col-sm-2 pub-preview">
                     
-                    <img src="img/pixelnerf.jpg" alt="{'title': 'pixelNeRF: Neural Radiance Fields from One or Few Images', 'authors': 'Alex Yu, Vickie Ye, Matt Tancik, Angjoo Kanazawa', 'venue': 'CVPR 2021', 'arxiv_link': 'http://arxiv.org/abs/2012.02190', 'web_link': '/pixelnerf', 'video_link': 'https://youtu.be/voebZx7f32g', 'image': 'img/pixelnerf.jpg', 'abstract': 'We propose pixelNeRF, a learning framework that predicts a continuous neural scene representation conditioned on one or few input images. The existing approach for constructing neural radiance fields involves optimizing the representation to every scene independently, requiring many calibrated views and significant compute time. We take a step towards resolving these shortcomings by introducing an architecture that conditions a NeRF on image inputs in a fully convolutional manner. This allows the network to be trained across multiple scenes to learn a scene prior, enabling it to perform novel view synthesis in a feed-forward manner from a sparse set of views (as few as one).'} image">
+                    <img src="img/plenoctrees.jpg" alt="PlenOctrees for Real-time Rendering of Neural Radiance Fields image">
+                    
+                </div>
+                <div class="col">
+                    <h4>PlenOctrees for Real-time Rendering of Neural Radiance Fields</h4>
+                    <div class="pub-authors">
+                    Alex Yu, , Matt Tancik, Angjoo Kanazawa
+                    </div>
+                    <div class="pub-venue">
+                        <small>
+                        Preprint
+                        </small>
+                    </div>
+                    <div class="pub-links">
+                    
+                    <a href="TBA">arXiv</a>
+                    
+                    
+                    
+                    <a href="/plenoctrees">Website</a>
+                    
+                    
+                    <a href="https://www.youtube.com/watch?v=obrmH1T5mfI">Video</a>
+                    
+                    </div>
+                    <div class="pub-description pt-1">
+                        
+                        <p class="pub-abstract">
+                        We introduce a method to render Neural Radiance Fields (NeRFs) in real time using PlenOctrees, an octree-based 3D representation which supports view-dependent effects. Our method can render 800x800 images at more than 150 FPS,  which is over 3000 times faster than conventional NeRFs.  We do so without sacrificing quality while preserving the ability of NeRFs to perform free-viewpoint rendering of scenes with arbitrary geometry and view-dependent effects.  Real-time performance is achieved by pre-tabulating the NeRF into a PlenOctree. In order to preserve view-dependent effects such as specularities, we  factorize the appearance via closed-form spherical basis functions.  Specifically, we show that it is possible to train NeRFs to predict a spherical harmonic representation of radiance, removing the viewing direction as an input to the neural network.  Furthermore, we show that PlenOctrees can be directly optimized to further minimize the reconstruction loss, which leads to equal or better quality compared to competing methods.  Moreover, this octree optimization step can be used to reduce the training time, as we no longer need to wait for the NeRF training to converge fully.  Our real-time neural rendering approach may potentially enable new applications such as 6-DOF industrial and product visualizations, as well as next generation AR/VR systems.  PlenOctrees are amenable to in-browser rendering as well; please visit the project page for the interactive online demo.
+                        </p>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pub row pt-2 pb-2">
+                <div class="col-sm-2 pub-preview">
+                    
+                    <img src="img/pixelnerf.jpg" alt="pixelNeRF: Neural Radiance Fields from One or Few Images image">
                     
                 </div>
                 <div class="col">
@@ -176,7 +214,7 @@
             <div class="pub row pt-2 pb-2">
                 <div class="col-sm-2 pub-preview">
                     
-                    <img src="img/bl.png" alt="{'title': 'The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving', 'authors': 'Matthew Lebofsky et al.', 'venue': 'Publications of the Astronomical Society of the Pacific (PASP)', 'arxiv_link': 'https://arxiv.org/abs/1906.07391', 'image': 'img/bl.png', 'abstract': 'Breakthrough Listen is the most comprehensive and sensitive search for extraterrestrial intelligence (SETI) to date, employing a collection of international observational facilities including both radio and optical telescopes. During the first three years of the Listen program, thousands of targets have been observed with the Green Bank Telescope (GBT), Parkes Telescope and Automated Planet Finder. At GBT and Parkes, observations have been performed ranging from 700 MHz to 26 GHz, with raw data volumes averaging over 1PB / day... In this paper, we describe the hardware and software pipeline used for collection, reduction, archival, and public dissemination of Listen data.'} image">
+                    <img src="img/bl.png" alt="The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving image">
                     
                 </div>
                 <div class="col">
@@ -207,21 +245,6 @@
                 </div>
             </div>
             
-            <!--
-            <div>
-                <p> <strong>pixelNeRF: Neural Radiance Fields from One or Few Images</strong> Alex Yu, Vickie Ye, Matt Tancik, Angjoo Kanazawa<br />
-                <em>IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) 2021  <a href="/pixelnerf">Website</a></em>
-            </div>
-            <div>
-                <p> <strong>Real-Time Hand Model Estimation from Depth Images for Wearable Augmented Reality Glasses</strong> Bill Zhou, Alex Yu, Joseph Menke, and Allen Yang<br />
-                <em>IEEE International Symposium on Mixed and Augmented Reality (ISMAR) 2019</em>
-            </div>
-            <div>
-                <p><strong>The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving</strong>
-                Matthew Lebofsky et al.<br />
-                <em>Publications of the Astronomical Society of the Pacific (PASP)</em>
-            </div>
-            -->
         </div>
     </div>
     <div class="coursework col-sm-12">

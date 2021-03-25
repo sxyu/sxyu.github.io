@@ -4,9 +4,9 @@
     <div class="about col-sm-12">
         <h1>About</h1>
         <p>
-        Hi! I am a senior CS and applied math double major at UC Berkeley.
+        Hi! I am a undergrad senior at UC Berkeley studying CS and applied math.
         Currently, I am working on 3D human-related computer vision research with Prof. Angjoo Kanazawa.
-        My interest is at the interesection of vision and graphics. Recently, I am particularly interested in volume rendering both applied to photogrammetry and as an alternative to polygons and physically-based rendering.
+        My interest is at the interesection of vision and graphics. Recently, I am particularly interested in volume rendering and neural representations.
         </p>
         <p>
         Over the past few years I have explored several distinct areas of computer science.
@@ -36,7 +36,7 @@
             <div class="pub row pt-2 pb-2">
                 <div class="col-sm-2 pub-preview">
                     {% if "image" in pub %}
-                    <img src="{{ pub.image }}" alt="{{ pub }} image">
+                    <img src="{{ pub.image }}" alt="{{ pub.title }} image">
                     {% endif %}
                 </div>
                 <div class="col">
@@ -73,21 +73,6 @@
                 </div>
             </div>
             {% endfor %}
-            <!--
-            <div>
-                <p> <strong>pixelNeRF: Neural Radiance Fields from One or Few Images</strong> Alex Yu, Vickie Ye, Matt Tancik, Angjoo Kanazawa<br />
-                <em>IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) 2021  <a href="/pixelnerf">Website</a></em>
-            </div>
-            <div>
-                <p> <strong>Real-Time Hand Model Estimation from Depth Images for Wearable Augmented Reality Glasses</strong> Bill Zhou, Alex Yu, Joseph Menke, and Allen Yang<br />
-                <em>IEEE International Symposium on Mixed and Augmented Reality (ISMAR) 2019</em>
-            </div>
-            <div>
-                <p><strong>The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving</strong>
-                Matthew Lebofsky et al.<br />
-                <em>Publications of the Astronomical Society of the Pacific (PASP)</em>
-            </div>
-            -->
         </div>
     </div>
     <div class="coursework col-sm-12">
