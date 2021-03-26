@@ -2,7 +2,7 @@
     "title": "PlenOctrees for Real-time Rendering of Neural Radiance Fields",
     "authors": "Alex Yu, Ruilong Li, Matt Tancik, Hao Li, Ren Ng, Angjoo Kanazawa",
     "venue": "Preprint",
-    "arxiv_link": "TBA",
+    "arxiv_link": "https://arxiv.org/abs/2103.14024",
     "web_link": "/plenoctrees",
     "video_link": "https://www.youtube.com/watch?v=obrmH1T5mfI",
     "image": "img/plenoctrees.jpg",
