@@ -291,6 +291,31 @@ let guiInit = function() {
         }
         Volrend.set_options(opt);
     });
+
+    let checkbox_showgrid = $('#checkbox-showgrid');
+    checkbox_showgrid[0].checked = false;
+    checkbox_showgrid.on('change', function() {
+        let checked = $('#checkbox-showgrid')[0].checked == true;
+        let opt = Volrend.get_options();
+        opt.show_grid = checked;
+        Volrend.set_options(opt);
+    });
+
+    let sliders_grid_reso = $('#slider-grid-reso');
+    sliders_grid_reso.on("input", function() {
+        let value = parseInt(document.getElementById('slider-grid-reso').value);
+        let opt = Volrend.get_options();
+        opt.grid_max_depth = value;
+        Volrend.set_options(opt);
+        document.getElementById('grid-reso-disp').innerText = value;
+    });
+
+    $('#mesh-add-cube-btn').click(function() {
+        Volrend.mesh_add_cube([0.0, 0.0, 1.0], 0.2);
+    });
+    $('#mesh-add-sphere-btn').click(function() {
+        Volrend.mesh_add_sphere([0.4, 0.0, 1.0], 0.1);
+    });
 };
 
 let guiLoadTreeUpdate = function() {
@@ -419,6 +444,37 @@ let onInit = function() {
     if (init_load_path !== null) {
         load_remote(init_load_path);
     }
+
+    $('#open-local-btn').click(function() {
+        var err_txt = $('#open-local-error');
+        err_txt.text('');
+        var files = $('#open-local-file')[0].files;
+        if (files.length === 0) return;
+
+        let loading_ele = $('#loading');
+        loading_ele.css('display', 'block');
+        setTimeout(function() {
+            loading_ele.css('opacity', '1');
+        }, 100);
+
+        console.log('Loading local file');
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            // Transfer to Emscripten MEMFS
+            const data = new Uint8Array(reader.result);
+            console.log('Length: ' + data.length + ' bytes');
+            const filename = 'openlocaltmp.npz';
+            FS.writeFile(filename, data);
+            // Load the file
+            Volrend.load_local(filename);
+            // Clean up
+            FS.unlink(filename);
+
+            $('#open-local-file').siblings(".custom-file-label")
+                .html('Open npz success');
+        };
+        reader.readAsArrayBuffer(files[0]);
+    });
 };
 var cppReportProgress = function(x) {
     let prog_ele = $("#load-progress");
@@ -1755,7 +1811,7 @@ function isFileURI(filename) {
 }
 
 // end include: URIUtils.js
-var wasmBinaryFile = 'volrend_web.wasm';
+var wasmBinaryFile = 'volrend_web.wasm?v=4260488874459135';
 if (!isDataURI(wasmBinaryFile)) {
   wasmBinaryFile = locateFile(wasmBinaryFile);
 }
@@ -2056,2323 +2112,9 @@ function update_fps(x){ cppUpdateFPS(x); }
       throw ptr;
     }
 
-  var tupleRegistrations={};
-  
-  function runDestructors(destructors) {
-      while (destructors.length) {
-          var ptr = destructors.pop();
-          var del = destructors.pop();
-          del(ptr);
-      }
-    }
-  
-  function simpleReadValueFromPointer(pointer) {
-      return this['fromWireType'](HEAPU32[pointer >> 2]);
-    }
-  
-  var awaitingDependencies={};
-  
-  var registeredTypes={};
-  
-  var typeDependencies={};
-  
-  var char_0=48;
-  
-  var char_9=57;
-  function makeLegalFunctionName(name) {
-      if (undefined === name) {
-          return '_unknown';
-      }
-      name = name.replace(/[^a-zA-Z0-9_]/g, '$');
-      var f = name.charCodeAt(0);
-      if (f >= char_0 && f <= char_9) {
-          return '_' + name;
-      } else {
-          return name;
-      }
-    }
-  function createNamedFunction(name, body) {
-      name = makeLegalFunctionName(name);
-      /*jshint evil:true*/
-      return new Function(
-          "body",
-          "return function " + name + "() {\n" +
-          "    \"use strict\";" +
-          "    return body.apply(this, arguments);\n" +
-          "};\n"
-      )(body);
-    }
-  function extendError(baseErrorType, errorName) {
-      var errorClass = createNamedFunction(errorName, function(message) {
-          this.name = errorName;
-          this.message = message;
-  
-          var stack = (new Error(message)).stack;
-          if (stack !== undefined) {
-              this.stack = this.toString() + '\n' +
-                  stack.replace(/^Error(:[^\n]*)?\n/, '');
-          }
-      });
-      errorClass.prototype = Object.create(baseErrorType.prototype);
-      errorClass.prototype.constructor = errorClass;
-      errorClass.prototype.toString = function() {
-          if (this.message === undefined) {
-              return this.name;
-          } else {
-              return this.name + ': ' + this.message;
-          }
-      };
-  
-      return errorClass;
-    }
-  var InternalError=undefined;
-  function throwInternalError(message) {
-      throw new InternalError(message);
-    }
-  function whenDependentTypesAreResolved(myTypes, dependentTypes, getTypeConverters) {
-      myTypes.forEach(function(type) {
-          typeDependencies[type] = dependentTypes;
-      });
-  
-      function onComplete(typeConverters) {
-          var myTypeConverters = getTypeConverters(typeConverters);
-          if (myTypeConverters.length !== myTypes.length) {
-              throwInternalError('Mismatched type converter count');
-          }
-          for (var i = 0; i < myTypes.length; ++i) {
-              registerType(myTypes[i], myTypeConverters[i]);
-          }
-      }
-  
-      var typeConverters = new Array(dependentTypes.length);
-      var unregisteredTypes = [];
-      var registered = 0;
-      dependentTypes.forEach(function(dt, i) {
-          if (registeredTypes.hasOwnProperty(dt)) {
-              typeConverters[i] = registeredTypes[dt];
-          } else {
-              unregisteredTypes.push(dt);
-              if (!awaitingDependencies.hasOwnProperty(dt)) {
-                  awaitingDependencies[dt] = [];
-              }
-              awaitingDependencies[dt].push(function() {
-                  typeConverters[i] = registeredTypes[dt];
-                  ++registered;
-                  if (registered === unregisteredTypes.length) {
-                      onComplete(typeConverters);
-                  }
-              });
-          }
-      });
-      if (0 === unregisteredTypes.length) {
-          onComplete(typeConverters);
-      }
-    }
-  function __embind_finalize_value_array(rawTupleType) {
-      var reg = tupleRegistrations[rawTupleType];
-      delete tupleRegistrations[rawTupleType];
-      var elements = reg.elements;
-      var elementsLength = elements.length;
-      var elementTypes = elements.map(function(elt) { return elt.getterReturnType; }).
-                  concat(elements.map(function(elt) { return elt.setterArgumentType; }));
-  
-      var rawConstructor = reg.rawConstructor;
-      var rawDestructor = reg.rawDestructor;
-  
-      whenDependentTypesAreResolved([rawTupleType], elementTypes, function(elementTypes) {
-          elements.forEach(function(elt, i) {
-              var getterReturnType = elementTypes[i];
-              var getter = elt.getter;
-              var getterContext = elt.getterContext;
-              var setterArgumentType = elementTypes[i + elementsLength];
-              var setter = elt.setter;
-              var setterContext = elt.setterContext;
-              elt.read = function(ptr) {
-                  return getterReturnType['fromWireType'](getter(getterContext, ptr));
-              };
-              elt.write = function(ptr, o) {
-                  var destructors = [];
-                  setter(setterContext, ptr, setterArgumentType['toWireType'](destructors, o));
-                  runDestructors(destructors);
-              };
-          });
-  
-          return [{
-              name: reg.name,
-              'fromWireType': function(ptr) {
-                  var rv = new Array(elementsLength);
-                  for (var i = 0; i < elementsLength; ++i) {
-                      rv[i] = elements[i].read(ptr);
-                  }
-                  rawDestructor(ptr);
-                  return rv;
-              },
-              'toWireType': function(destructors, o) {
-                  if (elementsLength !== o.length) {
-                      throw new TypeError("Incorrect number of tuple elements for " + reg.name + ": expected=" + elementsLength + ", actual=" + o.length);
-                  }
-                  var ptr = rawConstructor();
-                  for (var i = 0; i < elementsLength; ++i) {
-                      elements[i].write(ptr, o[i]);
-                  }
-                  if (destructors !== null) {
-                      destructors.push(rawDestructor, ptr);
-                  }
-                  return ptr;
-              },
-              'argPackAdvance': 8,
-              'readValueFromPointer': simpleReadValueFromPointer,
-              destructorFunction: rawDestructor,
-          }];
-      });
-    }
-
-  var structRegistrations={};
-  function __embind_finalize_value_object(structType) {
-      var reg = structRegistrations[structType];
-      delete structRegistrations[structType];
-  
-      var rawConstructor = reg.rawConstructor;
-      var rawDestructor = reg.rawDestructor;
-      var fieldRecords = reg.fields;
-      var fieldTypes = fieldRecords.map(function(field) { return field.getterReturnType; }).
-                concat(fieldRecords.map(function(field) { return field.setterArgumentType; }));
-      whenDependentTypesAreResolved([structType], fieldTypes, function(fieldTypes) {
-          var fields = {};
-          fieldRecords.forEach(function(field, i) {
-              var fieldName = field.fieldName;
-              var getterReturnType = fieldTypes[i];
-              var getter = field.getter;
-              var getterContext = field.getterContext;
-              var setterArgumentType = fieldTypes[i + fieldRecords.length];
-              var setter = field.setter;
-              var setterContext = field.setterContext;
-              fields[fieldName] = {
-                  read: function(ptr) {
-                      return getterReturnType['fromWireType'](
-                          getter(getterContext, ptr));
-                  },
-                  write: function(ptr, o) {
-                      var destructors = [];
-                      setter(setterContext, ptr, setterArgumentType['toWireType'](destructors, o));
-                      runDestructors(destructors);
-                  }
-              };
-          });
-  
-          return [{
-              name: reg.name,
-              'fromWireType': function(ptr) {
-                  var rv = {};
-                  for (var i in fields) {
-                      rv[i] = fields[i].read(ptr);
-                  }
-                  rawDestructor(ptr);
-                  return rv;
-              },
-              'toWireType': function(destructors, o) {
-                  // todo: Here we have an opportunity for -O3 level "unsafe" optimizations:
-                  // assume all fields are present without checking.
-                  for (var fieldName in fields) {
-                      if (!(fieldName in o)) {
-                          throw new TypeError('Missing field:  "' + fieldName + '"');
-                      }
-                  }
-                  var ptr = rawConstructor();
-                  for (fieldName in fields) {
-                      fields[fieldName].write(ptr, o[fieldName]);
-                  }
-                  if (destructors !== null) {
-                      destructors.push(rawDestructor, ptr);
-                  }
-                  return ptr;
-              },
-              'argPackAdvance': 8,
-              'readValueFromPointer': simpleReadValueFromPointer,
-              destructorFunction: rawDestructor,
-          }];
-      });
-    }
-
-  function getShiftFromSize(size) {
-      switch (size) {
-          case 1: return 0;
-          case 2: return 1;
-          case 4: return 2;
-          case 8: return 3;
-          default:
-              throw new TypeError('Unknown type size: ' + size);
-      }
-    }
-  
-  function embind_init_charCodes() {
-      var codes = new Array(256);
-      for (var i = 0; i < 256; ++i) {
-          codes[i] = String.fromCharCode(i);
-      }
-      embind_charCodes = codes;
-    }
-  var embind_charCodes=undefined;
-  function readLatin1String(ptr) {
-      var ret = "";
-      var c = ptr;
-      while (HEAPU8[c]) {
-          ret += embind_charCodes[HEAPU8[c++]];
-      }
-      return ret;
-    }
-  
-  var BindingError=undefined;
-  function throwBindingError(message) {
-      throw new BindingError(message);
-    }
-  /** @param {Object=} options */
-  function registerType(rawType, registeredInstance, options) {
-      options = options || {};
-  
-      if (!('argPackAdvance' in registeredInstance)) {
-          throw new TypeError('registerType registeredInstance requires argPackAdvance');
-      }
-  
-      var name = registeredInstance.name;
-      if (!rawType) {
-          throwBindingError('type "' + name + '" must have a positive integer typeid pointer');
-      }
-      if (registeredTypes.hasOwnProperty(rawType)) {
-          if (options.ignoreDuplicateRegistrations) {
-              return;
-          } else {
-              throwBindingError("Cannot register type '" + name + "' twice");
-          }
-      }
-  
-      registeredTypes[rawType] = registeredInstance;
-      delete typeDependencies[rawType];
-  
-      if (awaitingDependencies.hasOwnProperty(rawType)) {
-          var callbacks = awaitingDependencies[rawType];
-          delete awaitingDependencies[rawType];
-          callbacks.forEach(function(cb) {
-              cb();
-          });
-      }
-    }
-  function __embind_register_bool(rawType, name, size, trueValue, falseValue) {
-      var shift = getShiftFromSize(size);
-  
-      name = readLatin1String(name);
-      registerType(rawType, {
-          name: name,
-          'fromWireType': function(wt) {
-              // ambiguous emscripten ABI: sometimes return values are
-              // true or false, and sometimes integers (0 or 1)
-              return !!wt;
-          },
-          'toWireType': function(destructors, o) {
-              return o ? trueValue : falseValue;
-          },
-          'argPackAdvance': 8,
-          'readValueFromPointer': function(pointer) {
-              // TODO: if heap is fixed (like in asm.js) this could be executed outside
-              var heap;
-              if (size === 1) {
-                  heap = HEAP8;
-              } else if (size === 2) {
-                  heap = HEAP16;
-              } else if (size === 4) {
-                  heap = HEAP32;
-              } else {
-                  throw new TypeError("Unknown boolean type size: " + name);
-              }
-              return this['fromWireType'](heap[pointer >> shift]);
-          },
-          destructorFunction: null, // This type does not need a destructor
-      });
-    }
-
-  var emval_free_list=[];
-  
-  var emval_handle_array=[{},{value:undefined},{value:null},{value:true},{value:false}];
-  function __emval_decref(handle) {
-      if (handle > 4 && 0 === --emval_handle_array[handle].refcount) {
-          emval_handle_array[handle] = undefined;
-          emval_free_list.push(handle);
-      }
-    }
-  
-  function count_emval_handles() {
-      var count = 0;
-      for (var i = 5; i < emval_handle_array.length; ++i) {
-          if (emval_handle_array[i] !== undefined) {
-              ++count;
-          }
-      }
-      return count;
-    }
-  
-  function get_first_emval() {
-      for (var i = 5; i < emval_handle_array.length; ++i) {
-          if (emval_handle_array[i] !== undefined) {
-              return emval_handle_array[i];
-          }
-      }
-      return null;
-    }
-  function init_emval() {
-      Module['count_emval_handles'] = count_emval_handles;
-      Module['get_first_emval'] = get_first_emval;
-    }
-  function __emval_register(value) {
-  
-      switch(value){
-        case undefined :{ return 1; }
-        case null :{ return 2; }
-        case true :{ return 3; }
-        case false :{ return 4; }
-        default:{
-          var handle = emval_free_list.length ?
-              emval_free_list.pop() :
-              emval_handle_array.length;
-  
-          emval_handle_array[handle] = {refcount: 1, value: value};
-          return handle;
-          }
-        }
-    }
-  function __embind_register_emval(rawType, name) {
-      name = readLatin1String(name);
-      registerType(rawType, {
-          name: name,
-          'fromWireType': function(handle) {
-              var rv = emval_handle_array[handle].value;
-              __emval_decref(handle);
-              return rv;
-          },
-          'toWireType': function(destructors, value) {
-              return __emval_register(value);
-          },
-          'argPackAdvance': 8,
-          'readValueFromPointer': simpleReadValueFromPointer,
-          destructorFunction: null, // This type does not need a destructor
-  
-          // TODO: do we need a deleteObject here?  write a test where
-          // emval is passed into JS via an interface
-      });
-    }
-
-  function _embind_repr(v) {
-      if (v === null) {
-          return 'null';
-      }
-      var t = typeof v;
-      if (t === 'object' || t === 'array' || t === 'function') {
-          return v.toString();
-      } else {
-          return '' + v;
-      }
-    }
-  
-  function floatReadValueFromPointer(name, shift) {
-      switch (shift) {
-          case 2: return function(pointer) {
-              return this['fromWireType'](HEAPF32[pointer >> 2]);
-          };
-          case 3: return function(pointer) {
-              return this['fromWireType'](HEAPF64[pointer >> 3]);
-          };
-          default:
-              throw new TypeError("Unknown float type: " + name);
-      }
-    }
-  function __embind_register_float(rawType, name, size) {
-      var shift = getShiftFromSize(size);
-      name = readLatin1String(name);
-      registerType(rawType, {
-          name: name,
-          'fromWireType': function(value) {
-              return value;
-          },
-          'toWireType': function(destructors, value) {
-              // todo: Here we have an opportunity for -O3 level "unsafe" optimizations: we could
-              // avoid the following if() and assume value is of proper type.
-              if (typeof value !== "number" && typeof value !== "boolean") {
-                  throw new TypeError('Cannot convert "' + _embind_repr(value) + '" to ' + this.name);
-              }
-              return value;
-          },
-          'argPackAdvance': 8,
-          'readValueFromPointer': floatReadValueFromPointer(name, shift),
-          destructorFunction: null, // This type does not need a destructor
-      });
-    }
-
-  function new_(constructor, argumentList) {
-      if (!(constructor instanceof Function)) {
-          throw new TypeError('new_ called with constructor type ' + typeof(constructor) + " which is not a function");
-      }
-  
-      /*
-       * Previously, the following line was just:
-  
-       function dummy() {};
-  
-       * Unfortunately, Chrome was preserving 'dummy' as the object's name, even though at creation, the 'dummy' has the
-       * correct constructor name.  Thus, objects created with IMVU.new would show up in the debugger as 'dummy', which
-       * isn't very helpful.  Using IMVU.createNamedFunction addresses the issue.  Doublely-unfortunately, there's no way
-       * to write a test for this behavior.  -NRD 2013.02.22
-       */
-      var dummy = createNamedFunction(constructor.name || 'unknownFunctionName', function(){});
-      dummy.prototype = constructor.prototype;
-      var obj = new dummy;
-  
-      var r = constructor.apply(obj, argumentList);
-      return (r instanceof Object) ? r : obj;
-    }
-  function craftInvokerFunction(humanName, argTypes, classType, cppInvokerFunc, cppTargetFunc) {
-      // humanName: a human-readable string name for the function to be generated.
-      // argTypes: An array that contains the embind type objects for all types in the function signature.
-      //    argTypes[0] is the type object for the function return value.
-      //    argTypes[1] is the type object for function this object/class type, or null if not crafting an invoker for a class method.
-      //    argTypes[2...] are the actual function parameters.
-      // classType: The embind type object for the class to be bound, or null if this is not a method of a class.
-      // cppInvokerFunc: JS Function object to the C++-side function that interops into C++ code.
-      // cppTargetFunc: Function pointer (an integer to FUNCTION_TABLE) to the target C++ function the cppInvokerFunc will end up calling.
-      var argCount = argTypes.length;
-  
-      if (argCount < 2) {
-          throwBindingError("argTypes array size mismatch! Must at least get return value and 'this' types!");
-      }
-  
-      var isClassMethodFunc = (argTypes[1] !== null && classType !== null);
-  
-      // Free functions with signature "void function()" do not need an invoker that marshalls between wire types.
-  // TODO: This omits argument count check - enable only at -O3 or similar.
-  //    if (ENABLE_UNSAFE_OPTS && argCount == 2 && argTypes[0].name == "void" && !isClassMethodFunc) {
-  //       return FUNCTION_TABLE[fn];
-  //    }
-  
-      // Determine if we need to use a dynamic stack to store the destructors for the function parameters.
-      // TODO: Remove this completely once all function invokers are being dynamically generated.
-      var needsDestructorStack = false;
-  
-      for(var i = 1; i < argTypes.length; ++i) { // Skip return value at index 0 - it's not deleted here.
-          if (argTypes[i] !== null && argTypes[i].destructorFunction === undefined) { // The type does not define a destructor function - must use dynamic stack
-              needsDestructorStack = true;
-              break;
-          }
-      }
-  
-      var returns = (argTypes[0].name !== "void");
-  
-      var argsList = "";
-      var argsListWired = "";
-      for(var i = 0; i < argCount - 2; ++i) {
-          argsList += (i!==0?", ":"")+"arg"+i;
-          argsListWired += (i!==0?", ":"")+"arg"+i+"Wired";
-      }
-  
-      var invokerFnBody =
-          "return function "+makeLegalFunctionName(humanName)+"("+argsList+") {\n" +
-          "if (arguments.length !== "+(argCount - 2)+") {\n" +
-              "throwBindingError('function "+humanName+" called with ' + arguments.length + ' arguments, expected "+(argCount - 2)+" args!');\n" +
-          "}\n";
-  
-      if (needsDestructorStack) {
-          invokerFnBody +=
-              "var destructors = [];\n";
-      }
-  
-      var dtorStack = needsDestructorStack ? "destructors" : "null";
-      var args1 = ["throwBindingError", "invoker", "fn", "runDestructors", "retType", "classParam"];
-      var args2 = [throwBindingError, cppInvokerFunc, cppTargetFunc, runDestructors, argTypes[0], argTypes[1]];
-  
-      if (isClassMethodFunc) {
-          invokerFnBody += "var thisWired = classParam.toWireType("+dtorStack+", this);\n";
-      }
-  
-      for(var i = 0; i < argCount - 2; ++i) {
-          invokerFnBody += "var arg"+i+"Wired = argType"+i+".toWireType("+dtorStack+", arg"+i+"); // "+argTypes[i+2].name+"\n";
-          args1.push("argType"+i);
-          args2.push(argTypes[i+2]);
-      }
-  
-      if (isClassMethodFunc) {
-          argsListWired = "thisWired" + (argsListWired.length > 0 ? ", " : "") + argsListWired;
-      }
-  
-      invokerFnBody +=
-          (returns?"var rv = ":"") + "invoker(fn"+(argsListWired.length>0?", ":"")+argsListWired+");\n";
-  
-      if (needsDestructorStack) {
-          invokerFnBody += "runDestructors(destructors);\n";
-      } else {
-          for(var i = isClassMethodFunc?1:2; i < argTypes.length; ++i) { // Skip return value at index 0 - it's not deleted here. Also skip class type if not a method.
-              var paramName = (i === 1 ? "thisWired" : ("arg"+(i - 2)+"Wired"));
-              if (argTypes[i].destructorFunction !== null) {
-                  invokerFnBody += paramName+"_dtor("+paramName+"); // "+argTypes[i].name+"\n";
-                  args1.push(paramName+"_dtor");
-                  args2.push(argTypes[i].destructorFunction);
-              }
-          }
-      }
-  
-      if (returns) {
-          invokerFnBody += "var ret = retType.fromWireType(rv);\n" +
-                           "return ret;\n";
-      } else {
-      }
-      invokerFnBody += "}\n";
-  
-      args1.push(invokerFnBody);
-  
-      var invokerFunction = new_(Function, args1).apply(null, args2);
-      return invokerFunction;
-    }
-  
-  function ensureOverloadTable(proto, methodName, humanName) {
-      if (undefined === proto[methodName].overloadTable) {
-          var prevFunc = proto[methodName];
-          // Inject an overload resolver function that routes to the appropriate overload based on the number of arguments.
-          proto[methodName] = function() {
-              // TODO This check can be removed in -O3 level "unsafe" optimizations.
-              if (!proto[methodName].overloadTable.hasOwnProperty(arguments.length)) {
-                  throwBindingError("Function '" + humanName + "' called with an invalid number of arguments (" + arguments.length + ") - expects one of (" + proto[methodName].overloadTable + ")!");
-              }
-              return proto[methodName].overloadTable[arguments.length].apply(this, arguments);
-          };
-          // Move the previous function into the overload table.
-          proto[methodName].overloadTable = [];
-          proto[methodName].overloadTable[prevFunc.argCount] = prevFunc;
-      }
-    }
-  /** @param {number=} numArguments */
-  function exposePublicSymbol(name, value, numArguments) {
-      if (Module.hasOwnProperty(name)) {
-          if (undefined === numArguments || (undefined !== Module[name].overloadTable && undefined !== Module[name].overloadTable[numArguments])) {
-              throwBindingError("Cannot register public name '" + name + "' twice");
-          }
-  
-          // We are exposing a function with the same name as an existing function. Create an overload table and a function selector
-          // that routes between the two.
-          ensureOverloadTable(Module, name, name);
-          if (Module.hasOwnProperty(numArguments)) {
-              throwBindingError("Cannot register multiple overloads of a function with the same number of arguments (" + numArguments + ")!");
-          }
-          // Add the new function into the overload table.
-          Module[name].overloadTable[numArguments] = value;
-      }
-      else {
-          Module[name] = value;
-          if (undefined !== numArguments) {
-              Module[name].numArguments = numArguments;
-          }
-      }
-    }
-  
-  function heap32VectorToArray(count, firstElement) {
-      var array = [];
-      for (var i = 0; i < count; i++) {
-          array.push(HEAP32[(firstElement >> 2) + i]);
-      }
-      return array;
-    }
-  
-  /** @param {number=} numArguments */
-  function replacePublicSymbol(name, value, numArguments) {
-      if (!Module.hasOwnProperty(name)) {
-          throwInternalError('Replacing nonexistant public symbol');
-      }
-      // If there's an overload table for this symbol, replace the symbol in the overload table instead.
-      if (undefined !== Module[name].overloadTable && undefined !== numArguments) {
-          Module[name].overloadTable[numArguments] = value;
-      }
-      else {
-          Module[name] = value;
-          Module[name].argCount = numArguments;
-      }
-    }
-  
-  function dynCallLegacy(sig, ptr, args) {
-      var f = Module["dynCall_" + sig];
-      return args && args.length ? f.apply(null, [ptr].concat(args)) : f.call(null, ptr);
-    }
-  function dynCall(sig, ptr, args) {
-      // Without WASM_BIGINT support we cannot directly call function with i64 as
-      // part of thier signature, so we rely the dynCall functions generated by
-      // wasm-emscripten-finalize
-      if (sig.indexOf('j') != -1) {
-        return dynCallLegacy(sig, ptr, args);
-      }
-      return wasmTable.get(ptr).apply(null, args)
-    }
-  function getDynCaller(sig, ptr) {
-      var argCache = [];
-      return function() {
-        argCache.length = arguments.length;
-        for (var i = 0; i < arguments.length; i++) {
-          argCache[i] = arguments[i];
-        }
-        return dynCall(sig, ptr, argCache);
-      };
-    }
-  function embind__requireFunction(signature, rawFunction) {
-      signature = readLatin1String(signature);
-  
-      function makeDynCaller() {
-        if (signature.indexOf('j') != -1) {
-          return getDynCaller(signature, rawFunction);
-        }
-        return wasmTable.get(rawFunction);
-      }
-  
-      var fp = makeDynCaller();
-      if (typeof fp !== "function") {
-          throwBindingError("unknown function pointer with signature " + signature + ": " + rawFunction);
-      }
-      return fp;
-    }
-  
-  var UnboundTypeError=undefined;
-  
-  function getTypeName(type) {
-      var ptr = ___getTypeName(type);
-      var rv = readLatin1String(ptr);
-      _free(ptr);
-      return rv;
-    }
-  function throwUnboundTypeError(message, types) {
-      var unboundTypes = [];
-      var seen = {};
-      function visit(type) {
-          if (seen[type]) {
-              return;
-          }
-          if (registeredTypes[type]) {
-              return;
-          }
-          if (typeDependencies[type]) {
-              typeDependencies[type].forEach(visit);
-              return;
-          }
-          unboundTypes.push(type);
-          seen[type] = true;
-      }
-      types.forEach(visit);
-  
-      throw new UnboundTypeError(message + ': ' + unboundTypes.map(getTypeName).join([', ']));
-    }
-  function __embind_register_function(name, argCount, rawArgTypesAddr, signature, rawInvoker, fn) {
-      var argTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
-      name = readLatin1String(name);
-  
-      rawInvoker = embind__requireFunction(signature, rawInvoker);
-  
-      exposePublicSymbol(name, function() {
-          throwUnboundTypeError('Cannot call ' + name + ' due to unbound types', argTypes);
-      }, argCount - 1);
-  
-      whenDependentTypesAreResolved([], argTypes, function(argTypes) {
-          var invokerArgsArray = [argTypes[0] /* return value */, null /* no class 'this'*/].concat(argTypes.slice(1) /* actual params */);
-          replacePublicSymbol(name, craftInvokerFunction(name, invokerArgsArray, null /* no class 'this'*/, rawInvoker, fn), argCount - 1);
-          return [];
-      });
-    }
-
-  function integerReadValueFromPointer(name, shift, signed) {
-      // integers are quite common, so generate very specialized functions
-      switch (shift) {
-          case 0: return signed ?
-              function readS8FromPointer(pointer) { return HEAP8[pointer]; } :
-              function readU8FromPointer(pointer) { return HEAPU8[pointer]; };
-          case 1: return signed ?
-              function readS16FromPointer(pointer) { return HEAP16[pointer >> 1]; } :
-              function readU16FromPointer(pointer) { return HEAPU16[pointer >> 1]; };
-          case 2: return signed ?
-              function readS32FromPointer(pointer) { return HEAP32[pointer >> 2]; } :
-              function readU32FromPointer(pointer) { return HEAPU32[pointer >> 2]; };
-          default:
-              throw new TypeError("Unknown integer type: " + name);
-      }
-    }
-  function __embind_register_integer(primitiveType, name, size, minRange, maxRange) {
-      name = readLatin1String(name);
-      if (maxRange === -1) { // LLVM doesn't have signed and unsigned 32-bit types, so u32 literals come out as 'i32 -1'. Always treat those as max u32.
-          maxRange = 4294967295;
-      }
-  
-      var shift = getShiftFromSize(size);
-  
-      var fromWireType = function(value) {
-          return value;
-      };
-  
-      if (minRange === 0) {
-          var bitshift = 32 - 8*size;
-          fromWireType = function(value) {
-              return (value << bitshift) >>> bitshift;
-          };
-      }
-  
-      var isUnsignedType = (name.indexOf('unsigned') != -1);
-  
-      registerType(primitiveType, {
-          name: name,
-          'fromWireType': fromWireType,
-          'toWireType': function(destructors, value) {
-              // todo: Here we have an opportunity for -O3 level "unsafe" optimizations: we could
-              // avoid the following two if()s and assume value is of proper type.
-              if (typeof value !== "number" && typeof value !== "boolean") {
-                  throw new TypeError('Cannot convert "' + _embind_repr(value) + '" to ' + this.name);
-              }
-              if (value < minRange || value > maxRange) {
-                  throw new TypeError('Passing a number "' + _embind_repr(value) + '" from JS side to C/C++ side to an argument of type "' + name + '", which is outside the valid range [' + minRange + ', ' + maxRange + ']!');
-              }
-              return isUnsignedType ? (value >>> 0) : (value | 0);
-          },
-          'argPackAdvance': 8,
-          'readValueFromPointer': integerReadValueFromPointer(name, shift, minRange !== 0),
-          destructorFunction: null, // This type does not need a destructor
-      });
-    }
-
-  function __embind_register_memory_view(rawType, dataTypeIndex, name) {
-      var typeMapping = [
-          Int8Array,
-          Uint8Array,
-          Int16Array,
-          Uint16Array,
-          Int32Array,
-          Uint32Array,
-          Float32Array,
-          Float64Array,
-      ];
-  
-      var TA = typeMapping[dataTypeIndex];
-  
-      function decodeMemoryView(handle) {
-          handle = handle >> 2;
-          var heap = HEAPU32;
-          var size = heap[handle]; // in elements
-          var data = heap[handle + 1]; // byte offset into emscripten heap
-          return new TA(buffer, data, size);
-      }
-  
-      name = readLatin1String(name);
-      registerType(rawType, {
-          name: name,
-          'fromWireType': decodeMemoryView,
-          'argPackAdvance': 8,
-          'readValueFromPointer': decodeMemoryView,
-      }, {
-          ignoreDuplicateRegistrations: true,
-      });
-    }
-
-  function __embind_register_std_string(rawType, name) {
-      name = readLatin1String(name);
-      var stdStringIsUTF8
-      //process only std::string bindings with UTF8 support, in contrast to e.g. std::basic_string<unsigned char>
-      = (name === "std::string");
-  
-      registerType(rawType, {
-          name: name,
-          'fromWireType': function(value) {
-              var length = HEAPU32[value >> 2];
-  
-              var str;
-              if (stdStringIsUTF8) {
-                  var decodeStartPtr = value + 4;
-                  // Looping here to support possible embedded '0' bytes
-                  for (var i = 0; i <= length; ++i) {
-                      var currentBytePtr = value + 4 + i;
-                      if (i == length || HEAPU8[currentBytePtr] == 0) {
-                          var maxRead = currentBytePtr - decodeStartPtr;
-                          var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
-                          if (str === undefined) {
-                              str = stringSegment;
-                          } else {
-                              str += String.fromCharCode(0);
-                              str += stringSegment;
-                          }
-                          decodeStartPtr = currentBytePtr + 1;
-                      }
-                  }
-              } else {
-                  var a = new Array(length);
-                  for (var i = 0; i < length; ++i) {
-                      a[i] = String.fromCharCode(HEAPU8[value + 4 + i]);
-                  }
-                  str = a.join('');
-              }
-  
-              _free(value);
-  
-              return str;
-          },
-          'toWireType': function(destructors, value) {
-              if (value instanceof ArrayBuffer) {
-                  value = new Uint8Array(value);
-              }
-  
-              var getLength;
-              var valueIsOfTypeString = (typeof value === 'string');
-  
-              if (!(valueIsOfTypeString || value instanceof Uint8Array || value instanceof Uint8ClampedArray || value instanceof Int8Array)) {
-                  throwBindingError('Cannot pass non-string to std::string');
-              }
-              if (stdStringIsUTF8 && valueIsOfTypeString) {
-                  getLength = function() {return lengthBytesUTF8(value);};
-              } else {
-                  getLength = function() {return value.length;};
-              }
-  
-              // assumes 4-byte alignment
-              var length = getLength();
-              var ptr = _malloc(4 + length + 1);
-              HEAPU32[ptr >> 2] = length;
-              if (stdStringIsUTF8 && valueIsOfTypeString) {
-                  stringToUTF8(value, ptr + 4, length + 1);
-              } else {
-                  if (valueIsOfTypeString) {
-                      for (var i = 0; i < length; ++i) {
-                          var charCode = value.charCodeAt(i);
-                          if (charCode > 255) {
-                              _free(ptr);
-                              throwBindingError('String has UTF-16 code units that do not fit in 8 bits');
-                          }
-                          HEAPU8[ptr + 4 + i] = charCode;
-                      }
-                  } else {
-                      for (var i = 0; i < length; ++i) {
-                          HEAPU8[ptr + 4 + i] = value[i];
-                      }
-                  }
-              }
-  
-              if (destructors !== null) {
-                  destructors.push(_free, ptr);
-              }
-              return ptr;
-          },
-          'argPackAdvance': 8,
-          'readValueFromPointer': simpleReadValueFromPointer,
-          destructorFunction: function(ptr) { _free(ptr); },
-      });
-    }
-
-  function __embind_register_std_wstring(rawType, charSize, name) {
-      name = readLatin1String(name);
-      var decodeString, encodeString, getHeap, lengthBytesUTF, shift;
-      if (charSize === 2) {
-          decodeString = UTF16ToString;
-          encodeString = stringToUTF16;
-          lengthBytesUTF = lengthBytesUTF16;
-          getHeap = function() { return HEAPU16; };
-          shift = 1;
-      } else if (charSize === 4) {
-          decodeString = UTF32ToString;
-          encodeString = stringToUTF32;
-          lengthBytesUTF = lengthBytesUTF32;
-          getHeap = function() { return HEAPU32; };
-          shift = 2;
-      }
-      registerType(rawType, {
-          name: name,
-          'fromWireType': function(value) {
-              // Code mostly taken from _embind_register_std_string fromWireType
-              var length = HEAPU32[value >> 2];
-              var HEAP = getHeap();
-              var str;
-  
-              var decodeStartPtr = value + 4;
-              // Looping here to support possible embedded '0' bytes
-              for (var i = 0; i <= length; ++i) {
-                  var currentBytePtr = value + 4 + i * charSize;
-                  if (i == length || HEAP[currentBytePtr >> shift] == 0) {
-                      var maxReadBytes = currentBytePtr - decodeStartPtr;
-                      var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
-                      if (str === undefined) {
-                          str = stringSegment;
-                      } else {
-                          str += String.fromCharCode(0);
-                          str += stringSegment;
-                      }
-                      decodeStartPtr = currentBytePtr + charSize;
-                  }
-              }
-  
-              _free(value);
-  
-              return str;
-          },
-          'toWireType': function(destructors, value) {
-              if (!(typeof value === 'string')) {
-                  throwBindingError('Cannot pass non-string to C++ string type ' + name);
-              }
-  
-              // assumes 4-byte alignment
-              var length = lengthBytesUTF(value);
-              var ptr = _malloc(4 + length + charSize);
-              HEAPU32[ptr >> 2] = length >> shift;
-  
-              encodeString(value, ptr + 4, length + charSize);
-  
-              if (destructors !== null) {
-                  destructors.push(_free, ptr);
-              }
-              return ptr;
-          },
-          'argPackAdvance': 8,
-          'readValueFromPointer': simpleReadValueFromPointer,
-          destructorFunction: function(ptr) { _free(ptr); },
-      });
-    }
-
-  function __embind_register_value_array(
-      rawType,
-      name,
-      constructorSignature,
-      rawConstructor,
-      destructorSignature,
-      rawDestructor
-    ) {
-      tupleRegistrations[rawType] = {
-          name: readLatin1String(name),
-          rawConstructor: embind__requireFunction(constructorSignature, rawConstructor),
-          rawDestructor: embind__requireFunction(destructorSignature, rawDestructor),
-          elements: [],
-      };
-    }
-
-  function __embind_register_value_array_element(
-      rawTupleType,
-      getterReturnType,
-      getterSignature,
-      getter,
-      getterContext,
-      setterArgumentType,
-      setterSignature,
-      setter,
-      setterContext
-    ) {
-      tupleRegistrations[rawTupleType].elements.push({
-          getterReturnType: getterReturnType,
-          getter: embind__requireFunction(getterSignature, getter),
-          getterContext: getterContext,
-          setterArgumentType: setterArgumentType,
-          setter: embind__requireFunction(setterSignature, setter),
-          setterContext: setterContext,
-      });
-    }
-
-  function __embind_register_value_object(
-      rawType,
-      name,
-      constructorSignature,
-      rawConstructor,
-      destructorSignature,
-      rawDestructor
-    ) {
-      structRegistrations[rawType] = {
-          name: readLatin1String(name),
-          rawConstructor: embind__requireFunction(constructorSignature, rawConstructor),
-          rawDestructor: embind__requireFunction(destructorSignature, rawDestructor),
-          fields: [],
-      };
-    }
-
-  function __embind_register_value_object_field(
-      structType,
-      fieldName,
-      getterReturnType,
-      getterSignature,
-      getter,
-      getterContext,
-      setterArgumentType,
-      setterSignature,
-      setter,
-      setterContext
-    ) {
-      structRegistrations[structType].fields.push({
-          fieldName: readLatin1String(fieldName),
-          getterReturnType: getterReturnType,
-          getter: embind__requireFunction(getterSignature, getter),
-          getterContext: getterContext,
-          setterArgumentType: setterArgumentType,
-          setter: embind__requireFunction(setterSignature, setter),
-          setterContext: setterContext,
-      });
-    }
-
-  function __embind_register_void(rawType, name) {
-      name = readLatin1String(name);
-      registerType(rawType, {
-          isVoid: true, // void return values can be optimized out sometimes
-          name: name,
-          'argPackAdvance': 0,
-          'fromWireType': function() {
-              return undefined;
-          },
-          'toWireType': function(destructors, o) {
-              // TODO: assert if anything else is given?
-              return undefined;
-          },
-      });
-    }
-
-  function __emscripten_fetch_free(id) {
-    //Note: should just be [id], but indexes off by 1 (see: #8803)
-    delete Fetch.xhrs[id-1];
-  }
-
-  function _abort() {
-      abort();
-    }
-
-  var _emscripten_get_now;if (ENVIRONMENT_IS_NODE) {
-    _emscripten_get_now = function() {
-      var t = process['hrtime']();
-      return t[0] * 1e3 + t[1] / 1e6;
-    };
-  } else if (typeof dateNow !== 'undefined') {
-    _emscripten_get_now = dateNow;
-  } else _emscripten_get_now = function() { return performance.now(); }
-  ;
-  
-  var _emscripten_get_now_is_monotonic=true;;
-  
   function setErrNo(value) {
       HEAP32[((___errno_location())>>2)] = value;
       return value;
-    }
-  function _clock_gettime(clk_id, tp) {
-      // int clock_gettime(clockid_t clk_id, struct timespec *tp);
-      var now;
-      if (clk_id === 0) {
-        now = Date.now();
-      } else if ((clk_id === 1 || clk_id === 4) && _emscripten_get_now_is_monotonic) {
-        now = _emscripten_get_now();
-      } else {
-        setErrNo(28);
-        return -1;
-      }
-      HEAP32[((tp)>>2)] = (now/1000)|0; // seconds
-      HEAP32[(((tp)+(4))>>2)] = ((now % 1000)*1000*1000)|0; // nanoseconds
-      return 0;
-    }
-
-  function _emscripten_is_main_browser_thread() {
-      return !ENVIRONMENT_IS_WORKER;
-    }
-  Module["_emscripten_is_main_browser_thread"] = _emscripten_is_main_browser_thread;
-
-  function _emscripten_memcpy_big(dest, src, num) {
-      HEAPU8.copyWithin(dest, src, src + num);
-    }
-
-  function _emscripten_get_heap_size() {
-      return HEAPU8.length;
-    }
-  
-  function emscripten_realloc_buffer(size) {
-      try {
-        // round size grow request up to wasm page size (fixed 64KB per spec)
-        wasmMemory.grow((size - buffer.byteLength + 65535) >>> 16); // .grow() takes a delta compared to the previous size
-        updateGlobalBufferAndViews(wasmMemory.buffer);
-        return 1 /*success*/;
-      } catch(e) {
-      }
-      // implicit 0 return to save code size (caller will cast "undefined" into 0
-      // anyhow)
-    }
-  function _emscripten_resize_heap(requestedSize) {
-      var oldSize = _emscripten_get_heap_size();
-      // With pthreads, races can happen (another thread might increase the size in between), so return a failure, and let the caller retry.
-  
-      // Memory resize rules:
-      // 1. Always increase heap size to at least the requested size, rounded up to next page multiple.
-      // 2a. If MEMORY_GROWTH_LINEAR_STEP == -1, excessively resize the heap geometrically: increase the heap size according to 
-      //                                         MEMORY_GROWTH_GEOMETRIC_STEP factor (default +20%),
-      //                                         At most overreserve by MEMORY_GROWTH_GEOMETRIC_CAP bytes (default 96MB).
-      // 2b. If MEMORY_GROWTH_LINEAR_STEP != -1, excessively resize the heap linearly: increase the heap size by at least MEMORY_GROWTH_LINEAR_STEP bytes.
-      // 3. Max size for the heap is capped at 2048MB-WASM_PAGE_SIZE, or by MAXIMUM_MEMORY, or by ASAN limit, depending on which is smallest
-      // 4. If we were unable to allocate as much memory, it may be due to over-eager decision to excessively reserve due to (3) above.
-      //    Hence if an allocation fails, cut down on the amount of excess growth, in an attempt to succeed to perform a smaller allocation.
-  
-      // A limit was set for how much we can grow. We should not exceed that
-      // (the wasm binary specifies it, so if we tried, we'd fail anyhow).
-      // In CAN_ADDRESS_2GB mode, stay one Wasm page short of 4GB: while e.g. Chrome is able to allocate full 4GB Wasm memories, the size will wrap
-      // back to 0 bytes in Wasm side for any code that deals with heap sizes, which would require special casing all heap size related code to treat
-      // 0 specially.
-      var maxHeapSize = 2147483648;
-      if (requestedSize > maxHeapSize) {
-        return false;
-      }
-  
-      // Loop through potential heap size increases. If we attempt a too eager reservation that fails, cut down on the
-      // attempted size and reserve a smaller bump instead. (max 3 times, chosen somewhat arbitrarily)
-      for(var cutDown = 1; cutDown <= 4; cutDown *= 2) {
-        var overGrownHeapSize = oldSize * (1 + 0.2 / cutDown); // ensure geometric growth
-        // but limit overreserving (default to capping at +96MB overgrowth at most)
-        overGrownHeapSize = Math.min(overGrownHeapSize, requestedSize + 100663296 );
-  
-        var newSize = Math.min(maxHeapSize, alignUp(Math.max(requestedSize, overGrownHeapSize), 65536));
-  
-        var replacement = emscripten_realloc_buffer(newSize);
-        if (replacement) {
-  
-          return true;
-        }
-      }
-      return false;
-    }
-
-  var Browser={mainLoop:{scheduler:null,method:"",currentlyRunningMainloop:0,func:null,arg:0,timingMode:0,timingValue:0,currentFrameNumber:0,queue:[],pause:function() {
-          Browser.mainLoop.scheduler = null;
-          // Incrementing this signals the previous main loop that it's now become old, and it must return.
-          Browser.mainLoop.currentlyRunningMainloop++;
-        },resume:function() {
-          Browser.mainLoop.currentlyRunningMainloop++;
-          var timingMode = Browser.mainLoop.timingMode;
-          var timingValue = Browser.mainLoop.timingValue;
-          var func = Browser.mainLoop.func;
-          Browser.mainLoop.func = null;
-          // do not set timing and call scheduler, we will do it on the next lines
-          setMainLoop(func, 0, false, Browser.mainLoop.arg, true);
-          _emscripten_set_main_loop_timing(timingMode, timingValue);
-          Browser.mainLoop.scheduler();
-        },updateStatus:function() {
-          if (Module['setStatus']) {
-            var message = Module['statusMessage'] || 'Please wait...';
-            var remaining = Browser.mainLoop.remainingBlockers;
-            var expected = Browser.mainLoop.expectedBlockers;
-            if (remaining) {
-              if (remaining < expected) {
-                Module['setStatus'](message + ' (' + (expected - remaining) + '/' + expected + ')');
-              } else {
-                Module['setStatus'](message);
-              }
-            } else {
-              Module['setStatus']('');
-            }
-          }
-        },runIter:function(func) {
-          if (ABORT) return;
-          if (Module['preMainLoop']) {
-            var preRet = Module['preMainLoop']();
-            if (preRet === false) {
-              return; // |return false| skips a frame
-            }
-          }
-          try {
-            func();
-          } catch (e) {
-            if (e instanceof ExitStatus) {
-              return;
-            } else if (e == 'unwind') {
-              return;
-            } else {
-              if (e && typeof e === 'object' && e.stack) err('exception thrown: ' + [e, e.stack]);
-              throw e;
-            }
-          }
-          if (Module['postMainLoop']) Module['postMainLoop']();
-        }},isFullscreen:false,pointerLock:false,moduleContextCreatedCallbacks:[],workers:[],init:function() {
-        if (!Module["preloadPlugins"]) Module["preloadPlugins"] = []; // needs to exist even in workers
-  
-        if (Browser.initted) return;
-        Browser.initted = true;
-  
-        try {
-          new Blob();
-          Browser.hasBlobConstructor = true;
-        } catch(e) {
-          Browser.hasBlobConstructor = false;
-          console.log("warning: no blob constructor, cannot create blobs with mimetypes");
-        }
-        Browser.BlobBuilder = typeof MozBlobBuilder != "undefined" ? MozBlobBuilder : (typeof WebKitBlobBuilder != "undefined" ? WebKitBlobBuilder : (!Browser.hasBlobConstructor ? console.log("warning: no BlobBuilder") : null));
-        Browser.URLObject = typeof window != "undefined" ? (window.URL ? window.URL : window.webkitURL) : undefined;
-        if (!Module.noImageDecoding && typeof Browser.URLObject === 'undefined') {
-          console.log("warning: Browser does not support creating object URLs. Built-in browser image decoding will not be available.");
-          Module.noImageDecoding = true;
-        }
-  
-        // Support for plugins that can process preloaded files. You can add more of these to
-        // your app by creating and appending to Module.preloadPlugins.
-        //
-        // Each plugin is asked if it can handle a file based on the file's name. If it can,
-        // it is given the file's raw data. When it is done, it calls a callback with the file's
-        // (possibly modified) data. For example, a plugin might decompress a file, or it
-        // might create some side data structure for use later (like an Image element, etc.).
-  
-        var imagePlugin = {};
-        imagePlugin['canHandle'] = function imagePlugin_canHandle(name) {
-          return !Module.noImageDecoding && /\.(jpg|jpeg|png|bmp)$/i.test(name);
-        };
-        imagePlugin['handle'] = function imagePlugin_handle(byteArray, name, onload, onerror) {
-          var b = null;
-          if (Browser.hasBlobConstructor) {
-            try {
-              b = new Blob([byteArray], { type: Browser.getMimetype(name) });
-              if (b.size !== byteArray.length) { // Safari bug #118630
-                // Safari's Blob can only take an ArrayBuffer
-                b = new Blob([(new Uint8Array(byteArray)).buffer], { type: Browser.getMimetype(name) });
-              }
-            } catch(e) {
-              warnOnce('Blob constructor present but fails: ' + e + '; falling back to blob builder');
-            }
-          }
-          if (!b) {
-            var bb = new Browser.BlobBuilder();
-            bb.append((new Uint8Array(byteArray)).buffer); // we need to pass a buffer, and must copy the array to get the right data range
-            b = bb.getBlob();
-          }
-          var url = Browser.URLObject.createObjectURL(b);
-          var img = new Image();
-          img.onload = function img_onload() {
-            assert(img.complete, 'Image ' + name + ' could not be decoded');
-            var canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            Module["preloadedImages"][name] = canvas;
-            Browser.URLObject.revokeObjectURL(url);
-            if (onload) onload(byteArray);
-          };
-          img.onerror = function img_onerror(event) {
-            console.log('Image ' + url + ' could not be decoded');
-            if (onerror) onerror();
-          };
-          img.src = url;
-        };
-        Module['preloadPlugins'].push(imagePlugin);
-  
-        var audioPlugin = {};
-        audioPlugin['canHandle'] = function audioPlugin_canHandle(name) {
-          return !Module.noAudioDecoding && name.substr(-4) in { '.ogg': 1, '.wav': 1, '.mp3': 1 };
-        };
-        audioPlugin['handle'] = function audioPlugin_handle(byteArray, name, onload, onerror) {
-          var done = false;
-          function finish(audio) {
-            if (done) return;
-            done = true;
-            Module["preloadedAudios"][name] = audio;
-            if (onload) onload(byteArray);
-          }
-          function fail() {
-            if (done) return;
-            done = true;
-            Module["preloadedAudios"][name] = new Audio(); // empty shim
-            if (onerror) onerror();
-          }
-          if (Browser.hasBlobConstructor) {
-            try {
-              var b = new Blob([byteArray], { type: Browser.getMimetype(name) });
-            } catch(e) {
-              return fail();
-            }
-            var url = Browser.URLObject.createObjectURL(b); // XXX we never revoke this!
-            var audio = new Audio();
-            audio.addEventListener('canplaythrough', function() { finish(audio) }, false); // use addEventListener due to chromium bug 124926
-            audio.onerror = function audio_onerror(event) {
-              if (done) return;
-              console.log('warning: browser could not fully decode audio ' + name + ', trying slower base64 approach');
-              function encode64(data) {
-                var BASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-                var PAD = '=';
-                var ret = '';
-                var leftchar = 0;
-                var leftbits = 0;
-                for (var i = 0; i < data.length; i++) {
-                  leftchar = (leftchar << 8) | data[i];
-                  leftbits += 8;
-                  while (leftbits >= 6) {
-                    var curr = (leftchar >> (leftbits-6)) & 0x3f;
-                    leftbits -= 6;
-                    ret += BASE[curr];
-                  }
-                }
-                if (leftbits == 2) {
-                  ret += BASE[(leftchar&3) << 4];
-                  ret += PAD + PAD;
-                } else if (leftbits == 4) {
-                  ret += BASE[(leftchar&0xf) << 2];
-                  ret += PAD;
-                }
-                return ret;
-              }
-              audio.src = 'data:audio/x-' + name.substr(-3) + ';base64,' + encode64(byteArray);
-              finish(audio); // we don't wait for confirmation this worked - but it's worth trying
-            };
-            audio.src = url;
-            // workaround for chrome bug 124926 - we do not always get oncanplaythrough or onerror
-            Browser.safeSetTimeout(function() {
-              finish(audio); // try to use it even though it is not necessarily ready to play
-            }, 10000);
-          } else {
-            return fail();
-          }
-        };
-        Module['preloadPlugins'].push(audioPlugin);
-  
-        // Canvas event setup
-  
-        function pointerLockChange() {
-          Browser.pointerLock = document['pointerLockElement'] === Module['canvas'] ||
-                                document['mozPointerLockElement'] === Module['canvas'] ||
-                                document['webkitPointerLockElement'] === Module['canvas'] ||
-                                document['msPointerLockElement'] === Module['canvas'];
-        }
-        var canvas = Module['canvas'];
-        if (canvas) {
-          // forced aspect ratio can be enabled by defining 'forcedAspectRatio' on Module
-          // Module['forcedAspectRatio'] = 4 / 3;
-  
-          canvas.requestPointerLock = canvas['requestPointerLock'] ||
-                                      canvas['mozRequestPointerLock'] ||
-                                      canvas['webkitRequestPointerLock'] ||
-                                      canvas['msRequestPointerLock'] ||
-                                      function(){};
-          canvas.exitPointerLock = document['exitPointerLock'] ||
-                                   document['mozExitPointerLock'] ||
-                                   document['webkitExitPointerLock'] ||
-                                   document['msExitPointerLock'] ||
-                                   function(){}; // no-op if function does not exist
-          canvas.exitPointerLock = canvas.exitPointerLock.bind(document);
-  
-          document.addEventListener('pointerlockchange', pointerLockChange, false);
-          document.addEventListener('mozpointerlockchange', pointerLockChange, false);
-          document.addEventListener('webkitpointerlockchange', pointerLockChange, false);
-          document.addEventListener('mspointerlockchange', pointerLockChange, false);
-  
-          if (Module['elementPointerLock']) {
-            canvas.addEventListener("click", function(ev) {
-              if (!Browser.pointerLock && Module['canvas'].requestPointerLock) {
-                Module['canvas'].requestPointerLock();
-                ev.preventDefault();
-              }
-            }, false);
-          }
-        }
-      },createContext:function(canvas, useWebGL, setInModule, webGLContextAttributes) {
-        if (useWebGL && Module.ctx && canvas == Module.canvas) return Module.ctx; // no need to recreate GL context if it's already been created for this canvas.
-  
-        var ctx;
-        var contextHandle;
-        if (useWebGL) {
-          // For GLES2/desktop GL compatibility, adjust a few defaults to be different to WebGL defaults, so that they align better with the desktop defaults.
-          var contextAttributes = {
-            antialias: false,
-            alpha: false,
-            majorVersion: (typeof WebGL2RenderingContext !== 'undefined') ? 2 : 1,
-          };
-  
-          if (webGLContextAttributes) {
-            for (var attribute in webGLContextAttributes) {
-              contextAttributes[attribute] = webGLContextAttributes[attribute];
-            }
-          }
-  
-          // This check of existence of GL is here to satisfy Closure compiler, which yells if variable GL is referenced below but GL object is not
-          // actually compiled in because application is not doing any GL operations. TODO: Ideally if GL is not being used, this function
-          // Browser.createContext() should not even be emitted.
-          if (typeof GL !== 'undefined') {
-            contextHandle = GL.createContext(canvas, contextAttributes);
-            if (contextHandle) {
-              ctx = GL.getContext(contextHandle).GLctx;
-            }
-          }
-        } else {
-          ctx = canvas.getContext('2d');
-        }
-  
-        if (!ctx) return null;
-  
-        if (setInModule) {
-          if (!useWebGL) assert(typeof GLctx === 'undefined', 'cannot set in module if GLctx is used, but we are a non-GL context that would replace it');
-  
-          Module.ctx = ctx;
-          if (useWebGL) GL.makeContextCurrent(contextHandle);
-          Module.useWebGL = useWebGL;
-          Browser.moduleContextCreatedCallbacks.forEach(function(callback) { callback() });
-          Browser.init();
-        }
-        return ctx;
-      },destroyContext:function(canvas, useWebGL, setInModule) {},fullscreenHandlersInstalled:false,lockPointer:undefined,resizeCanvas:undefined,requestFullscreen:function(lockPointer, resizeCanvas) {
-        Browser.lockPointer = lockPointer;
-        Browser.resizeCanvas = resizeCanvas;
-        if (typeof Browser.lockPointer === 'undefined') Browser.lockPointer = true;
-        if (typeof Browser.resizeCanvas === 'undefined') Browser.resizeCanvas = false;
-  
-        var canvas = Module['canvas'];
-        function fullscreenChange() {
-          Browser.isFullscreen = false;
-          var canvasContainer = canvas.parentNode;
-          if ((document['fullscreenElement'] || document['mozFullScreenElement'] ||
-               document['msFullscreenElement'] || document['webkitFullscreenElement'] ||
-               document['webkitCurrentFullScreenElement']) === canvasContainer) {
-            canvas.exitFullscreen = Browser.exitFullscreen;
-            if (Browser.lockPointer) canvas.requestPointerLock();
-            Browser.isFullscreen = true;
-            if (Browser.resizeCanvas) {
-              Browser.setFullscreenCanvasSize();
-            } else {
-              Browser.updateCanvasDimensions(canvas);
-            }
-          } else {
-            // remove the full screen specific parent of the canvas again to restore the HTML structure from before going full screen
-            canvasContainer.parentNode.insertBefore(canvas, canvasContainer);
-            canvasContainer.parentNode.removeChild(canvasContainer);
-  
-            if (Browser.resizeCanvas) {
-              Browser.setWindowedCanvasSize();
-            } else {
-              Browser.updateCanvasDimensions(canvas);
-            }
-          }
-          if (Module['onFullScreen']) Module['onFullScreen'](Browser.isFullscreen);
-          if (Module['onFullscreen']) Module['onFullscreen'](Browser.isFullscreen);
-        }
-  
-        if (!Browser.fullscreenHandlersInstalled) {
-          Browser.fullscreenHandlersInstalled = true;
-          document.addEventListener('fullscreenchange', fullscreenChange, false);
-          document.addEventListener('mozfullscreenchange', fullscreenChange, false);
-          document.addEventListener('webkitfullscreenchange', fullscreenChange, false);
-          document.addEventListener('MSFullscreenChange', fullscreenChange, false);
-        }
-  
-        // create a new parent to ensure the canvas has no siblings. this allows browsers to optimize full screen performance when its parent is the full screen root
-        var canvasContainer = document.createElement("div");
-        canvas.parentNode.insertBefore(canvasContainer, canvas);
-        canvasContainer.appendChild(canvas);
-  
-        // use parent of canvas as full screen root to allow aspect ratio correction (Firefox stretches the root to screen size)
-        canvasContainer.requestFullscreen = canvasContainer['requestFullscreen'] ||
-                                            canvasContainer['mozRequestFullScreen'] ||
-                                            canvasContainer['msRequestFullscreen'] ||
-                                           (canvasContainer['webkitRequestFullscreen'] ? function() { canvasContainer['webkitRequestFullscreen'](Element['ALLOW_KEYBOARD_INPUT']) } : null) ||
-                                           (canvasContainer['webkitRequestFullScreen'] ? function() { canvasContainer['webkitRequestFullScreen'](Element['ALLOW_KEYBOARD_INPUT']) } : null);
-  
-        canvasContainer.requestFullscreen();
-      },exitFullscreen:function() {
-        // This is workaround for chrome. Trying to exit from fullscreen
-        // not in fullscreen state will cause "TypeError: Document not active"
-        // in chrome. See https://github.com/emscripten-core/emscripten/pull/8236
-        if (!Browser.isFullscreen) {
-          return false;
-        }
-  
-        var CFS = document['exitFullscreen'] ||
-                  document['cancelFullScreen'] ||
-                  document['mozCancelFullScreen'] ||
-                  document['msExitFullscreen'] ||
-                  document['webkitCancelFullScreen'] ||
-            (function() {});
-        CFS.apply(document, []);
-        return true;
-      },nextRAF:0,fakeRequestAnimationFrame:function(func) {
-        // try to keep 60fps between calls to here
-        var now = Date.now();
-        if (Browser.nextRAF === 0) {
-          Browser.nextRAF = now + 1000/60;
-        } else {
-          while (now + 2 >= Browser.nextRAF) { // fudge a little, to avoid timer jitter causing us to do lots of delay:0
-            Browser.nextRAF += 1000/60;
-          }
-        }
-        var delay = Math.max(Browser.nextRAF - now, 0);
-        setTimeout(func, delay);
-      },requestAnimationFrame:function(func) {
-        if (typeof requestAnimationFrame === 'function') {
-          requestAnimationFrame(func);
-          return;
-        }
-        var RAF = Browser.fakeRequestAnimationFrame;
-        RAF(func);
-      },safeRequestAnimationFrame:function(func) {
-        return Browser.requestAnimationFrame(function() {
-          if (ABORT) return;
-          func();
-        });
-      },safeSetTimeout:function(func, timeout) {
-        noExitRuntime = true;
-        return setTimeout(function() {
-          if (ABORT) return;
-          func();
-        }, timeout);
-      },getMimetype:function(name) {
-        return {
-          'jpg': 'image/jpeg',
-          'jpeg': 'image/jpeg',
-          'png': 'image/png',
-          'bmp': 'image/bmp',
-          'ogg': 'audio/ogg',
-          'wav': 'audio/wav',
-          'mp3': 'audio/mpeg'
-        }[name.substr(name.lastIndexOf('.')+1)];
-      },getUserMedia:function(func) {
-        if(!window.getUserMedia) {
-          window.getUserMedia = navigator['getUserMedia'] ||
-                                navigator['mozGetUserMedia'];
-        }
-        window.getUserMedia(func);
-      },getMovementX:function(event) {
-        return event['movementX'] ||
-               event['mozMovementX'] ||
-               event['webkitMovementX'] ||
-               0;
-      },getMovementY:function(event) {
-        return event['movementY'] ||
-               event['mozMovementY'] ||
-               event['webkitMovementY'] ||
-               0;
-      },getMouseWheelDelta:function(event) {
-        var delta = 0;
-        switch (event.type) {
-          case 'DOMMouseScroll':
-            // 3 lines make up a step
-            delta = event.detail / 3;
-            break;
-          case 'mousewheel':
-            // 120 units make up a step
-            delta = event.wheelDelta / 120;
-            break;
-          case 'wheel':
-            delta = event.deltaY
-            switch(event.deltaMode) {
-              case 0:
-                // DOM_DELTA_PIXEL: 100 pixels make up a step
-                delta /= 100;
-                break;
-              case 1:
-                // DOM_DELTA_LINE: 3 lines make up a step
-                delta /= 3;
-                break;
-              case 2:
-                // DOM_DELTA_PAGE: A page makes up 80 steps
-                delta *= 80;
-                break;
-              default:
-                throw 'unrecognized mouse wheel delta mode: ' + event.deltaMode;
-            }
-            break;
-          default:
-            throw 'unrecognized mouse wheel event: ' + event.type;
-        }
-        return delta;
-      },mouseX:0,mouseY:0,mouseMovementX:0,mouseMovementY:0,touches:{},lastTouches:{},calculateMouseEvent:function(event) { // event should be mousemove, mousedown or mouseup
-        if (Browser.pointerLock) {
-          // When the pointer is locked, calculate the coordinates
-          // based on the movement of the mouse.
-          // Workaround for Firefox bug 764498
-          if (event.type != 'mousemove' &&
-              ('mozMovementX' in event)) {
-            Browser.mouseMovementX = Browser.mouseMovementY = 0;
-          } else {
-            Browser.mouseMovementX = Browser.getMovementX(event);
-            Browser.mouseMovementY = Browser.getMovementY(event);
-          }
-  
-          // check if SDL is available
-          if (typeof SDL != "undefined") {
-            Browser.mouseX = SDL.mouseX + Browser.mouseMovementX;
-            Browser.mouseY = SDL.mouseY + Browser.mouseMovementY;
-          } else {
-            // just add the mouse delta to the current absolut mouse position
-            // FIXME: ideally this should be clamped against the canvas size and zero
-            Browser.mouseX += Browser.mouseMovementX;
-            Browser.mouseY += Browser.mouseMovementY;
-          }
-        } else {
-          // Otherwise, calculate the movement based on the changes
-          // in the coordinates.
-          var rect = Module["canvas"].getBoundingClientRect();
-          var cw = Module["canvas"].width;
-          var ch = Module["canvas"].height;
-  
-          // Neither .scrollX or .pageXOffset are defined in a spec, but
-          // we prefer .scrollX because it is currently in a spec draft.
-          // (see: http://www.w3.org/TR/2013/WD-cssom-view-20131217/)
-          var scrollX = ((typeof window.scrollX !== 'undefined') ? window.scrollX : window.pageXOffset);
-          var scrollY = ((typeof window.scrollY !== 'undefined') ? window.scrollY : window.pageYOffset);
-  
-          if (event.type === 'touchstart' || event.type === 'touchend' || event.type === 'touchmove') {
-            var touch = event.touch;
-            if (touch === undefined) {
-              return; // the "touch" property is only defined in SDL
-  
-            }
-            var adjustedX = touch.pageX - (scrollX + rect.left);
-            var adjustedY = touch.pageY - (scrollY + rect.top);
-  
-            adjustedX = adjustedX * (cw / rect.width);
-            adjustedY = adjustedY * (ch / rect.height);
-  
-            var coords = { x: adjustedX, y: adjustedY };
-  
-            if (event.type === 'touchstart') {
-              Browser.lastTouches[touch.identifier] = coords;
-              Browser.touches[touch.identifier] = coords;
-            } else if (event.type === 'touchend' || event.type === 'touchmove') {
-              var last = Browser.touches[touch.identifier];
-              if (!last) last = coords;
-              Browser.lastTouches[touch.identifier] = last;
-              Browser.touches[touch.identifier] = coords;
-            }
-            return;
-          }
-  
-          var x = event.pageX - (scrollX + rect.left);
-          var y = event.pageY - (scrollY + rect.top);
-  
-          // the canvas might be CSS-scaled compared to its backbuffer;
-          // SDL-using content will want mouse coordinates in terms
-          // of backbuffer units.
-          x = x * (cw / rect.width);
-          y = y * (ch / rect.height);
-  
-          Browser.mouseMovementX = x - Browser.mouseX;
-          Browser.mouseMovementY = y - Browser.mouseY;
-          Browser.mouseX = x;
-          Browser.mouseY = y;
-        }
-      },asyncLoad:function(url, onload, onerror, noRunDep) {
-        var dep = !noRunDep ? getUniqueRunDependency('al ' + url) : '';
-        readAsync(url, function(arrayBuffer) {
-          assert(arrayBuffer, 'Loading data file "' + url + '" failed (no arrayBuffer).');
-          onload(new Uint8Array(arrayBuffer));
-          if (dep) removeRunDependency(dep);
-        }, function(event) {
-          if (onerror) {
-            onerror();
-          } else {
-            throw 'Loading data file "' + url + '" failed.';
-          }
-        });
-        if (dep) addRunDependency(dep);
-      },resizeListeners:[],updateResizeListeners:function() {
-        var canvas = Module['canvas'];
-        Browser.resizeListeners.forEach(function(listener) {
-          listener(canvas.width, canvas.height);
-        });
-      },setCanvasSize:function(width, height, noUpdates) {
-        var canvas = Module['canvas'];
-        Browser.updateCanvasDimensions(canvas, width, height);
-        if (!noUpdates) Browser.updateResizeListeners();
-      },windowedWidth:0,windowedHeight:0,setFullscreenCanvasSize:function() {
-        // check if SDL is available
-        if (typeof SDL != "undefined") {
-          var flags = HEAPU32[((SDL.screen)>>2)];
-          flags = flags | 0x00800000; // set SDL_FULLSCREEN flag
-          HEAP32[((SDL.screen)>>2)] = flags
-        }
-        Browser.updateCanvasDimensions(Module['canvas']);
-        Browser.updateResizeListeners();
-      },setWindowedCanvasSize:function() {
-        // check if SDL is available
-        if (typeof SDL != "undefined") {
-          var flags = HEAPU32[((SDL.screen)>>2)];
-          flags = flags & ~0x00800000; // clear SDL_FULLSCREEN flag
-          HEAP32[((SDL.screen)>>2)] = flags
-        }
-        Browser.updateCanvasDimensions(Module['canvas']);
-        Browser.updateResizeListeners();
-      },updateCanvasDimensions:function(canvas, wNative, hNative) {
-        if (wNative && hNative) {
-          canvas.widthNative = wNative;
-          canvas.heightNative = hNative;
-        } else {
-          wNative = canvas.widthNative;
-          hNative = canvas.heightNative;
-        }
-        var w = wNative;
-        var h = hNative;
-        if (Module['forcedAspectRatio'] && Module['forcedAspectRatio'] > 0) {
-          if (w/h < Module['forcedAspectRatio']) {
-            w = Math.round(h * Module['forcedAspectRatio']);
-          } else {
-            h = Math.round(w / Module['forcedAspectRatio']);
-          }
-        }
-        if (((document['fullscreenElement'] || document['mozFullScreenElement'] ||
-             document['msFullscreenElement'] || document['webkitFullscreenElement'] ||
-             document['webkitCurrentFullScreenElement']) === canvas.parentNode) && (typeof screen != 'undefined')) {
-           var factor = Math.min(screen.width / w, screen.height / h);
-           w = Math.round(w * factor);
-           h = Math.round(h * factor);
-        }
-        if (Browser.resizeCanvas) {
-          if (canvas.width  != w) canvas.width  = w;
-          if (canvas.height != h) canvas.height = h;
-          if (typeof canvas.style != 'undefined') {
-            canvas.style.removeProperty( "width");
-            canvas.style.removeProperty("height");
-          }
-        } else {
-          if (canvas.width  != wNative) canvas.width  = wNative;
-          if (canvas.height != hNative) canvas.height = hNative;
-          if (typeof canvas.style != 'undefined') {
-            if (w != wNative || h != hNative) {
-              canvas.style.setProperty( "width", w + "px", "important");
-              canvas.style.setProperty("height", h + "px", "important");
-            } else {
-              canvas.style.removeProperty( "width");
-              canvas.style.removeProperty("height");
-            }
-          }
-        }
-      },wgetRequests:{},nextWgetRequestHandle:0,getNextWgetRequestHandle:function() {
-        var handle = Browser.nextWgetRequestHandle;
-        Browser.nextWgetRequestHandle++;
-        return handle;
-      }};
-  function _emscripten_set_main_loop_timing(mode, value) {
-      Browser.mainLoop.timingMode = mode;
-      Browser.mainLoop.timingValue = value;
-  
-      if (!Browser.mainLoop.func) {
-        return 1; // Return non-zero on failure, can't set timing mode when there is no main loop.
-      }
-  
-      if (mode == 0 /*EM_TIMING_SETTIMEOUT*/) {
-        Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_setTimeout() {
-          var timeUntilNextTick = Math.max(0, Browser.mainLoop.tickStartTime + value - _emscripten_get_now())|0;
-          setTimeout(Browser.mainLoop.runner, timeUntilNextTick); // doing this each time means that on exception, we stop
-        };
-        Browser.mainLoop.method = 'timeout';
-      } else if (mode == 1 /*EM_TIMING_RAF*/) {
-        Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_rAF() {
-          Browser.requestAnimationFrame(Browser.mainLoop.runner);
-        };
-        Browser.mainLoop.method = 'rAF';
-      } else if (mode == 2 /*EM_TIMING_SETIMMEDIATE*/) {
-        if (typeof setImmediate === 'undefined') {
-          // Emulate setImmediate. (note: not a complete polyfill, we don't emulate clearImmediate() to keep code size to minimum, since not needed)
-          var setImmediates = [];
-          var emscriptenMainLoopMessageId = 'setimmediate';
-          var Browser_setImmediate_messageHandler = function(event) {
-            // When called in current thread or Worker, the main loop ID is structured slightly different to accommodate for --proxy-to-worker runtime listening to Worker events,
-            // so check for both cases.
-            if (event.data === emscriptenMainLoopMessageId || event.data.target === emscriptenMainLoopMessageId) {
-              event.stopPropagation();
-              setImmediates.shift()();
-            }
-          }
-          addEventListener("message", Browser_setImmediate_messageHandler, true);
-          setImmediate = /** @type{function(function(): ?, ...?): number} */(function Browser_emulated_setImmediate(func) {
-            setImmediates.push(func);
-            if (ENVIRONMENT_IS_WORKER) {
-              if (Module['setImmediates'] === undefined) Module['setImmediates'] = [];
-              Module['setImmediates'].push(func);
-              postMessage({target: emscriptenMainLoopMessageId}); // In --proxy-to-worker, route the message via proxyClient.js
-            } else postMessage(emscriptenMainLoopMessageId, "*"); // On the main thread, can just send the message to itself.
-          })
-        }
-        Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_setImmediate() {
-          setImmediate(Browser.mainLoop.runner);
-        };
-        Browser.mainLoop.method = 'immediate';
-      }
-      return 0;
-    }
-  function setMainLoop(browserIterationFunc, fps, simulateInfiniteLoop, arg, noSetTiming) {
-      noExitRuntime = true;
-  
-      assert(!Browser.mainLoop.func, 'emscripten_set_main_loop: there can only be one main loop function at once: call emscripten_cancel_main_loop to cancel the previous one before setting a new one with different parameters.');
-  
-      Browser.mainLoop.func = browserIterationFunc;
-      Browser.mainLoop.arg = arg;
-  
-      var thisMainLoopId = Browser.mainLoop.currentlyRunningMainloop;
-  
-      Browser.mainLoop.runner = function Browser_mainLoop_runner() {
-        if (ABORT) return;
-        if (Browser.mainLoop.queue.length > 0) {
-          var start = Date.now();
-          var blocker = Browser.mainLoop.queue.shift();
-          blocker.func(blocker.arg);
-          if (Browser.mainLoop.remainingBlockers) {
-            var remaining = Browser.mainLoop.remainingBlockers;
-            var next = remaining%1 == 0 ? remaining-1 : Math.floor(remaining);
-            if (blocker.counted) {
-              Browser.mainLoop.remainingBlockers = next;
-            } else {
-              // not counted, but move the progress along a tiny bit
-              next = next + 0.5; // do not steal all the next one's progress
-              Browser.mainLoop.remainingBlockers = (8*remaining + next)/9;
-            }
-          }
-          console.log('main loop blocker "' + blocker.name + '" took ' + (Date.now() - start) + ' ms'); //, left: ' + Browser.mainLoop.remainingBlockers);
-          Browser.mainLoop.updateStatus();
-  
-          // catches pause/resume main loop from blocker execution
-          if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
-  
-          setTimeout(Browser.mainLoop.runner, 0);
-          return;
-        }
-  
-        // catch pauses from non-main loop sources
-        if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
-  
-        // Implement very basic swap interval control
-        Browser.mainLoop.currentFrameNumber = Browser.mainLoop.currentFrameNumber + 1 | 0;
-        if (Browser.mainLoop.timingMode == 1/*EM_TIMING_RAF*/ && Browser.mainLoop.timingValue > 1 && Browser.mainLoop.currentFrameNumber % Browser.mainLoop.timingValue != 0) {
-          // Not the scheduled time to render this frame - skip.
-          Browser.mainLoop.scheduler();
-          return;
-        } else if (Browser.mainLoop.timingMode == 0/*EM_TIMING_SETTIMEOUT*/) {
-          Browser.mainLoop.tickStartTime = _emscripten_get_now();
-        }
-  
-        // Signal GL rendering layer that processing of a new frame is about to start. This helps it optimize
-        // VBO double-buffering and reduce GPU stalls.
-        GL.newRenderingFrameStarted();
-  
-        Browser.mainLoop.runIter(browserIterationFunc);
-  
-        // catch pauses from the main loop itself
-        if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
-  
-        // Queue new audio data. This is important to be right after the main loop invocation, so that we will immediately be able
-        // to queue the newest produced audio samples.
-        // TODO: Consider adding pre- and post- rAF callbacks so that GL.newRenderingFrameStarted() and SDL.audio.queueNewAudioData()
-        //       do not need to be hardcoded into this function, but can be more generic.
-        if (typeof SDL === 'object' && SDL.audio && SDL.audio.queueNewAudioData) SDL.audio.queueNewAudioData();
-  
-        Browser.mainLoop.scheduler();
-      }
-  
-      if (!noSetTiming) {
-        if (fps && fps > 0) _emscripten_set_main_loop_timing(0/*EM_TIMING_SETTIMEOUT*/, 1000.0 / fps);
-        else _emscripten_set_main_loop_timing(1/*EM_TIMING_RAF*/, 1); // Do rAF by rendering each frame (no decimating)
-  
-        Browser.mainLoop.scheduler();
-      }
-  
-      if (simulateInfiniteLoop) {
-        throw 'unwind';
-      }
-    }
-  function _emscripten_set_main_loop(func, fps, simulateInfiniteLoop) {
-      var browserIterationFunc = wasmTable.get(func);
-      setMainLoop(browserIterationFunc, fps, simulateInfiniteLoop);
-    }
-
-  var Fetch={xhrs:[],setu64:function(addr, val) {
-      HEAPU32[addr >> 2] = val;
-      HEAPU32[addr + 4 >> 2] = (val / 4294967296)|0;
-    },openDatabase:function(dbname, dbversion, onsuccess, onerror) {
-      try {
-        var openRequest = indexedDB.open(dbname, dbversion);
-      } catch (e) { return onerror(e); }
-  
-      openRequest.onupgradeneeded = function(event) {
-        var db = event.target.result;
-        if (db.objectStoreNames.contains('FILES')) {
-          db.deleteObjectStore('FILES');
-        }
-        db.createObjectStore('FILES');
-      };
-      openRequest.onsuccess = function(event) { onsuccess(event.target.result); };
-      openRequest.onerror = function(error) { onerror(error); };
-    },staticInit:function() {
-      var isMainThread = true;
-  
-      var onsuccess = function(db) {
-        Fetch.dbInstance = db;
-  
-        if (isMainThread) {
-          removeRunDependency('library_fetch_init');
-        }
-      };
-      var onerror = function() {
-        Fetch.dbInstance = false;
-  
-        if (isMainThread) {
-          removeRunDependency('library_fetch_init');
-        }
-      };
-      Fetch.openDatabase('emscripten_filesystem', 1, onsuccess, onerror);
-  
-      if (typeof ENVIRONMENT_IS_FETCH_WORKER === 'undefined' || !ENVIRONMENT_IS_FETCH_WORKER) addRunDependency('library_fetch_init');
-    }};
-  
-  function fetchXHR(fetch, onsuccess, onerror, onprogress, onreadystatechange) {
-    var url = HEAPU32[fetch + 8 >> 2];
-    if (!url) {
-      onerror(fetch, 0, 'no url specified!');
-      return;
-    }
-    var url_ = UTF8ToString(url);
-  
-    var fetch_attr = fetch + 112;
-    var requestMethod = UTF8ToString(fetch_attr);
-    if (!requestMethod) requestMethod = 'GET';
-    var userData = HEAPU32[fetch + 4 >> 2];
-    var fetchAttributes = HEAPU32[fetch_attr + 52 >> 2];
-    var timeoutMsecs = HEAPU32[fetch_attr + 56 >> 2];
-    var withCredentials = !!HEAPU32[fetch_attr + 60 >> 2];
-    var destinationPath = HEAPU32[fetch_attr + 64 >> 2];
-    var userName = HEAPU32[fetch_attr + 68 >> 2];
-    var password = HEAPU32[fetch_attr + 72 >> 2];
-    var requestHeaders = HEAPU32[fetch_attr + 76 >> 2];
-    var overriddenMimeType = HEAPU32[fetch_attr + 80 >> 2];
-    var dataPtr = HEAPU32[fetch_attr + 84 >> 2];
-    var dataLength = HEAPU32[fetch_attr + 88 >> 2];
-  
-    var fetchAttrLoadToMemory = !!(fetchAttributes & 1);
-    var fetchAttrStreamData = !!(fetchAttributes & 2);
-    var fetchAttrPersistFile = !!(fetchAttributes & 4);
-    var fetchAttrAppend = !!(fetchAttributes & 8);
-    var fetchAttrReplace = !!(fetchAttributes & 16);
-    var fetchAttrSynchronous = !!(fetchAttributes & 64);
-    var fetchAttrWaitable = !!(fetchAttributes & 128);
-  
-    var userNameStr = userName ? UTF8ToString(userName) : undefined;
-    var passwordStr = password ? UTF8ToString(password) : undefined;
-    var overriddenMimeTypeStr = overriddenMimeType ? UTF8ToString(overriddenMimeType) : undefined;
-  
-    var xhr = new XMLHttpRequest();
-    xhr.withCredentials = withCredentials;
-    xhr.open(requestMethod, url_, !fetchAttrSynchronous, userNameStr, passwordStr);
-    if (!fetchAttrSynchronous) xhr.timeout = timeoutMsecs; // XHR timeout field is only accessible in async XHRs, and must be set after .open() but before .send().
-    xhr.url_ = url_; // Save the url for debugging purposes (and for comparing to the responseURL that server side advertised)
-    xhr.responseType = 'arraybuffer';
-  
-    if (overriddenMimeType) {
-      xhr.overrideMimeType(overriddenMimeTypeStr);
-    }
-    if (requestHeaders) {
-      for(;;) {
-        var key = HEAPU32[requestHeaders >> 2];
-        if (!key) break;
-        var value = HEAPU32[requestHeaders + 4 >> 2];
-        if (!value) break;
-        requestHeaders += 8;
-        var keyStr = UTF8ToString(key);
-        var valueStr = UTF8ToString(value);
-        xhr.setRequestHeader(keyStr, valueStr);
-      }
-    }
-    Fetch.xhrs.push(xhr);
-    var id = Fetch.xhrs.length;
-    HEAPU32[fetch + 0 >> 2] = id;
-    var data = (dataPtr && dataLength) ? HEAPU8.slice(dataPtr, dataPtr + dataLength) : null;
-    // TODO: Support specifying custom headers to the request.
-  
-    // Share the code to save the response, as we need to do so both on success
-    // and on error (despite an error, there may be a response, like a 404 page).
-    // This receives a condition, which determines whether to save the xhr's
-    // response, or just 0.
-    function saveResponse(condition) {
-      var ptr = 0;
-      var ptrLen = 0;
-      if (condition) {
-        ptrLen = xhr.response ? xhr.response.byteLength : 0;
-        // The data pointer malloc()ed here has the same lifetime as the emscripten_fetch_t structure itself has, and is
-        // freed when emscripten_fetch_close() is called.
-        ptr = _malloc(ptrLen);
-        HEAPU8.set(new Uint8Array(xhr.response), ptr);
-      }
-      HEAPU32[fetch + 12 >> 2] = ptr;
-      Fetch.setu64(fetch + 16, ptrLen);
-    }
-  
-    xhr.onload = function(e) {
-      saveResponse(fetchAttrLoadToMemory && !fetchAttrStreamData);
-      var len = xhr.response ? xhr.response.byteLength : 0;
-      Fetch.setu64(fetch + 24, 0);
-      if (len) {
-        // If the final XHR.onload handler receives the bytedata to compute total length, report that,
-        // otherwise don't write anything out here, which will retain the latest byte size reported in
-        // the most recent XHR.onprogress handler.
-        Fetch.setu64(fetch + 32, len);
-      }
-      HEAPU16[fetch + 40 >> 1] = xhr.readyState;
-      HEAPU16[fetch + 42 >> 1] = xhr.status;
-      if (xhr.statusText) stringToUTF8(xhr.statusText, fetch + 44, 64);
-      if (xhr.status >= 200 && xhr.status < 300) {
-        if (onsuccess) onsuccess(fetch, xhr, e);
-      } else {
-        if (onerror) onerror(fetch, xhr, e);
-      }
-    };
-    xhr.onerror = function(e) {
-      saveResponse(fetchAttrLoadToMemory);
-      var status = xhr.status; // XXX TODO: Overwriting xhr.status doesn't work here, so don't override anywhere else either.
-      Fetch.setu64(fetch + 24, 0);
-      Fetch.setu64(fetch + 32, xhr.response ? xhr.response.byteLength : 0);
-      HEAPU16[fetch + 40 >> 1] = xhr.readyState;
-      HEAPU16[fetch + 42 >> 1] = status;
-      if (onerror) onerror(fetch, xhr, e);
-    };
-    xhr.ontimeout = function(e) {
-      if (onerror) onerror(fetch, xhr, e);
-    };
-    xhr.onprogress = function(e) {
-      var ptrLen = (fetchAttrLoadToMemory && fetchAttrStreamData && xhr.response) ? xhr.response.byteLength : 0;
-      var ptr = 0;
-      if (fetchAttrLoadToMemory && fetchAttrStreamData) {
-        // Allocate byte data in Emscripten heap for the streamed memory block (freed immediately after onprogress call)
-        ptr = _malloc(ptrLen);
-        HEAPU8.set(new Uint8Array(xhr.response), ptr);
-      }
-      HEAPU32[fetch + 12 >> 2] = ptr;
-      Fetch.setu64(fetch + 16, ptrLen);
-      Fetch.setu64(fetch + 24, e.loaded - ptrLen);
-      Fetch.setu64(fetch + 32, e.total);
-      HEAPU16[fetch + 40 >> 1] = xhr.readyState;
-      if (xhr.readyState >= 3 && xhr.status === 0 && e.loaded > 0) xhr.status = 200; // If loading files from a source that does not give HTTP status code, assume success if we get data bytes
-      HEAPU16[fetch + 42 >> 1] = xhr.status;
-      if (xhr.statusText) stringToUTF8(xhr.statusText, fetch + 44, 64);
-      if (onprogress) onprogress(fetch, xhr, e);
-      if (ptr) {
-        _free(ptr);
-      }
-    };
-    xhr.onreadystatechange = function(e) {
-      HEAPU16[fetch + 40 >> 1] = xhr.readyState;
-      if (xhr.readyState >= 2) {
-        HEAPU16[fetch + 42 >> 1] = xhr.status;
-      }
-      if (onreadystatechange) onreadystatechange(fetch, xhr, e);
-    };
-    try {
-      xhr.send(data);
-    } catch(e) {
-      if (onerror) onerror(fetch, xhr, e);
-    }
-  }
-  
-  function fetchCacheData(db, fetch, data, onsuccess, onerror) {
-    if (!db) {
-      onerror(fetch, 0, 'IndexedDB not available!');
-      return;
-    }
-  
-    var fetch_attr = fetch + 112;
-    var destinationPath = HEAPU32[fetch_attr + 64 >> 2];
-    if (!destinationPath) destinationPath = HEAPU32[fetch + 8 >> 2];
-    var destinationPathStr = UTF8ToString(destinationPath);
-  
-    try {
-      var transaction = db.transaction(['FILES'], 'readwrite');
-      var packages = transaction.objectStore('FILES');
-      var putRequest = packages.put(data, destinationPathStr);
-      putRequest.onsuccess = function(event) {
-        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
-        HEAPU16[fetch + 42 >> 1] = 200; // Mimic XHR HTTP status code 200 "OK"
-        stringToUTF8("OK", fetch + 44, 64);
-        onsuccess(fetch, 0, destinationPathStr);
-      };
-      putRequest.onerror = function(error) {
-        // Most likely we got an error if IndexedDB is unwilling to store any more data for this page.
-        // TODO: Can we identify and break down different IndexedDB-provided errors and convert those
-        // to more HTTP status codes for more information?
-        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
-        HEAPU16[fetch + 42 >> 1] = 413; // Mimic XHR HTTP status code 413 "Payload Too Large"
-        stringToUTF8("Payload Too Large", fetch + 44, 64);
-        onerror(fetch, 0, error);
-      };
-    } catch(e) {
-      onerror(fetch, 0, e);
-    }
-  }
-  
-  function fetchLoadCachedData(db, fetch, onsuccess, onerror) {
-    if (!db) {
-      onerror(fetch, 0, 'IndexedDB not available!');
-      return;
-    }
-  
-    var fetch_attr = fetch + 112;
-    var path = HEAPU32[fetch_attr + 64 >> 2];
-    if (!path) path = HEAPU32[fetch + 8 >> 2];
-    var pathStr = UTF8ToString(path);
-  
-    try {
-      var transaction = db.transaction(['FILES'], 'readonly');
-      var packages = transaction.objectStore('FILES');
-      var getRequest = packages.get(pathStr);
-      getRequest.onsuccess = function(event) {
-        if (event.target.result) {
-          var value = event.target.result;
-          var len = value.byteLength || value.length;
-          // The data pointer malloc()ed here has the same lifetime as the emscripten_fetch_t structure itself has, and is
-          // freed when emscripten_fetch_close() is called.
-          var ptr = _malloc(len);
-          HEAPU8.set(new Uint8Array(value), ptr);
-          HEAPU32[fetch + 12 >> 2] = ptr;
-          Fetch.setu64(fetch + 16, len);
-          Fetch.setu64(fetch + 24, 0);
-          Fetch.setu64(fetch + 32, len);
-          HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
-          HEAPU16[fetch + 42 >> 1] = 200; // Mimic XHR HTTP status code 200 "OK"
-          stringToUTF8("OK", fetch + 44, 64);
-          onsuccess(fetch, 0, value);
-        } else {
-          // Succeeded to load, but the load came back with the value of undefined, treat that as an error since we never store undefined in db.
-          HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
-          HEAPU16[fetch + 42 >> 1] = 404; // Mimic XHR HTTP status code 404 "Not Found"
-          stringToUTF8("Not Found", fetch + 44, 64);
-          onerror(fetch, 0, 'no data');
-        }
-      };
-      getRequest.onerror = function(error) {
-        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
-        HEAPU16[fetch + 42 >> 1] = 404; // Mimic XHR HTTP status code 404 "Not Found"
-        stringToUTF8("Not Found", fetch + 44, 64);
-        onerror(fetch, 0, error);
-      };
-    } catch(e) {
-      onerror(fetch, 0, e);
-    }
-  }
-  
-  function fetchDeleteCachedData(db, fetch, onsuccess, onerror) {
-    if (!db) {
-      onerror(fetch, 0, 'IndexedDB not available!');
-      return;
-    }
-  
-    var fetch_attr = fetch + 112;
-    var path = HEAPU32[fetch_attr + 64 >> 2];
-    if (!path) path = HEAPU32[fetch + 8 >> 2];
-    var pathStr = UTF8ToString(path);
-  
-    try {
-      var transaction = db.transaction(['FILES'], 'readwrite');
-      var packages = transaction.objectStore('FILES');
-      var request = packages.delete(pathStr);
-      request.onsuccess = function(event) {
-        var value = event.target.result;
-        HEAPU32[fetch + 12 >> 2] = 0;
-        Fetch.setu64(fetch + 16, 0);
-        Fetch.setu64(fetch + 24, 0);
-        Fetch.setu64(fetch + 32, 0);
-        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
-        HEAPU16[fetch + 42 >> 1] = 200; // Mimic XHR HTTP status code 200 "OK"
-        stringToUTF8("OK", fetch + 44, 64);
-        onsuccess(fetch, 0, value);
-      };
-      request.onerror = function(error) {
-        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
-        HEAPU16[fetch + 42 >> 1] = 404; // Mimic XHR HTTP status code 404 "Not Found"
-        stringToUTF8("Not Found", fetch + 44, 64);
-        onerror(fetch, 0, error);
-      };
-    } catch(e) {
-      onerror(fetch, 0, e);
-    }
-  }
-  function _emscripten_start_fetch(fetch, successcb, errorcb, progresscb, readystatechangecb) {
-    // Avoid shutting down the runtime since we want to wait for the async
-    // response.
-    noExitRuntime = true;
-  
-    var fetch_attr = fetch + 112;
-    var requestMethod = UTF8ToString(fetch_attr);
-    var onsuccess = HEAPU32[fetch_attr + 36 >> 2];
-    var onerror = HEAPU32[fetch_attr + 40 >> 2];
-    var onprogress = HEAPU32[fetch_attr + 44 >> 2];
-    var onreadystatechange = HEAPU32[fetch_attr + 48 >> 2];
-    var fetchAttributes = HEAPU32[fetch_attr + 52 >> 2];
-    var fetchAttrLoadToMemory = !!(fetchAttributes & 1);
-    var fetchAttrStreamData = !!(fetchAttributes & 2);
-    var fetchAttrPersistFile = !!(fetchAttributes & 4);
-    var fetchAttrNoDownload = !!(fetchAttributes & 32);
-    var fetchAttrAppend = !!(fetchAttributes & 8);
-    var fetchAttrReplace = !!(fetchAttributes & 16);
-  
-    var reportSuccess = function(fetch, xhr, e) {
-      if (onsuccess) wasmTable.get(onsuccess)(fetch);
-      else if (successcb) successcb(fetch);
-    };
-  
-    var reportProgress = function(fetch, xhr, e) {
-      if (onprogress) wasmTable.get(onprogress)(fetch);
-      else if (progresscb) progresscb(fetch);
-    };
-  
-    var reportError = function(fetch, xhr, e) {
-      if (onerror) wasmTable.get(onerror)(fetch);
-      else if (errorcb) errorcb(fetch);
-    };
-  
-    var reportReadyStateChange = function(fetch, xhr, e) {
-      if (onreadystatechange) wasmTable.get(onreadystatechange)(fetch);
-      else if (readystatechangecb) readystatechangecb(fetch);
-    };
-  
-    var performUncachedXhr = function(fetch, xhr, e) {
-      fetchXHR(fetch, reportSuccess, reportError, reportProgress, reportReadyStateChange);
-    };
-  
-    var cacheResultAndReportSuccess = function(fetch, xhr, e) {
-      var storeSuccess = function(fetch, xhr, e) {
-        if (onsuccess) wasmTable.get(onsuccess)(fetch);
-        else if (successcb) successcb(fetch);
-      };
-      var storeError = function(fetch, xhr, e) {
-        if (onsuccess) wasmTable.get(onsuccess)(fetch);
-        else if (successcb) successcb(fetch);
-      };
-      fetchCacheData(Fetch.dbInstance, fetch, xhr.response, storeSuccess, storeError);
-    };
-  
-    var performCachedXhr = function(fetch, xhr, e) {
-      fetchXHR(fetch, cacheResultAndReportSuccess, reportError, reportProgress, reportReadyStateChange);
-    };
-  
-    if (requestMethod === 'EM_IDB_STORE') {
-      // TODO(?): Here we perform a clone of the data, because storing shared typed arrays to IndexedDB does not seem to be allowed.
-      var ptr = HEAPU32[fetch_attr + 84 >> 2];
-      fetchCacheData(Fetch.dbInstance, fetch, HEAPU8.slice(ptr, ptr + HEAPU32[fetch_attr + 88 >> 2]), reportSuccess, reportError);
-    } else if (requestMethod === 'EM_IDB_DELETE') {
-      fetchDeleteCachedData(Fetch.dbInstance, fetch, reportSuccess, reportError);
-    } else if (!fetchAttrReplace) {
-      fetchLoadCachedData(Fetch.dbInstance, fetch, reportSuccess, fetchAttrNoDownload ? reportError : (fetchAttrPersistFile ? performCachedXhr : performUncachedXhr));
-    } else if (!fetchAttrNoDownload) {
-      fetchXHR(fetch, fetchAttrPersistFile ? cacheResultAndReportSuccess : reportSuccess, reportError, reportProgress, reportReadyStateChange);
-    } else {
-      return 0; // todo: free
-    }
-    return fetch;
-  }
-
-  var ENV={};
-  
-  function getExecutableName() {
-      return thisProgram || './this.program';
-    }
-  function getEnvStrings() {
-      if (!getEnvStrings.strings) {
-        // Default values.
-        // Browser language detection #8751
-        var lang = ((typeof navigator === 'object' && navigator.languages && navigator.languages[0]) || 'C').replace('-', '_') + '.UTF-8';
-        var env = {
-          'USER': 'web_user',
-          'LOGNAME': 'web_user',
-          'PATH': '/',
-          'PWD': '/',
-          'HOME': '/home/web_user',
-          'LANG': lang,
-          '_': getExecutableName()
-        };
-        // Apply the user-provided values, if any.
-        for (var x in ENV) {
-          env[x] = ENV[x];
-        }
-        var strings = [];
-        for (var x in env) {
-          strings.push(x + '=' + env[x]);
-        }
-        getEnvStrings.strings = strings;
-      }
-      return getEnvStrings.strings;
     }
   
   var PATH={splitPath:function(filename) {
@@ -6706,6 +4448,2443 @@ function update_fps(x){ cppUpdateFPS(x); }
       },get64:function(low, high) {
         return low;
       }};
+  function ___sys_fcntl64(fd, cmd, varargs) {SYSCALLS.varargs = varargs;
+  try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      switch (cmd) {
+        case 0: {
+          var arg = SYSCALLS.get();
+          if (arg < 0) {
+            return -28;
+          }
+          var newStream;
+          newStream = FS.open(stream.path, stream.flags, 0, arg);
+          return newStream.fd;
+        }
+        case 1:
+        case 2:
+          return 0;  // FD_CLOEXEC makes no sense for a single process.
+        case 3:
+          return stream.flags;
+        case 4: {
+          var arg = SYSCALLS.get();
+          stream.flags |= arg;
+          return 0;
+        }
+        case 12:
+        /* case 12: Currently in musl F_GETLK64 has same value as F_GETLK, so omitted to avoid duplicate case blocks. If that changes, uncomment this */ {
+          
+          var arg = SYSCALLS.get();
+          var offset = 0;
+          // We're always unlocked.
+          HEAP16[(((arg)+(offset))>>1)] = 2;
+          return 0;
+        }
+        case 13:
+        case 14:
+        /* case 13: Currently in musl F_SETLK64 has same value as F_SETLK, so omitted to avoid duplicate case blocks. If that changes, uncomment this */
+        /* case 14: Currently in musl F_SETLKW64 has same value as F_SETLKW, so omitted to avoid duplicate case blocks. If that changes, uncomment this */
+          
+          
+          return 0; // Pretend that the locking is successful.
+        case 16:
+        case 8:
+          return -28; // These are for sockets. We don't have them fully implemented yet.
+        case 9:
+          // musl trusts getown return values, due to a bug where they must be, as they overlap with errors. just return -1 here, so fnctl() returns that, and we set errno ourselves.
+          setErrNo(28);
+          return -1;
+        default: {
+          return -28;
+        }
+      }
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return -e.errno;
+  }
+  }
+
+  function ___sys_ioctl(fd, op, varargs) {SYSCALLS.varargs = varargs;
+  try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      switch (op) {
+        case 21509:
+        case 21505: {
+          if (!stream.tty) return -59;
+          return 0;
+        }
+        case 21510:
+        case 21511:
+        case 21512:
+        case 21506:
+        case 21507:
+        case 21508: {
+          if (!stream.tty) return -59;
+          return 0; // no-op, not actually adjusting terminal settings
+        }
+        case 21519: {
+          if (!stream.tty) return -59;
+          var argp = SYSCALLS.get();
+          HEAP32[((argp)>>2)] = 0;
+          return 0;
+        }
+        case 21520: {
+          if (!stream.tty) return -59;
+          return -28; // not supported
+        }
+        case 21531: {
+          var argp = SYSCALLS.get();
+          return FS.ioctl(stream, op, argp);
+        }
+        case 21523: {
+          // TODO: in theory we should write to the winsize struct that gets
+          // passed in, but for now musl doesn't read anything on it
+          if (!stream.tty) return -59;
+          return 0;
+        }
+        case 21524: {
+          // TODO: technically, this ioctl call should change the window size.
+          // but, since emscripten doesn't have any concept of a terminal window
+          // yet, we'll just silently throw it away as we do TIOCGWINSZ
+          if (!stream.tty) return -59;
+          return 0;
+        }
+        default: abort('bad ioctl syscall ' + op);
+      }
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return -e.errno;
+  }
+  }
+
+  function ___sys_open(path, flags, varargs) {SYSCALLS.varargs = varargs;
+  try {
+  
+      var pathname = SYSCALLS.getStr(path);
+      var mode = varargs ? SYSCALLS.get() : 0;
+      var stream = FS.open(pathname, flags, mode);
+      return stream.fd;
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return -e.errno;
+  }
+  }
+
+  var tupleRegistrations={};
+  
+  function runDestructors(destructors) {
+      while (destructors.length) {
+          var ptr = destructors.pop();
+          var del = destructors.pop();
+          del(ptr);
+      }
+    }
+  
+  function simpleReadValueFromPointer(pointer) {
+      return this['fromWireType'](HEAPU32[pointer >> 2]);
+    }
+  
+  var awaitingDependencies={};
+  
+  var registeredTypes={};
+  
+  var typeDependencies={};
+  
+  var char_0=48;
+  
+  var char_9=57;
+  function makeLegalFunctionName(name) {
+      if (undefined === name) {
+          return '_unknown';
+      }
+      name = name.replace(/[^a-zA-Z0-9_]/g, '$');
+      var f = name.charCodeAt(0);
+      if (f >= char_0 && f <= char_9) {
+          return '_' + name;
+      } else {
+          return name;
+      }
+    }
+  function createNamedFunction(name, body) {
+      name = makeLegalFunctionName(name);
+      /*jshint evil:true*/
+      return new Function(
+          "body",
+          "return function " + name + "() {\n" +
+          "    \"use strict\";" +
+          "    return body.apply(this, arguments);\n" +
+          "};\n"
+      )(body);
+    }
+  function extendError(baseErrorType, errorName) {
+      var errorClass = createNamedFunction(errorName, function(message) {
+          this.name = errorName;
+          this.message = message;
+  
+          var stack = (new Error(message)).stack;
+          if (stack !== undefined) {
+              this.stack = this.toString() + '\n' +
+                  stack.replace(/^Error(:[^\n]*)?\n/, '');
+          }
+      });
+      errorClass.prototype = Object.create(baseErrorType.prototype);
+      errorClass.prototype.constructor = errorClass;
+      errorClass.prototype.toString = function() {
+          if (this.message === undefined) {
+              return this.name;
+          } else {
+              return this.name + ': ' + this.message;
+          }
+      };
+  
+      return errorClass;
+    }
+  var InternalError=undefined;
+  function throwInternalError(message) {
+      throw new InternalError(message);
+    }
+  function whenDependentTypesAreResolved(myTypes, dependentTypes, getTypeConverters) {
+      myTypes.forEach(function(type) {
+          typeDependencies[type] = dependentTypes;
+      });
+  
+      function onComplete(typeConverters) {
+          var myTypeConverters = getTypeConverters(typeConverters);
+          if (myTypeConverters.length !== myTypes.length) {
+              throwInternalError('Mismatched type converter count');
+          }
+          for (var i = 0; i < myTypes.length; ++i) {
+              registerType(myTypes[i], myTypeConverters[i]);
+          }
+      }
+  
+      var typeConverters = new Array(dependentTypes.length);
+      var unregisteredTypes = [];
+      var registered = 0;
+      dependentTypes.forEach(function(dt, i) {
+          if (registeredTypes.hasOwnProperty(dt)) {
+              typeConverters[i] = registeredTypes[dt];
+          } else {
+              unregisteredTypes.push(dt);
+              if (!awaitingDependencies.hasOwnProperty(dt)) {
+                  awaitingDependencies[dt] = [];
+              }
+              awaitingDependencies[dt].push(function() {
+                  typeConverters[i] = registeredTypes[dt];
+                  ++registered;
+                  if (registered === unregisteredTypes.length) {
+                      onComplete(typeConverters);
+                  }
+              });
+          }
+      });
+      if (0 === unregisteredTypes.length) {
+          onComplete(typeConverters);
+      }
+    }
+  function __embind_finalize_value_array(rawTupleType) {
+      var reg = tupleRegistrations[rawTupleType];
+      delete tupleRegistrations[rawTupleType];
+      var elements = reg.elements;
+      var elementsLength = elements.length;
+      var elementTypes = elements.map(function(elt) { return elt.getterReturnType; }).
+                  concat(elements.map(function(elt) { return elt.setterArgumentType; }));
+  
+      var rawConstructor = reg.rawConstructor;
+      var rawDestructor = reg.rawDestructor;
+  
+      whenDependentTypesAreResolved([rawTupleType], elementTypes, function(elementTypes) {
+          elements.forEach(function(elt, i) {
+              var getterReturnType = elementTypes[i];
+              var getter = elt.getter;
+              var getterContext = elt.getterContext;
+              var setterArgumentType = elementTypes[i + elementsLength];
+              var setter = elt.setter;
+              var setterContext = elt.setterContext;
+              elt.read = function(ptr) {
+                  return getterReturnType['fromWireType'](getter(getterContext, ptr));
+              };
+              elt.write = function(ptr, o) {
+                  var destructors = [];
+                  setter(setterContext, ptr, setterArgumentType['toWireType'](destructors, o));
+                  runDestructors(destructors);
+              };
+          });
+  
+          return [{
+              name: reg.name,
+              'fromWireType': function(ptr) {
+                  var rv = new Array(elementsLength);
+                  for (var i = 0; i < elementsLength; ++i) {
+                      rv[i] = elements[i].read(ptr);
+                  }
+                  rawDestructor(ptr);
+                  return rv;
+              },
+              'toWireType': function(destructors, o) {
+                  if (elementsLength !== o.length) {
+                      throw new TypeError("Incorrect number of tuple elements for " + reg.name + ": expected=" + elementsLength + ", actual=" + o.length);
+                  }
+                  var ptr = rawConstructor();
+                  for (var i = 0; i < elementsLength; ++i) {
+                      elements[i].write(ptr, o[i]);
+                  }
+                  if (destructors !== null) {
+                      destructors.push(rawDestructor, ptr);
+                  }
+                  return ptr;
+              },
+              'argPackAdvance': 8,
+              'readValueFromPointer': simpleReadValueFromPointer,
+              destructorFunction: rawDestructor,
+          }];
+      });
+    }
+
+  var structRegistrations={};
+  function __embind_finalize_value_object(structType) {
+      var reg = structRegistrations[structType];
+      delete structRegistrations[structType];
+  
+      var rawConstructor = reg.rawConstructor;
+      var rawDestructor = reg.rawDestructor;
+      var fieldRecords = reg.fields;
+      var fieldTypes = fieldRecords.map(function(field) { return field.getterReturnType; }).
+                concat(fieldRecords.map(function(field) { return field.setterArgumentType; }));
+      whenDependentTypesAreResolved([structType], fieldTypes, function(fieldTypes) {
+          var fields = {};
+          fieldRecords.forEach(function(field, i) {
+              var fieldName = field.fieldName;
+              var getterReturnType = fieldTypes[i];
+              var getter = field.getter;
+              var getterContext = field.getterContext;
+              var setterArgumentType = fieldTypes[i + fieldRecords.length];
+              var setter = field.setter;
+              var setterContext = field.setterContext;
+              fields[fieldName] = {
+                  read: function(ptr) {
+                      return getterReturnType['fromWireType'](
+                          getter(getterContext, ptr));
+                  },
+                  write: function(ptr, o) {
+                      var destructors = [];
+                      setter(setterContext, ptr, setterArgumentType['toWireType'](destructors, o));
+                      runDestructors(destructors);
+                  }
+              };
+          });
+  
+          return [{
+              name: reg.name,
+              'fromWireType': function(ptr) {
+                  var rv = {};
+                  for (var i in fields) {
+                      rv[i] = fields[i].read(ptr);
+                  }
+                  rawDestructor(ptr);
+                  return rv;
+              },
+              'toWireType': function(destructors, o) {
+                  // todo: Here we have an opportunity for -O3 level "unsafe" optimizations:
+                  // assume all fields are present without checking.
+                  for (var fieldName in fields) {
+                      if (!(fieldName in o)) {
+                          throw new TypeError('Missing field:  "' + fieldName + '"');
+                      }
+                  }
+                  var ptr = rawConstructor();
+                  for (fieldName in fields) {
+                      fields[fieldName].write(ptr, o[fieldName]);
+                  }
+                  if (destructors !== null) {
+                      destructors.push(rawDestructor, ptr);
+                  }
+                  return ptr;
+              },
+              'argPackAdvance': 8,
+              'readValueFromPointer': simpleReadValueFromPointer,
+              destructorFunction: rawDestructor,
+          }];
+      });
+    }
+
+  function getShiftFromSize(size) {
+      switch (size) {
+          case 1: return 0;
+          case 2: return 1;
+          case 4: return 2;
+          case 8: return 3;
+          default:
+              throw new TypeError('Unknown type size: ' + size);
+      }
+    }
+  
+  function embind_init_charCodes() {
+      var codes = new Array(256);
+      for (var i = 0; i < 256; ++i) {
+          codes[i] = String.fromCharCode(i);
+      }
+      embind_charCodes = codes;
+    }
+  var embind_charCodes=undefined;
+  function readLatin1String(ptr) {
+      var ret = "";
+      var c = ptr;
+      while (HEAPU8[c]) {
+          ret += embind_charCodes[HEAPU8[c++]];
+      }
+      return ret;
+    }
+  
+  var BindingError=undefined;
+  function throwBindingError(message) {
+      throw new BindingError(message);
+    }
+  /** @param {Object=} options */
+  function registerType(rawType, registeredInstance, options) {
+      options = options || {};
+  
+      if (!('argPackAdvance' in registeredInstance)) {
+          throw new TypeError('registerType registeredInstance requires argPackAdvance');
+      }
+  
+      var name = registeredInstance.name;
+      if (!rawType) {
+          throwBindingError('type "' + name + '" must have a positive integer typeid pointer');
+      }
+      if (registeredTypes.hasOwnProperty(rawType)) {
+          if (options.ignoreDuplicateRegistrations) {
+              return;
+          } else {
+              throwBindingError("Cannot register type '" + name + "' twice");
+          }
+      }
+  
+      registeredTypes[rawType] = registeredInstance;
+      delete typeDependencies[rawType];
+  
+      if (awaitingDependencies.hasOwnProperty(rawType)) {
+          var callbacks = awaitingDependencies[rawType];
+          delete awaitingDependencies[rawType];
+          callbacks.forEach(function(cb) {
+              cb();
+          });
+      }
+    }
+  function __embind_register_bool(rawType, name, size, trueValue, falseValue) {
+      var shift = getShiftFromSize(size);
+  
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(wt) {
+              // ambiguous emscripten ABI: sometimes return values are
+              // true or false, and sometimes integers (0 or 1)
+              return !!wt;
+          },
+          'toWireType': function(destructors, o) {
+              return o ? trueValue : falseValue;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': function(pointer) {
+              // TODO: if heap is fixed (like in asm.js) this could be executed outside
+              var heap;
+              if (size === 1) {
+                  heap = HEAP8;
+              } else if (size === 2) {
+                  heap = HEAP16;
+              } else if (size === 4) {
+                  heap = HEAP32;
+              } else {
+                  throw new TypeError("Unknown boolean type size: " + name);
+              }
+              return this['fromWireType'](heap[pointer >> shift]);
+          },
+          destructorFunction: null, // This type does not need a destructor
+      });
+    }
+
+  var emval_free_list=[];
+  
+  var emval_handle_array=[{},{value:undefined},{value:null},{value:true},{value:false}];
+  function __emval_decref(handle) {
+      if (handle > 4 && 0 === --emval_handle_array[handle].refcount) {
+          emval_handle_array[handle] = undefined;
+          emval_free_list.push(handle);
+      }
+    }
+  
+  function count_emval_handles() {
+      var count = 0;
+      for (var i = 5; i < emval_handle_array.length; ++i) {
+          if (emval_handle_array[i] !== undefined) {
+              ++count;
+          }
+      }
+      return count;
+    }
+  
+  function get_first_emval() {
+      for (var i = 5; i < emval_handle_array.length; ++i) {
+          if (emval_handle_array[i] !== undefined) {
+              return emval_handle_array[i];
+          }
+      }
+      return null;
+    }
+  function init_emval() {
+      Module['count_emval_handles'] = count_emval_handles;
+      Module['get_first_emval'] = get_first_emval;
+    }
+  function __emval_register(value) {
+  
+      switch(value){
+        case undefined :{ return 1; }
+        case null :{ return 2; }
+        case true :{ return 3; }
+        case false :{ return 4; }
+        default:{
+          var handle = emval_free_list.length ?
+              emval_free_list.pop() :
+              emval_handle_array.length;
+  
+          emval_handle_array[handle] = {refcount: 1, value: value};
+          return handle;
+          }
+        }
+    }
+  function __embind_register_emval(rawType, name) {
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(handle) {
+              var rv = emval_handle_array[handle].value;
+              __emval_decref(handle);
+              return rv;
+          },
+          'toWireType': function(destructors, value) {
+              return __emval_register(value);
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': simpleReadValueFromPointer,
+          destructorFunction: null, // This type does not need a destructor
+  
+          // TODO: do we need a deleteObject here?  write a test where
+          // emval is passed into JS via an interface
+      });
+    }
+
+  function _embind_repr(v) {
+      if (v === null) {
+          return 'null';
+      }
+      var t = typeof v;
+      if (t === 'object' || t === 'array' || t === 'function') {
+          return v.toString();
+      } else {
+          return '' + v;
+      }
+    }
+  
+  function floatReadValueFromPointer(name, shift) {
+      switch (shift) {
+          case 2: return function(pointer) {
+              return this['fromWireType'](HEAPF32[pointer >> 2]);
+          };
+          case 3: return function(pointer) {
+              return this['fromWireType'](HEAPF64[pointer >> 3]);
+          };
+          default:
+              throw new TypeError("Unknown float type: " + name);
+      }
+    }
+  function __embind_register_float(rawType, name, size) {
+      var shift = getShiftFromSize(size);
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(value) {
+              return value;
+          },
+          'toWireType': function(destructors, value) {
+              // todo: Here we have an opportunity for -O3 level "unsafe" optimizations: we could
+              // avoid the following if() and assume value is of proper type.
+              if (typeof value !== "number" && typeof value !== "boolean") {
+                  throw new TypeError('Cannot convert "' + _embind_repr(value) + '" to ' + this.name);
+              }
+              return value;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': floatReadValueFromPointer(name, shift),
+          destructorFunction: null, // This type does not need a destructor
+      });
+    }
+
+  function new_(constructor, argumentList) {
+      if (!(constructor instanceof Function)) {
+          throw new TypeError('new_ called with constructor type ' + typeof(constructor) + " which is not a function");
+      }
+  
+      /*
+       * Previously, the following line was just:
+  
+       function dummy() {};
+  
+       * Unfortunately, Chrome was preserving 'dummy' as the object's name, even though at creation, the 'dummy' has the
+       * correct constructor name.  Thus, objects created with IMVU.new would show up in the debugger as 'dummy', which
+       * isn't very helpful.  Using IMVU.createNamedFunction addresses the issue.  Doublely-unfortunately, there's no way
+       * to write a test for this behavior.  -NRD 2013.02.22
+       */
+      var dummy = createNamedFunction(constructor.name || 'unknownFunctionName', function(){});
+      dummy.prototype = constructor.prototype;
+      var obj = new dummy;
+  
+      var r = constructor.apply(obj, argumentList);
+      return (r instanceof Object) ? r : obj;
+    }
+  function craftInvokerFunction(humanName, argTypes, classType, cppInvokerFunc, cppTargetFunc) {
+      // humanName: a human-readable string name for the function to be generated.
+      // argTypes: An array that contains the embind type objects for all types in the function signature.
+      //    argTypes[0] is the type object for the function return value.
+      //    argTypes[1] is the type object for function this object/class type, or null if not crafting an invoker for a class method.
+      //    argTypes[2...] are the actual function parameters.
+      // classType: The embind type object for the class to be bound, or null if this is not a method of a class.
+      // cppInvokerFunc: JS Function object to the C++-side function that interops into C++ code.
+      // cppTargetFunc: Function pointer (an integer to FUNCTION_TABLE) to the target C++ function the cppInvokerFunc will end up calling.
+      var argCount = argTypes.length;
+  
+      if (argCount < 2) {
+          throwBindingError("argTypes array size mismatch! Must at least get return value and 'this' types!");
+      }
+  
+      var isClassMethodFunc = (argTypes[1] !== null && classType !== null);
+  
+      // Free functions with signature "void function()" do not need an invoker that marshalls between wire types.
+  // TODO: This omits argument count check - enable only at -O3 or similar.
+  //    if (ENABLE_UNSAFE_OPTS && argCount == 2 && argTypes[0].name == "void" && !isClassMethodFunc) {
+  //       return FUNCTION_TABLE[fn];
+  //    }
+  
+      // Determine if we need to use a dynamic stack to store the destructors for the function parameters.
+      // TODO: Remove this completely once all function invokers are being dynamically generated.
+      var needsDestructorStack = false;
+  
+      for(var i = 1; i < argTypes.length; ++i) { // Skip return value at index 0 - it's not deleted here.
+          if (argTypes[i] !== null && argTypes[i].destructorFunction === undefined) { // The type does not define a destructor function - must use dynamic stack
+              needsDestructorStack = true;
+              break;
+          }
+      }
+  
+      var returns = (argTypes[0].name !== "void");
+  
+      var argsList = "";
+      var argsListWired = "";
+      for(var i = 0; i < argCount - 2; ++i) {
+          argsList += (i!==0?", ":"")+"arg"+i;
+          argsListWired += (i!==0?", ":"")+"arg"+i+"Wired";
+      }
+  
+      var invokerFnBody =
+          "return function "+makeLegalFunctionName(humanName)+"("+argsList+") {\n" +
+          "if (arguments.length !== "+(argCount - 2)+") {\n" +
+              "throwBindingError('function "+humanName+" called with ' + arguments.length + ' arguments, expected "+(argCount - 2)+" args!');\n" +
+          "}\n";
+  
+      if (needsDestructorStack) {
+          invokerFnBody +=
+              "var destructors = [];\n";
+      }
+  
+      var dtorStack = needsDestructorStack ? "destructors" : "null";
+      var args1 = ["throwBindingError", "invoker", "fn", "runDestructors", "retType", "classParam"];
+      var args2 = [throwBindingError, cppInvokerFunc, cppTargetFunc, runDestructors, argTypes[0], argTypes[1]];
+  
+      if (isClassMethodFunc) {
+          invokerFnBody += "var thisWired = classParam.toWireType("+dtorStack+", this);\n";
+      }
+  
+      for(var i = 0; i < argCount - 2; ++i) {
+          invokerFnBody += "var arg"+i+"Wired = argType"+i+".toWireType("+dtorStack+", arg"+i+"); // "+argTypes[i+2].name+"\n";
+          args1.push("argType"+i);
+          args2.push(argTypes[i+2]);
+      }
+  
+      if (isClassMethodFunc) {
+          argsListWired = "thisWired" + (argsListWired.length > 0 ? ", " : "") + argsListWired;
+      }
+  
+      invokerFnBody +=
+          (returns?"var rv = ":"") + "invoker(fn"+(argsListWired.length>0?", ":"")+argsListWired+");\n";
+  
+      if (needsDestructorStack) {
+          invokerFnBody += "runDestructors(destructors);\n";
+      } else {
+          for(var i = isClassMethodFunc?1:2; i < argTypes.length; ++i) { // Skip return value at index 0 - it's not deleted here. Also skip class type if not a method.
+              var paramName = (i === 1 ? "thisWired" : ("arg"+(i - 2)+"Wired"));
+              if (argTypes[i].destructorFunction !== null) {
+                  invokerFnBody += paramName+"_dtor("+paramName+"); // "+argTypes[i].name+"\n";
+                  args1.push(paramName+"_dtor");
+                  args2.push(argTypes[i].destructorFunction);
+              }
+          }
+      }
+  
+      if (returns) {
+          invokerFnBody += "var ret = retType.fromWireType(rv);\n" +
+                           "return ret;\n";
+      } else {
+      }
+      invokerFnBody += "}\n";
+  
+      args1.push(invokerFnBody);
+  
+      var invokerFunction = new_(Function, args1).apply(null, args2);
+      return invokerFunction;
+    }
+  
+  function ensureOverloadTable(proto, methodName, humanName) {
+      if (undefined === proto[methodName].overloadTable) {
+          var prevFunc = proto[methodName];
+          // Inject an overload resolver function that routes to the appropriate overload based on the number of arguments.
+          proto[methodName] = function() {
+              // TODO This check can be removed in -O3 level "unsafe" optimizations.
+              if (!proto[methodName].overloadTable.hasOwnProperty(arguments.length)) {
+                  throwBindingError("Function '" + humanName + "' called with an invalid number of arguments (" + arguments.length + ") - expects one of (" + proto[methodName].overloadTable + ")!");
+              }
+              return proto[methodName].overloadTable[arguments.length].apply(this, arguments);
+          };
+          // Move the previous function into the overload table.
+          proto[methodName].overloadTable = [];
+          proto[methodName].overloadTable[prevFunc.argCount] = prevFunc;
+      }
+    }
+  /** @param {number=} numArguments */
+  function exposePublicSymbol(name, value, numArguments) {
+      if (Module.hasOwnProperty(name)) {
+          if (undefined === numArguments || (undefined !== Module[name].overloadTable && undefined !== Module[name].overloadTable[numArguments])) {
+              throwBindingError("Cannot register public name '" + name + "' twice");
+          }
+  
+          // We are exposing a function with the same name as an existing function. Create an overload table and a function selector
+          // that routes between the two.
+          ensureOverloadTable(Module, name, name);
+          if (Module.hasOwnProperty(numArguments)) {
+              throwBindingError("Cannot register multiple overloads of a function with the same number of arguments (" + numArguments + ")!");
+          }
+          // Add the new function into the overload table.
+          Module[name].overloadTable[numArguments] = value;
+      }
+      else {
+          Module[name] = value;
+          if (undefined !== numArguments) {
+              Module[name].numArguments = numArguments;
+          }
+      }
+    }
+  
+  function heap32VectorToArray(count, firstElement) {
+      var array = [];
+      for (var i = 0; i < count; i++) {
+          array.push(HEAP32[(firstElement >> 2) + i]);
+      }
+      return array;
+    }
+  
+  /** @param {number=} numArguments */
+  function replacePublicSymbol(name, value, numArguments) {
+      if (!Module.hasOwnProperty(name)) {
+          throwInternalError('Replacing nonexistant public symbol');
+      }
+      // If there's an overload table for this symbol, replace the symbol in the overload table instead.
+      if (undefined !== Module[name].overloadTable && undefined !== numArguments) {
+          Module[name].overloadTable[numArguments] = value;
+      }
+      else {
+          Module[name] = value;
+          Module[name].argCount = numArguments;
+      }
+    }
+  
+  function dynCallLegacy(sig, ptr, args) {
+      var f = Module["dynCall_" + sig];
+      return args && args.length ? f.apply(null, [ptr].concat(args)) : f.call(null, ptr);
+    }
+  function dynCall(sig, ptr, args) {
+      // Without WASM_BIGINT support we cannot directly call function with i64 as
+      // part of thier signature, so we rely the dynCall functions generated by
+      // wasm-emscripten-finalize
+      if (sig.indexOf('j') != -1) {
+        return dynCallLegacy(sig, ptr, args);
+      }
+      return wasmTable.get(ptr).apply(null, args)
+    }
+  function getDynCaller(sig, ptr) {
+      var argCache = [];
+      return function() {
+        argCache.length = arguments.length;
+        for (var i = 0; i < arguments.length; i++) {
+          argCache[i] = arguments[i];
+        }
+        return dynCall(sig, ptr, argCache);
+      };
+    }
+  function embind__requireFunction(signature, rawFunction) {
+      signature = readLatin1String(signature);
+  
+      function makeDynCaller() {
+        if (signature.indexOf('j') != -1) {
+          return getDynCaller(signature, rawFunction);
+        }
+        return wasmTable.get(rawFunction);
+      }
+  
+      var fp = makeDynCaller();
+      if (typeof fp !== "function") {
+          throwBindingError("unknown function pointer with signature " + signature + ": " + rawFunction);
+      }
+      return fp;
+    }
+  
+  var UnboundTypeError=undefined;
+  
+  function getTypeName(type) {
+      var ptr = ___getTypeName(type);
+      var rv = readLatin1String(ptr);
+      _free(ptr);
+      return rv;
+    }
+  function throwUnboundTypeError(message, types) {
+      var unboundTypes = [];
+      var seen = {};
+      function visit(type) {
+          if (seen[type]) {
+              return;
+          }
+          if (registeredTypes[type]) {
+              return;
+          }
+          if (typeDependencies[type]) {
+              typeDependencies[type].forEach(visit);
+              return;
+          }
+          unboundTypes.push(type);
+          seen[type] = true;
+      }
+      types.forEach(visit);
+  
+      throw new UnboundTypeError(message + ': ' + unboundTypes.map(getTypeName).join([', ']));
+    }
+  function __embind_register_function(name, argCount, rawArgTypesAddr, signature, rawInvoker, fn) {
+      var argTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
+      name = readLatin1String(name);
+  
+      rawInvoker = embind__requireFunction(signature, rawInvoker);
+  
+      exposePublicSymbol(name, function() {
+          throwUnboundTypeError('Cannot call ' + name + ' due to unbound types', argTypes);
+      }, argCount - 1);
+  
+      whenDependentTypesAreResolved([], argTypes, function(argTypes) {
+          var invokerArgsArray = [argTypes[0] /* return value */, null /* no class 'this'*/].concat(argTypes.slice(1) /* actual params */);
+          replacePublicSymbol(name, craftInvokerFunction(name, invokerArgsArray, null /* no class 'this'*/, rawInvoker, fn), argCount - 1);
+          return [];
+      });
+    }
+
+  function integerReadValueFromPointer(name, shift, signed) {
+      // integers are quite common, so generate very specialized functions
+      switch (shift) {
+          case 0: return signed ?
+              function readS8FromPointer(pointer) { return HEAP8[pointer]; } :
+              function readU8FromPointer(pointer) { return HEAPU8[pointer]; };
+          case 1: return signed ?
+              function readS16FromPointer(pointer) { return HEAP16[pointer >> 1]; } :
+              function readU16FromPointer(pointer) { return HEAPU16[pointer >> 1]; };
+          case 2: return signed ?
+              function readS32FromPointer(pointer) { return HEAP32[pointer >> 2]; } :
+              function readU32FromPointer(pointer) { return HEAPU32[pointer >> 2]; };
+          default:
+              throw new TypeError("Unknown integer type: " + name);
+      }
+    }
+  function __embind_register_integer(primitiveType, name, size, minRange, maxRange) {
+      name = readLatin1String(name);
+      if (maxRange === -1) { // LLVM doesn't have signed and unsigned 32-bit types, so u32 literals come out as 'i32 -1'. Always treat those as max u32.
+          maxRange = 4294967295;
+      }
+  
+      var shift = getShiftFromSize(size);
+  
+      var fromWireType = function(value) {
+          return value;
+      };
+  
+      if (minRange === 0) {
+          var bitshift = 32 - 8*size;
+          fromWireType = function(value) {
+              return (value << bitshift) >>> bitshift;
+          };
+      }
+  
+      var isUnsignedType = (name.indexOf('unsigned') != -1);
+  
+      registerType(primitiveType, {
+          name: name,
+          'fromWireType': fromWireType,
+          'toWireType': function(destructors, value) {
+              // todo: Here we have an opportunity for -O3 level "unsafe" optimizations: we could
+              // avoid the following two if()s and assume value is of proper type.
+              if (typeof value !== "number" && typeof value !== "boolean") {
+                  throw new TypeError('Cannot convert "' + _embind_repr(value) + '" to ' + this.name);
+              }
+              if (value < minRange || value > maxRange) {
+                  throw new TypeError('Passing a number "' + _embind_repr(value) + '" from JS side to C/C++ side to an argument of type "' + name + '", which is outside the valid range [' + minRange + ', ' + maxRange + ']!');
+              }
+              return isUnsignedType ? (value >>> 0) : (value | 0);
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': integerReadValueFromPointer(name, shift, minRange !== 0),
+          destructorFunction: null, // This type does not need a destructor
+      });
+    }
+
+  function __embind_register_memory_view(rawType, dataTypeIndex, name) {
+      var typeMapping = [
+          Int8Array,
+          Uint8Array,
+          Int16Array,
+          Uint16Array,
+          Int32Array,
+          Uint32Array,
+          Float32Array,
+          Float64Array,
+      ];
+  
+      var TA = typeMapping[dataTypeIndex];
+  
+      function decodeMemoryView(handle) {
+          handle = handle >> 2;
+          var heap = HEAPU32;
+          var size = heap[handle]; // in elements
+          var data = heap[handle + 1]; // byte offset into emscripten heap
+          return new TA(buffer, data, size);
+      }
+  
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': decodeMemoryView,
+          'argPackAdvance': 8,
+          'readValueFromPointer': decodeMemoryView,
+      }, {
+          ignoreDuplicateRegistrations: true,
+      });
+    }
+
+  function __embind_register_std_string(rawType, name) {
+      name = readLatin1String(name);
+      var stdStringIsUTF8
+      //process only std::string bindings with UTF8 support, in contrast to e.g. std::basic_string<unsigned char>
+      = (name === "std::string");
+  
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(value) {
+              var length = HEAPU32[value >> 2];
+  
+              var str;
+              if (stdStringIsUTF8) {
+                  var decodeStartPtr = value + 4;
+                  // Looping here to support possible embedded '0' bytes
+                  for (var i = 0; i <= length; ++i) {
+                      var currentBytePtr = value + 4 + i;
+                      if (i == length || HEAPU8[currentBytePtr] == 0) {
+                          var maxRead = currentBytePtr - decodeStartPtr;
+                          var stringSegment = UTF8ToString(decodeStartPtr, maxRead);
+                          if (str === undefined) {
+                              str = stringSegment;
+                          } else {
+                              str += String.fromCharCode(0);
+                              str += stringSegment;
+                          }
+                          decodeStartPtr = currentBytePtr + 1;
+                      }
+                  }
+              } else {
+                  var a = new Array(length);
+                  for (var i = 0; i < length; ++i) {
+                      a[i] = String.fromCharCode(HEAPU8[value + 4 + i]);
+                  }
+                  str = a.join('');
+              }
+  
+              _free(value);
+  
+              return str;
+          },
+          'toWireType': function(destructors, value) {
+              if (value instanceof ArrayBuffer) {
+                  value = new Uint8Array(value);
+              }
+  
+              var getLength;
+              var valueIsOfTypeString = (typeof value === 'string');
+  
+              if (!(valueIsOfTypeString || value instanceof Uint8Array || value instanceof Uint8ClampedArray || value instanceof Int8Array)) {
+                  throwBindingError('Cannot pass non-string to std::string');
+              }
+              if (stdStringIsUTF8 && valueIsOfTypeString) {
+                  getLength = function() {return lengthBytesUTF8(value);};
+              } else {
+                  getLength = function() {return value.length;};
+              }
+  
+              // assumes 4-byte alignment
+              var length = getLength();
+              var ptr = _malloc(4 + length + 1);
+              HEAPU32[ptr >> 2] = length;
+              if (stdStringIsUTF8 && valueIsOfTypeString) {
+                  stringToUTF8(value, ptr + 4, length + 1);
+              } else {
+                  if (valueIsOfTypeString) {
+                      for (var i = 0; i < length; ++i) {
+                          var charCode = value.charCodeAt(i);
+                          if (charCode > 255) {
+                              _free(ptr);
+                              throwBindingError('String has UTF-16 code units that do not fit in 8 bits');
+                          }
+                          HEAPU8[ptr + 4 + i] = charCode;
+                      }
+                  } else {
+                      for (var i = 0; i < length; ++i) {
+                          HEAPU8[ptr + 4 + i] = value[i];
+                      }
+                  }
+              }
+  
+              if (destructors !== null) {
+                  destructors.push(_free, ptr);
+              }
+              return ptr;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': simpleReadValueFromPointer,
+          destructorFunction: function(ptr) { _free(ptr); },
+      });
+    }
+
+  function __embind_register_std_wstring(rawType, charSize, name) {
+      name = readLatin1String(name);
+      var decodeString, encodeString, getHeap, lengthBytesUTF, shift;
+      if (charSize === 2) {
+          decodeString = UTF16ToString;
+          encodeString = stringToUTF16;
+          lengthBytesUTF = lengthBytesUTF16;
+          getHeap = function() { return HEAPU16; };
+          shift = 1;
+      } else if (charSize === 4) {
+          decodeString = UTF32ToString;
+          encodeString = stringToUTF32;
+          lengthBytesUTF = lengthBytesUTF32;
+          getHeap = function() { return HEAPU32; };
+          shift = 2;
+      }
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(value) {
+              // Code mostly taken from _embind_register_std_string fromWireType
+              var length = HEAPU32[value >> 2];
+              var HEAP = getHeap();
+              var str;
+  
+              var decodeStartPtr = value + 4;
+              // Looping here to support possible embedded '0' bytes
+              for (var i = 0; i <= length; ++i) {
+                  var currentBytePtr = value + 4 + i * charSize;
+                  if (i == length || HEAP[currentBytePtr >> shift] == 0) {
+                      var maxReadBytes = currentBytePtr - decodeStartPtr;
+                      var stringSegment = decodeString(decodeStartPtr, maxReadBytes);
+                      if (str === undefined) {
+                          str = stringSegment;
+                      } else {
+                          str += String.fromCharCode(0);
+                          str += stringSegment;
+                      }
+                      decodeStartPtr = currentBytePtr + charSize;
+                  }
+              }
+  
+              _free(value);
+  
+              return str;
+          },
+          'toWireType': function(destructors, value) {
+              if (!(typeof value === 'string')) {
+                  throwBindingError('Cannot pass non-string to C++ string type ' + name);
+              }
+  
+              // assumes 4-byte alignment
+              var length = lengthBytesUTF(value);
+              var ptr = _malloc(4 + length + charSize);
+              HEAPU32[ptr >> 2] = length >> shift;
+  
+              encodeString(value, ptr + 4, length + charSize);
+  
+              if (destructors !== null) {
+                  destructors.push(_free, ptr);
+              }
+              return ptr;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': simpleReadValueFromPointer,
+          destructorFunction: function(ptr) { _free(ptr); },
+      });
+    }
+
+  function __embind_register_value_array(
+      rawType,
+      name,
+      constructorSignature,
+      rawConstructor,
+      destructorSignature,
+      rawDestructor
+    ) {
+      tupleRegistrations[rawType] = {
+          name: readLatin1String(name),
+          rawConstructor: embind__requireFunction(constructorSignature, rawConstructor),
+          rawDestructor: embind__requireFunction(destructorSignature, rawDestructor),
+          elements: [],
+      };
+    }
+
+  function __embind_register_value_array_element(
+      rawTupleType,
+      getterReturnType,
+      getterSignature,
+      getter,
+      getterContext,
+      setterArgumentType,
+      setterSignature,
+      setter,
+      setterContext
+    ) {
+      tupleRegistrations[rawTupleType].elements.push({
+          getterReturnType: getterReturnType,
+          getter: embind__requireFunction(getterSignature, getter),
+          getterContext: getterContext,
+          setterArgumentType: setterArgumentType,
+          setter: embind__requireFunction(setterSignature, setter),
+          setterContext: setterContext,
+      });
+    }
+
+  function __embind_register_value_object(
+      rawType,
+      name,
+      constructorSignature,
+      rawConstructor,
+      destructorSignature,
+      rawDestructor
+    ) {
+      structRegistrations[rawType] = {
+          name: readLatin1String(name),
+          rawConstructor: embind__requireFunction(constructorSignature, rawConstructor),
+          rawDestructor: embind__requireFunction(destructorSignature, rawDestructor),
+          fields: [],
+      };
+    }
+
+  function __embind_register_value_object_field(
+      structType,
+      fieldName,
+      getterReturnType,
+      getterSignature,
+      getter,
+      getterContext,
+      setterArgumentType,
+      setterSignature,
+      setter,
+      setterContext
+    ) {
+      structRegistrations[structType].fields.push({
+          fieldName: readLatin1String(fieldName),
+          getterReturnType: getterReturnType,
+          getter: embind__requireFunction(getterSignature, getter),
+          getterContext: getterContext,
+          setterArgumentType: setterArgumentType,
+          setter: embind__requireFunction(setterSignature, setter),
+          setterContext: setterContext,
+      });
+    }
+
+  function __embind_register_void(rawType, name) {
+      name = readLatin1String(name);
+      registerType(rawType, {
+          isVoid: true, // void return values can be optimized out sometimes
+          name: name,
+          'argPackAdvance': 0,
+          'fromWireType': function() {
+              return undefined;
+          },
+          'toWireType': function(destructors, o) {
+              // TODO: assert if anything else is given?
+              return undefined;
+          },
+      });
+    }
+
+  function __emscripten_fetch_free(id) {
+    //Note: should just be [id], but indexes off by 1 (see: #8803)
+    delete Fetch.xhrs[id-1];
+  }
+
+  function _abort() {
+      abort();
+    }
+
+  var _emscripten_get_now;if (ENVIRONMENT_IS_NODE) {
+    _emscripten_get_now = function() {
+      var t = process['hrtime']();
+      return t[0] * 1e3 + t[1] / 1e6;
+    };
+  } else if (typeof dateNow !== 'undefined') {
+    _emscripten_get_now = dateNow;
+  } else _emscripten_get_now = function() { return performance.now(); }
+  ;
+  
+  var _emscripten_get_now_is_monotonic=true;;
+  function _clock_gettime(clk_id, tp) {
+      // int clock_gettime(clockid_t clk_id, struct timespec *tp);
+      var now;
+      if (clk_id === 0) {
+        now = Date.now();
+      } else if ((clk_id === 1 || clk_id === 4) && _emscripten_get_now_is_monotonic) {
+        now = _emscripten_get_now();
+      } else {
+        setErrNo(28);
+        return -1;
+      }
+      HEAP32[((tp)>>2)] = (now/1000)|0; // seconds
+      HEAP32[(((tp)+(4))>>2)] = ((now % 1000)*1000*1000)|0; // nanoseconds
+      return 0;
+    }
+
+  function _emscripten_is_main_browser_thread() {
+      return !ENVIRONMENT_IS_WORKER;
+    }
+  Module["_emscripten_is_main_browser_thread"] = _emscripten_is_main_browser_thread;
+
+  function _emscripten_memcpy_big(dest, src, num) {
+      HEAPU8.copyWithin(dest, src, src + num);
+    }
+
+  function _emscripten_get_heap_size() {
+      return HEAPU8.length;
+    }
+  
+  function emscripten_realloc_buffer(size) {
+      try {
+        // round size grow request up to wasm page size (fixed 64KB per spec)
+        wasmMemory.grow((size - buffer.byteLength + 65535) >>> 16); // .grow() takes a delta compared to the previous size
+        updateGlobalBufferAndViews(wasmMemory.buffer);
+        return 1 /*success*/;
+      } catch(e) {
+      }
+      // implicit 0 return to save code size (caller will cast "undefined" into 0
+      // anyhow)
+    }
+  function _emscripten_resize_heap(requestedSize) {
+      var oldSize = _emscripten_get_heap_size();
+      // With pthreads, races can happen (another thread might increase the size in between), so return a failure, and let the caller retry.
+  
+      // Memory resize rules:
+      // 1. Always increase heap size to at least the requested size, rounded up to next page multiple.
+      // 2a. If MEMORY_GROWTH_LINEAR_STEP == -1, excessively resize the heap geometrically: increase the heap size according to 
+      //                                         MEMORY_GROWTH_GEOMETRIC_STEP factor (default +20%),
+      //                                         At most overreserve by MEMORY_GROWTH_GEOMETRIC_CAP bytes (default 96MB).
+      // 2b. If MEMORY_GROWTH_LINEAR_STEP != -1, excessively resize the heap linearly: increase the heap size by at least MEMORY_GROWTH_LINEAR_STEP bytes.
+      // 3. Max size for the heap is capped at 2048MB-WASM_PAGE_SIZE, or by MAXIMUM_MEMORY, or by ASAN limit, depending on which is smallest
+      // 4. If we were unable to allocate as much memory, it may be due to over-eager decision to excessively reserve due to (3) above.
+      //    Hence if an allocation fails, cut down on the amount of excess growth, in an attempt to succeed to perform a smaller allocation.
+  
+      // A limit was set for how much we can grow. We should not exceed that
+      // (the wasm binary specifies it, so if we tried, we'd fail anyhow).
+      // In CAN_ADDRESS_2GB mode, stay one Wasm page short of 4GB: while e.g. Chrome is able to allocate full 4GB Wasm memories, the size will wrap
+      // back to 0 bytes in Wasm side for any code that deals with heap sizes, which would require special casing all heap size related code to treat
+      // 0 specially.
+      var maxHeapSize = 2147483648;
+      if (requestedSize > maxHeapSize) {
+        return false;
+      }
+  
+      // Loop through potential heap size increases. If we attempt a too eager reservation that fails, cut down on the
+      // attempted size and reserve a smaller bump instead. (max 3 times, chosen somewhat arbitrarily)
+      for(var cutDown = 1; cutDown <= 4; cutDown *= 2) {
+        var overGrownHeapSize = oldSize * (1 + 0.2 / cutDown); // ensure geometric growth
+        // but limit overreserving (default to capping at +96MB overgrowth at most)
+        overGrownHeapSize = Math.min(overGrownHeapSize, requestedSize + 100663296 );
+  
+        var newSize = Math.min(maxHeapSize, alignUp(Math.max(requestedSize, overGrownHeapSize), 65536));
+  
+        var replacement = emscripten_realloc_buffer(newSize);
+        if (replacement) {
+  
+          return true;
+        }
+      }
+      return false;
+    }
+
+  var Browser={mainLoop:{scheduler:null,method:"",currentlyRunningMainloop:0,func:null,arg:0,timingMode:0,timingValue:0,currentFrameNumber:0,queue:[],pause:function() {
+          Browser.mainLoop.scheduler = null;
+          // Incrementing this signals the previous main loop that it's now become old, and it must return.
+          Browser.mainLoop.currentlyRunningMainloop++;
+        },resume:function() {
+          Browser.mainLoop.currentlyRunningMainloop++;
+          var timingMode = Browser.mainLoop.timingMode;
+          var timingValue = Browser.mainLoop.timingValue;
+          var func = Browser.mainLoop.func;
+          Browser.mainLoop.func = null;
+          // do not set timing and call scheduler, we will do it on the next lines
+          setMainLoop(func, 0, false, Browser.mainLoop.arg, true);
+          _emscripten_set_main_loop_timing(timingMode, timingValue);
+          Browser.mainLoop.scheduler();
+        },updateStatus:function() {
+          if (Module['setStatus']) {
+            var message = Module['statusMessage'] || 'Please wait...';
+            var remaining = Browser.mainLoop.remainingBlockers;
+            var expected = Browser.mainLoop.expectedBlockers;
+            if (remaining) {
+              if (remaining < expected) {
+                Module['setStatus'](message + ' (' + (expected - remaining) + '/' + expected + ')');
+              } else {
+                Module['setStatus'](message);
+              }
+            } else {
+              Module['setStatus']('');
+            }
+          }
+        },runIter:function(func) {
+          if (ABORT) return;
+          if (Module['preMainLoop']) {
+            var preRet = Module['preMainLoop']();
+            if (preRet === false) {
+              return; // |return false| skips a frame
+            }
+          }
+          try {
+            func();
+          } catch (e) {
+            if (e instanceof ExitStatus) {
+              return;
+            } else if (e == 'unwind') {
+              return;
+            } else {
+              if (e && typeof e === 'object' && e.stack) err('exception thrown: ' + [e, e.stack]);
+              throw e;
+            }
+          }
+          if (Module['postMainLoop']) Module['postMainLoop']();
+        }},isFullscreen:false,pointerLock:false,moduleContextCreatedCallbacks:[],workers:[],init:function() {
+        if (!Module["preloadPlugins"]) Module["preloadPlugins"] = []; // needs to exist even in workers
+  
+        if (Browser.initted) return;
+        Browser.initted = true;
+  
+        try {
+          new Blob();
+          Browser.hasBlobConstructor = true;
+        } catch(e) {
+          Browser.hasBlobConstructor = false;
+          console.log("warning: no blob constructor, cannot create blobs with mimetypes");
+        }
+        Browser.BlobBuilder = typeof MozBlobBuilder != "undefined" ? MozBlobBuilder : (typeof WebKitBlobBuilder != "undefined" ? WebKitBlobBuilder : (!Browser.hasBlobConstructor ? console.log("warning: no BlobBuilder") : null));
+        Browser.URLObject = typeof window != "undefined" ? (window.URL ? window.URL : window.webkitURL) : undefined;
+        if (!Module.noImageDecoding && typeof Browser.URLObject === 'undefined') {
+          console.log("warning: Browser does not support creating object URLs. Built-in browser image decoding will not be available.");
+          Module.noImageDecoding = true;
+        }
+  
+        // Support for plugins that can process preloaded files. You can add more of these to
+        // your app by creating and appending to Module.preloadPlugins.
+        //
+        // Each plugin is asked if it can handle a file based on the file's name. If it can,
+        // it is given the file's raw data. When it is done, it calls a callback with the file's
+        // (possibly modified) data. For example, a plugin might decompress a file, or it
+        // might create some side data structure for use later (like an Image element, etc.).
+  
+        var imagePlugin = {};
+        imagePlugin['canHandle'] = function imagePlugin_canHandle(name) {
+          return !Module.noImageDecoding && /\.(jpg|jpeg|png|bmp)$/i.test(name);
+        };
+        imagePlugin['handle'] = function imagePlugin_handle(byteArray, name, onload, onerror) {
+          var b = null;
+          if (Browser.hasBlobConstructor) {
+            try {
+              b = new Blob([byteArray], { type: Browser.getMimetype(name) });
+              if (b.size !== byteArray.length) { // Safari bug #118630
+                // Safari's Blob can only take an ArrayBuffer
+                b = new Blob([(new Uint8Array(byteArray)).buffer], { type: Browser.getMimetype(name) });
+              }
+            } catch(e) {
+              warnOnce('Blob constructor present but fails: ' + e + '; falling back to blob builder');
+            }
+          }
+          if (!b) {
+            var bb = new Browser.BlobBuilder();
+            bb.append((new Uint8Array(byteArray)).buffer); // we need to pass a buffer, and must copy the array to get the right data range
+            b = bb.getBlob();
+          }
+          var url = Browser.URLObject.createObjectURL(b);
+          var img = new Image();
+          img.onload = function img_onload() {
+            assert(img.complete, 'Image ' + name + ' could not be decoded');
+            var canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            Module["preloadedImages"][name] = canvas;
+            Browser.URLObject.revokeObjectURL(url);
+            if (onload) onload(byteArray);
+          };
+          img.onerror = function img_onerror(event) {
+            console.log('Image ' + url + ' could not be decoded');
+            if (onerror) onerror();
+          };
+          img.src = url;
+        };
+        Module['preloadPlugins'].push(imagePlugin);
+  
+        var audioPlugin = {};
+        audioPlugin['canHandle'] = function audioPlugin_canHandle(name) {
+          return !Module.noAudioDecoding && name.substr(-4) in { '.ogg': 1, '.wav': 1, '.mp3': 1 };
+        };
+        audioPlugin['handle'] = function audioPlugin_handle(byteArray, name, onload, onerror) {
+          var done = false;
+          function finish(audio) {
+            if (done) return;
+            done = true;
+            Module["preloadedAudios"][name] = audio;
+            if (onload) onload(byteArray);
+          }
+          function fail() {
+            if (done) return;
+            done = true;
+            Module["preloadedAudios"][name] = new Audio(); // empty shim
+            if (onerror) onerror();
+          }
+          if (Browser.hasBlobConstructor) {
+            try {
+              var b = new Blob([byteArray], { type: Browser.getMimetype(name) });
+            } catch(e) {
+              return fail();
+            }
+            var url = Browser.URLObject.createObjectURL(b); // XXX we never revoke this!
+            var audio = new Audio();
+            audio.addEventListener('canplaythrough', function() { finish(audio) }, false); // use addEventListener due to chromium bug 124926
+            audio.onerror = function audio_onerror(event) {
+              if (done) return;
+              console.log('warning: browser could not fully decode audio ' + name + ', trying slower base64 approach');
+              function encode64(data) {
+                var BASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+                var PAD = '=';
+                var ret = '';
+                var leftchar = 0;
+                var leftbits = 0;
+                for (var i = 0; i < data.length; i++) {
+                  leftchar = (leftchar << 8) | data[i];
+                  leftbits += 8;
+                  while (leftbits >= 6) {
+                    var curr = (leftchar >> (leftbits-6)) & 0x3f;
+                    leftbits -= 6;
+                    ret += BASE[curr];
+                  }
+                }
+                if (leftbits == 2) {
+                  ret += BASE[(leftchar&3) << 4];
+                  ret += PAD + PAD;
+                } else if (leftbits == 4) {
+                  ret += BASE[(leftchar&0xf) << 2];
+                  ret += PAD;
+                }
+                return ret;
+              }
+              audio.src = 'data:audio/x-' + name.substr(-3) + ';base64,' + encode64(byteArray);
+              finish(audio); // we don't wait for confirmation this worked - but it's worth trying
+            };
+            audio.src = url;
+            // workaround for chrome bug 124926 - we do not always get oncanplaythrough or onerror
+            Browser.safeSetTimeout(function() {
+              finish(audio); // try to use it even though it is not necessarily ready to play
+            }, 10000);
+          } else {
+            return fail();
+          }
+        };
+        Module['preloadPlugins'].push(audioPlugin);
+  
+        // Canvas event setup
+  
+        function pointerLockChange() {
+          Browser.pointerLock = document['pointerLockElement'] === Module['canvas'] ||
+                                document['mozPointerLockElement'] === Module['canvas'] ||
+                                document['webkitPointerLockElement'] === Module['canvas'] ||
+                                document['msPointerLockElement'] === Module['canvas'];
+        }
+        var canvas = Module['canvas'];
+        if (canvas) {
+          // forced aspect ratio can be enabled by defining 'forcedAspectRatio' on Module
+          // Module['forcedAspectRatio'] = 4 / 3;
+  
+          canvas.requestPointerLock = canvas['requestPointerLock'] ||
+                                      canvas['mozRequestPointerLock'] ||
+                                      canvas['webkitRequestPointerLock'] ||
+                                      canvas['msRequestPointerLock'] ||
+                                      function(){};
+          canvas.exitPointerLock = document['exitPointerLock'] ||
+                                   document['mozExitPointerLock'] ||
+                                   document['webkitExitPointerLock'] ||
+                                   document['msExitPointerLock'] ||
+                                   function(){}; // no-op if function does not exist
+          canvas.exitPointerLock = canvas.exitPointerLock.bind(document);
+  
+          document.addEventListener('pointerlockchange', pointerLockChange, false);
+          document.addEventListener('mozpointerlockchange', pointerLockChange, false);
+          document.addEventListener('webkitpointerlockchange', pointerLockChange, false);
+          document.addEventListener('mspointerlockchange', pointerLockChange, false);
+  
+          if (Module['elementPointerLock']) {
+            canvas.addEventListener("click", function(ev) {
+              if (!Browser.pointerLock && Module['canvas'].requestPointerLock) {
+                Module['canvas'].requestPointerLock();
+                ev.preventDefault();
+              }
+            }, false);
+          }
+        }
+      },createContext:function(canvas, useWebGL, setInModule, webGLContextAttributes) {
+        if (useWebGL && Module.ctx && canvas == Module.canvas) return Module.ctx; // no need to recreate GL context if it's already been created for this canvas.
+  
+        var ctx;
+        var contextHandle;
+        if (useWebGL) {
+          // For GLES2/desktop GL compatibility, adjust a few defaults to be different to WebGL defaults, so that they align better with the desktop defaults.
+          var contextAttributes = {
+            antialias: false,
+            alpha: false,
+            majorVersion: (typeof WebGL2RenderingContext !== 'undefined') ? 2 : 1,
+          };
+  
+          if (webGLContextAttributes) {
+            for (var attribute in webGLContextAttributes) {
+              contextAttributes[attribute] = webGLContextAttributes[attribute];
+            }
+          }
+  
+          // This check of existence of GL is here to satisfy Closure compiler, which yells if variable GL is referenced below but GL object is not
+          // actually compiled in because application is not doing any GL operations. TODO: Ideally if GL is not being used, this function
+          // Browser.createContext() should not even be emitted.
+          if (typeof GL !== 'undefined') {
+            contextHandle = GL.createContext(canvas, contextAttributes);
+            if (contextHandle) {
+              ctx = GL.getContext(contextHandle).GLctx;
+            }
+          }
+        } else {
+          ctx = canvas.getContext('2d');
+        }
+  
+        if (!ctx) return null;
+  
+        if (setInModule) {
+          if (!useWebGL) assert(typeof GLctx === 'undefined', 'cannot set in module if GLctx is used, but we are a non-GL context that would replace it');
+  
+          Module.ctx = ctx;
+          if (useWebGL) GL.makeContextCurrent(contextHandle);
+          Module.useWebGL = useWebGL;
+          Browser.moduleContextCreatedCallbacks.forEach(function(callback) { callback() });
+          Browser.init();
+        }
+        return ctx;
+      },destroyContext:function(canvas, useWebGL, setInModule) {},fullscreenHandlersInstalled:false,lockPointer:undefined,resizeCanvas:undefined,requestFullscreen:function(lockPointer, resizeCanvas) {
+        Browser.lockPointer = lockPointer;
+        Browser.resizeCanvas = resizeCanvas;
+        if (typeof Browser.lockPointer === 'undefined') Browser.lockPointer = true;
+        if (typeof Browser.resizeCanvas === 'undefined') Browser.resizeCanvas = false;
+  
+        var canvas = Module['canvas'];
+        function fullscreenChange() {
+          Browser.isFullscreen = false;
+          var canvasContainer = canvas.parentNode;
+          if ((document['fullscreenElement'] || document['mozFullScreenElement'] ||
+               document['msFullscreenElement'] || document['webkitFullscreenElement'] ||
+               document['webkitCurrentFullScreenElement']) === canvasContainer) {
+            canvas.exitFullscreen = Browser.exitFullscreen;
+            if (Browser.lockPointer) canvas.requestPointerLock();
+            Browser.isFullscreen = true;
+            if (Browser.resizeCanvas) {
+              Browser.setFullscreenCanvasSize();
+            } else {
+              Browser.updateCanvasDimensions(canvas);
+            }
+          } else {
+            // remove the full screen specific parent of the canvas again to restore the HTML structure from before going full screen
+            canvasContainer.parentNode.insertBefore(canvas, canvasContainer);
+            canvasContainer.parentNode.removeChild(canvasContainer);
+  
+            if (Browser.resizeCanvas) {
+              Browser.setWindowedCanvasSize();
+            } else {
+              Browser.updateCanvasDimensions(canvas);
+            }
+          }
+          if (Module['onFullScreen']) Module['onFullScreen'](Browser.isFullscreen);
+          if (Module['onFullscreen']) Module['onFullscreen'](Browser.isFullscreen);
+        }
+  
+        if (!Browser.fullscreenHandlersInstalled) {
+          Browser.fullscreenHandlersInstalled = true;
+          document.addEventListener('fullscreenchange', fullscreenChange, false);
+          document.addEventListener('mozfullscreenchange', fullscreenChange, false);
+          document.addEventListener('webkitfullscreenchange', fullscreenChange, false);
+          document.addEventListener('MSFullscreenChange', fullscreenChange, false);
+        }
+  
+        // create a new parent to ensure the canvas has no siblings. this allows browsers to optimize full screen performance when its parent is the full screen root
+        var canvasContainer = document.createElement("div");
+        canvas.parentNode.insertBefore(canvasContainer, canvas);
+        canvasContainer.appendChild(canvas);
+  
+        // use parent of canvas as full screen root to allow aspect ratio correction (Firefox stretches the root to screen size)
+        canvasContainer.requestFullscreen = canvasContainer['requestFullscreen'] ||
+                                            canvasContainer['mozRequestFullScreen'] ||
+                                            canvasContainer['msRequestFullscreen'] ||
+                                           (canvasContainer['webkitRequestFullscreen'] ? function() { canvasContainer['webkitRequestFullscreen'](Element['ALLOW_KEYBOARD_INPUT']) } : null) ||
+                                           (canvasContainer['webkitRequestFullScreen'] ? function() { canvasContainer['webkitRequestFullScreen'](Element['ALLOW_KEYBOARD_INPUT']) } : null);
+  
+        canvasContainer.requestFullscreen();
+      },exitFullscreen:function() {
+        // This is workaround for chrome. Trying to exit from fullscreen
+        // not in fullscreen state will cause "TypeError: Document not active"
+        // in chrome. See https://github.com/emscripten-core/emscripten/pull/8236
+        if (!Browser.isFullscreen) {
+          return false;
+        }
+  
+        var CFS = document['exitFullscreen'] ||
+                  document['cancelFullScreen'] ||
+                  document['mozCancelFullScreen'] ||
+                  document['msExitFullscreen'] ||
+                  document['webkitCancelFullScreen'] ||
+            (function() {});
+        CFS.apply(document, []);
+        return true;
+      },nextRAF:0,fakeRequestAnimationFrame:function(func) {
+        // try to keep 60fps between calls to here
+        var now = Date.now();
+        if (Browser.nextRAF === 0) {
+          Browser.nextRAF = now + 1000/60;
+        } else {
+          while (now + 2 >= Browser.nextRAF) { // fudge a little, to avoid timer jitter causing us to do lots of delay:0
+            Browser.nextRAF += 1000/60;
+          }
+        }
+        var delay = Math.max(Browser.nextRAF - now, 0);
+        setTimeout(func, delay);
+      },requestAnimationFrame:function(func) {
+        if (typeof requestAnimationFrame === 'function') {
+          requestAnimationFrame(func);
+          return;
+        }
+        var RAF = Browser.fakeRequestAnimationFrame;
+        RAF(func);
+      },safeRequestAnimationFrame:function(func) {
+        return Browser.requestAnimationFrame(function() {
+          if (ABORT) return;
+          func();
+        });
+      },safeSetTimeout:function(func, timeout) {
+        noExitRuntime = true;
+        return setTimeout(function() {
+          if (ABORT) return;
+          func();
+        }, timeout);
+      },getMimetype:function(name) {
+        return {
+          'jpg': 'image/jpeg',
+          'jpeg': 'image/jpeg',
+          'png': 'image/png',
+          'bmp': 'image/bmp',
+          'ogg': 'audio/ogg',
+          'wav': 'audio/wav',
+          'mp3': 'audio/mpeg'
+        }[name.substr(name.lastIndexOf('.')+1)];
+      },getUserMedia:function(func) {
+        if(!window.getUserMedia) {
+          window.getUserMedia = navigator['getUserMedia'] ||
+                                navigator['mozGetUserMedia'];
+        }
+        window.getUserMedia(func);
+      },getMovementX:function(event) {
+        return event['movementX'] ||
+               event['mozMovementX'] ||
+               event['webkitMovementX'] ||
+               0;
+      },getMovementY:function(event) {
+        return event['movementY'] ||
+               event['mozMovementY'] ||
+               event['webkitMovementY'] ||
+               0;
+      },getMouseWheelDelta:function(event) {
+        var delta = 0;
+        switch (event.type) {
+          case 'DOMMouseScroll':
+            // 3 lines make up a step
+            delta = event.detail / 3;
+            break;
+          case 'mousewheel':
+            // 120 units make up a step
+            delta = event.wheelDelta / 120;
+            break;
+          case 'wheel':
+            delta = event.deltaY
+            switch(event.deltaMode) {
+              case 0:
+                // DOM_DELTA_PIXEL: 100 pixels make up a step
+                delta /= 100;
+                break;
+              case 1:
+                // DOM_DELTA_LINE: 3 lines make up a step
+                delta /= 3;
+                break;
+              case 2:
+                // DOM_DELTA_PAGE: A page makes up 80 steps
+                delta *= 80;
+                break;
+              default:
+                throw 'unrecognized mouse wheel delta mode: ' + event.deltaMode;
+            }
+            break;
+          default:
+            throw 'unrecognized mouse wheel event: ' + event.type;
+        }
+        return delta;
+      },mouseX:0,mouseY:0,mouseMovementX:0,mouseMovementY:0,touches:{},lastTouches:{},calculateMouseEvent:function(event) { // event should be mousemove, mousedown or mouseup
+        if (Browser.pointerLock) {
+          // When the pointer is locked, calculate the coordinates
+          // based on the movement of the mouse.
+          // Workaround for Firefox bug 764498
+          if (event.type != 'mousemove' &&
+              ('mozMovementX' in event)) {
+            Browser.mouseMovementX = Browser.mouseMovementY = 0;
+          } else {
+            Browser.mouseMovementX = Browser.getMovementX(event);
+            Browser.mouseMovementY = Browser.getMovementY(event);
+          }
+  
+          // check if SDL is available
+          if (typeof SDL != "undefined") {
+            Browser.mouseX = SDL.mouseX + Browser.mouseMovementX;
+            Browser.mouseY = SDL.mouseY + Browser.mouseMovementY;
+          } else {
+            // just add the mouse delta to the current absolut mouse position
+            // FIXME: ideally this should be clamped against the canvas size and zero
+            Browser.mouseX += Browser.mouseMovementX;
+            Browser.mouseY += Browser.mouseMovementY;
+          }
+        } else {
+          // Otherwise, calculate the movement based on the changes
+          // in the coordinates.
+          var rect = Module["canvas"].getBoundingClientRect();
+          var cw = Module["canvas"].width;
+          var ch = Module["canvas"].height;
+  
+          // Neither .scrollX or .pageXOffset are defined in a spec, but
+          // we prefer .scrollX because it is currently in a spec draft.
+          // (see: http://www.w3.org/TR/2013/WD-cssom-view-20131217/)
+          var scrollX = ((typeof window.scrollX !== 'undefined') ? window.scrollX : window.pageXOffset);
+          var scrollY = ((typeof window.scrollY !== 'undefined') ? window.scrollY : window.pageYOffset);
+  
+          if (event.type === 'touchstart' || event.type === 'touchend' || event.type === 'touchmove') {
+            var touch = event.touch;
+            if (touch === undefined) {
+              return; // the "touch" property is only defined in SDL
+  
+            }
+            var adjustedX = touch.pageX - (scrollX + rect.left);
+            var adjustedY = touch.pageY - (scrollY + rect.top);
+  
+            adjustedX = adjustedX * (cw / rect.width);
+            adjustedY = adjustedY * (ch / rect.height);
+  
+            var coords = { x: adjustedX, y: adjustedY };
+  
+            if (event.type === 'touchstart') {
+              Browser.lastTouches[touch.identifier] = coords;
+              Browser.touches[touch.identifier] = coords;
+            } else if (event.type === 'touchend' || event.type === 'touchmove') {
+              var last = Browser.touches[touch.identifier];
+              if (!last) last = coords;
+              Browser.lastTouches[touch.identifier] = last;
+              Browser.touches[touch.identifier] = coords;
+            }
+            return;
+          }
+  
+          var x = event.pageX - (scrollX + rect.left);
+          var y = event.pageY - (scrollY + rect.top);
+  
+          // the canvas might be CSS-scaled compared to its backbuffer;
+          // SDL-using content will want mouse coordinates in terms
+          // of backbuffer units.
+          x = x * (cw / rect.width);
+          y = y * (ch / rect.height);
+  
+          Browser.mouseMovementX = x - Browser.mouseX;
+          Browser.mouseMovementY = y - Browser.mouseY;
+          Browser.mouseX = x;
+          Browser.mouseY = y;
+        }
+      },asyncLoad:function(url, onload, onerror, noRunDep) {
+        var dep = !noRunDep ? getUniqueRunDependency('al ' + url) : '';
+        readAsync(url, function(arrayBuffer) {
+          assert(arrayBuffer, 'Loading data file "' + url + '" failed (no arrayBuffer).');
+          onload(new Uint8Array(arrayBuffer));
+          if (dep) removeRunDependency(dep);
+        }, function(event) {
+          if (onerror) {
+            onerror();
+          } else {
+            throw 'Loading data file "' + url + '" failed.';
+          }
+        });
+        if (dep) addRunDependency(dep);
+      },resizeListeners:[],updateResizeListeners:function() {
+        var canvas = Module['canvas'];
+        Browser.resizeListeners.forEach(function(listener) {
+          listener(canvas.width, canvas.height);
+        });
+      },setCanvasSize:function(width, height, noUpdates) {
+        var canvas = Module['canvas'];
+        Browser.updateCanvasDimensions(canvas, width, height);
+        if (!noUpdates) Browser.updateResizeListeners();
+      },windowedWidth:0,windowedHeight:0,setFullscreenCanvasSize:function() {
+        // check if SDL is available
+        if (typeof SDL != "undefined") {
+          var flags = HEAPU32[((SDL.screen)>>2)];
+          flags = flags | 0x00800000; // set SDL_FULLSCREEN flag
+          HEAP32[((SDL.screen)>>2)] = flags
+        }
+        Browser.updateCanvasDimensions(Module['canvas']);
+        Browser.updateResizeListeners();
+      },setWindowedCanvasSize:function() {
+        // check if SDL is available
+        if (typeof SDL != "undefined") {
+          var flags = HEAPU32[((SDL.screen)>>2)];
+          flags = flags & ~0x00800000; // clear SDL_FULLSCREEN flag
+          HEAP32[((SDL.screen)>>2)] = flags
+        }
+        Browser.updateCanvasDimensions(Module['canvas']);
+        Browser.updateResizeListeners();
+      },updateCanvasDimensions:function(canvas, wNative, hNative) {
+        if (wNative && hNative) {
+          canvas.widthNative = wNative;
+          canvas.heightNative = hNative;
+        } else {
+          wNative = canvas.widthNative;
+          hNative = canvas.heightNative;
+        }
+        var w = wNative;
+        var h = hNative;
+        if (Module['forcedAspectRatio'] && Module['forcedAspectRatio'] > 0) {
+          if (w/h < Module['forcedAspectRatio']) {
+            w = Math.round(h * Module['forcedAspectRatio']);
+          } else {
+            h = Math.round(w / Module['forcedAspectRatio']);
+          }
+        }
+        if (((document['fullscreenElement'] || document['mozFullScreenElement'] ||
+             document['msFullscreenElement'] || document['webkitFullscreenElement'] ||
+             document['webkitCurrentFullScreenElement']) === canvas.parentNode) && (typeof screen != 'undefined')) {
+           var factor = Math.min(screen.width / w, screen.height / h);
+           w = Math.round(w * factor);
+           h = Math.round(h * factor);
+        }
+        if (Browser.resizeCanvas) {
+          if (canvas.width  != w) canvas.width  = w;
+          if (canvas.height != h) canvas.height = h;
+          if (typeof canvas.style != 'undefined') {
+            canvas.style.removeProperty( "width");
+            canvas.style.removeProperty("height");
+          }
+        } else {
+          if (canvas.width  != wNative) canvas.width  = wNative;
+          if (canvas.height != hNative) canvas.height = hNative;
+          if (typeof canvas.style != 'undefined') {
+            if (w != wNative || h != hNative) {
+              canvas.style.setProperty( "width", w + "px", "important");
+              canvas.style.setProperty("height", h + "px", "important");
+            } else {
+              canvas.style.removeProperty( "width");
+              canvas.style.removeProperty("height");
+            }
+          }
+        }
+      },wgetRequests:{},nextWgetRequestHandle:0,getNextWgetRequestHandle:function() {
+        var handle = Browser.nextWgetRequestHandle;
+        Browser.nextWgetRequestHandle++;
+        return handle;
+      }};
+  function _emscripten_set_main_loop_timing(mode, value) {
+      Browser.mainLoop.timingMode = mode;
+      Browser.mainLoop.timingValue = value;
+  
+      if (!Browser.mainLoop.func) {
+        return 1; // Return non-zero on failure, can't set timing mode when there is no main loop.
+      }
+  
+      if (mode == 0 /*EM_TIMING_SETTIMEOUT*/) {
+        Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_setTimeout() {
+          var timeUntilNextTick = Math.max(0, Browser.mainLoop.tickStartTime + value - _emscripten_get_now())|0;
+          setTimeout(Browser.mainLoop.runner, timeUntilNextTick); // doing this each time means that on exception, we stop
+        };
+        Browser.mainLoop.method = 'timeout';
+      } else if (mode == 1 /*EM_TIMING_RAF*/) {
+        Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_rAF() {
+          Browser.requestAnimationFrame(Browser.mainLoop.runner);
+        };
+        Browser.mainLoop.method = 'rAF';
+      } else if (mode == 2 /*EM_TIMING_SETIMMEDIATE*/) {
+        if (typeof setImmediate === 'undefined') {
+          // Emulate setImmediate. (note: not a complete polyfill, we don't emulate clearImmediate() to keep code size to minimum, since not needed)
+          var setImmediates = [];
+          var emscriptenMainLoopMessageId = 'setimmediate';
+          var Browser_setImmediate_messageHandler = function(event) {
+            // When called in current thread or Worker, the main loop ID is structured slightly different to accommodate for --proxy-to-worker runtime listening to Worker events,
+            // so check for both cases.
+            if (event.data === emscriptenMainLoopMessageId || event.data.target === emscriptenMainLoopMessageId) {
+              event.stopPropagation();
+              setImmediates.shift()();
+            }
+          }
+          addEventListener("message", Browser_setImmediate_messageHandler, true);
+          setImmediate = /** @type{function(function(): ?, ...?): number} */(function Browser_emulated_setImmediate(func) {
+            setImmediates.push(func);
+            if (ENVIRONMENT_IS_WORKER) {
+              if (Module['setImmediates'] === undefined) Module['setImmediates'] = [];
+              Module['setImmediates'].push(func);
+              postMessage({target: emscriptenMainLoopMessageId}); // In --proxy-to-worker, route the message via proxyClient.js
+            } else postMessage(emscriptenMainLoopMessageId, "*"); // On the main thread, can just send the message to itself.
+          })
+        }
+        Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_setImmediate() {
+          setImmediate(Browser.mainLoop.runner);
+        };
+        Browser.mainLoop.method = 'immediate';
+      }
+      return 0;
+    }
+  function setMainLoop(browserIterationFunc, fps, simulateInfiniteLoop, arg, noSetTiming) {
+      noExitRuntime = true;
+  
+      assert(!Browser.mainLoop.func, 'emscripten_set_main_loop: there can only be one main loop function at once: call emscripten_cancel_main_loop to cancel the previous one before setting a new one with different parameters.');
+  
+      Browser.mainLoop.func = browserIterationFunc;
+      Browser.mainLoop.arg = arg;
+  
+      var thisMainLoopId = Browser.mainLoop.currentlyRunningMainloop;
+  
+      Browser.mainLoop.runner = function Browser_mainLoop_runner() {
+        if (ABORT) return;
+        if (Browser.mainLoop.queue.length > 0) {
+          var start = Date.now();
+          var blocker = Browser.mainLoop.queue.shift();
+          blocker.func(blocker.arg);
+          if (Browser.mainLoop.remainingBlockers) {
+            var remaining = Browser.mainLoop.remainingBlockers;
+            var next = remaining%1 == 0 ? remaining-1 : Math.floor(remaining);
+            if (blocker.counted) {
+              Browser.mainLoop.remainingBlockers = next;
+            } else {
+              // not counted, but move the progress along a tiny bit
+              next = next + 0.5; // do not steal all the next one's progress
+              Browser.mainLoop.remainingBlockers = (8*remaining + next)/9;
+            }
+          }
+          console.log('main loop blocker "' + blocker.name + '" took ' + (Date.now() - start) + ' ms'); //, left: ' + Browser.mainLoop.remainingBlockers);
+          Browser.mainLoop.updateStatus();
+  
+          // catches pause/resume main loop from blocker execution
+          if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
+  
+          setTimeout(Browser.mainLoop.runner, 0);
+          return;
+        }
+  
+        // catch pauses from non-main loop sources
+        if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
+  
+        // Implement very basic swap interval control
+        Browser.mainLoop.currentFrameNumber = Browser.mainLoop.currentFrameNumber + 1 | 0;
+        if (Browser.mainLoop.timingMode == 1/*EM_TIMING_RAF*/ && Browser.mainLoop.timingValue > 1 && Browser.mainLoop.currentFrameNumber % Browser.mainLoop.timingValue != 0) {
+          // Not the scheduled time to render this frame - skip.
+          Browser.mainLoop.scheduler();
+          return;
+        } else if (Browser.mainLoop.timingMode == 0/*EM_TIMING_SETTIMEOUT*/) {
+          Browser.mainLoop.tickStartTime = _emscripten_get_now();
+        }
+  
+        // Signal GL rendering layer that processing of a new frame is about to start. This helps it optimize
+        // VBO double-buffering and reduce GPU stalls.
+        GL.newRenderingFrameStarted();
+  
+        Browser.mainLoop.runIter(browserIterationFunc);
+  
+        // catch pauses from the main loop itself
+        if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
+  
+        // Queue new audio data. This is important to be right after the main loop invocation, so that we will immediately be able
+        // to queue the newest produced audio samples.
+        // TODO: Consider adding pre- and post- rAF callbacks so that GL.newRenderingFrameStarted() and SDL.audio.queueNewAudioData()
+        //       do not need to be hardcoded into this function, but can be more generic.
+        if (typeof SDL === 'object' && SDL.audio && SDL.audio.queueNewAudioData) SDL.audio.queueNewAudioData();
+  
+        Browser.mainLoop.scheduler();
+      }
+  
+      if (!noSetTiming) {
+        if (fps && fps > 0) _emscripten_set_main_loop_timing(0/*EM_TIMING_SETTIMEOUT*/, 1000.0 / fps);
+        else _emscripten_set_main_loop_timing(1/*EM_TIMING_RAF*/, 1); // Do rAF by rendering each frame (no decimating)
+  
+        Browser.mainLoop.scheduler();
+      }
+  
+      if (simulateInfiniteLoop) {
+        throw 'unwind';
+      }
+    }
+  function _emscripten_set_main_loop(func, fps, simulateInfiniteLoop) {
+      var browserIterationFunc = wasmTable.get(func);
+      setMainLoop(browserIterationFunc, fps, simulateInfiniteLoop);
+    }
+
+  var Fetch={xhrs:[],setu64:function(addr, val) {
+      HEAPU32[addr >> 2] = val;
+      HEAPU32[addr + 4 >> 2] = (val / 4294967296)|0;
+    },openDatabase:function(dbname, dbversion, onsuccess, onerror) {
+      try {
+        var openRequest = indexedDB.open(dbname, dbversion);
+      } catch (e) { return onerror(e); }
+  
+      openRequest.onupgradeneeded = function(event) {
+        var db = event.target.result;
+        if (db.objectStoreNames.contains('FILES')) {
+          db.deleteObjectStore('FILES');
+        }
+        db.createObjectStore('FILES');
+      };
+      openRequest.onsuccess = function(event) { onsuccess(event.target.result); };
+      openRequest.onerror = function(error) { onerror(error); };
+    },staticInit:function() {
+      var isMainThread = true;
+  
+      var onsuccess = function(db) {
+        Fetch.dbInstance = db;
+  
+        if (isMainThread) {
+          removeRunDependency('library_fetch_init');
+        }
+      };
+      var onerror = function() {
+        Fetch.dbInstance = false;
+  
+        if (isMainThread) {
+          removeRunDependency('library_fetch_init');
+        }
+      };
+      Fetch.openDatabase('emscripten_filesystem', 1, onsuccess, onerror);
+  
+      if (typeof ENVIRONMENT_IS_FETCH_WORKER === 'undefined' || !ENVIRONMENT_IS_FETCH_WORKER) addRunDependency('library_fetch_init');
+    }};
+  
+  function fetchXHR(fetch, onsuccess, onerror, onprogress, onreadystatechange) {
+    var url = HEAPU32[fetch + 8 >> 2];
+    if (!url) {
+      onerror(fetch, 0, 'no url specified!');
+      return;
+    }
+    var url_ = UTF8ToString(url);
+  
+    var fetch_attr = fetch + 112;
+    var requestMethod = UTF8ToString(fetch_attr);
+    if (!requestMethod) requestMethod = 'GET';
+    var userData = HEAPU32[fetch + 4 >> 2];
+    var fetchAttributes = HEAPU32[fetch_attr + 52 >> 2];
+    var timeoutMsecs = HEAPU32[fetch_attr + 56 >> 2];
+    var withCredentials = !!HEAPU32[fetch_attr + 60 >> 2];
+    var destinationPath = HEAPU32[fetch_attr + 64 >> 2];
+    var userName = HEAPU32[fetch_attr + 68 >> 2];
+    var password = HEAPU32[fetch_attr + 72 >> 2];
+    var requestHeaders = HEAPU32[fetch_attr + 76 >> 2];
+    var overriddenMimeType = HEAPU32[fetch_attr + 80 >> 2];
+    var dataPtr = HEAPU32[fetch_attr + 84 >> 2];
+    var dataLength = HEAPU32[fetch_attr + 88 >> 2];
+  
+    var fetchAttrLoadToMemory = !!(fetchAttributes & 1);
+    var fetchAttrStreamData = !!(fetchAttributes & 2);
+    var fetchAttrPersistFile = !!(fetchAttributes & 4);
+    var fetchAttrAppend = !!(fetchAttributes & 8);
+    var fetchAttrReplace = !!(fetchAttributes & 16);
+    var fetchAttrSynchronous = !!(fetchAttributes & 64);
+    var fetchAttrWaitable = !!(fetchAttributes & 128);
+  
+    var userNameStr = userName ? UTF8ToString(userName) : undefined;
+    var passwordStr = password ? UTF8ToString(password) : undefined;
+    var overriddenMimeTypeStr = overriddenMimeType ? UTF8ToString(overriddenMimeType) : undefined;
+  
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = withCredentials;
+    xhr.open(requestMethod, url_, !fetchAttrSynchronous, userNameStr, passwordStr);
+    if (!fetchAttrSynchronous) xhr.timeout = timeoutMsecs; // XHR timeout field is only accessible in async XHRs, and must be set after .open() but before .send().
+    xhr.url_ = url_; // Save the url for debugging purposes (and for comparing to the responseURL that server side advertised)
+    xhr.responseType = 'arraybuffer';
+  
+    if (overriddenMimeType) {
+      xhr.overrideMimeType(overriddenMimeTypeStr);
+    }
+    if (requestHeaders) {
+      for(;;) {
+        var key = HEAPU32[requestHeaders >> 2];
+        if (!key) break;
+        var value = HEAPU32[requestHeaders + 4 >> 2];
+        if (!value) break;
+        requestHeaders += 8;
+        var keyStr = UTF8ToString(key);
+        var valueStr = UTF8ToString(value);
+        xhr.setRequestHeader(keyStr, valueStr);
+      }
+    }
+    Fetch.xhrs.push(xhr);
+    var id = Fetch.xhrs.length;
+    HEAPU32[fetch + 0 >> 2] = id;
+    var data = (dataPtr && dataLength) ? HEAPU8.slice(dataPtr, dataPtr + dataLength) : null;
+    // TODO: Support specifying custom headers to the request.
+  
+    // Share the code to save the response, as we need to do so both on success
+    // and on error (despite an error, there may be a response, like a 404 page).
+    // This receives a condition, which determines whether to save the xhr's
+    // response, or just 0.
+    function saveResponse(condition) {
+      var ptr = 0;
+      var ptrLen = 0;
+      if (condition) {
+        ptrLen = xhr.response ? xhr.response.byteLength : 0;
+        // The data pointer malloc()ed here has the same lifetime as the emscripten_fetch_t structure itself has, and is
+        // freed when emscripten_fetch_close() is called.
+        ptr = _malloc(ptrLen);
+        HEAPU8.set(new Uint8Array(xhr.response), ptr);
+      }
+      HEAPU32[fetch + 12 >> 2] = ptr;
+      Fetch.setu64(fetch + 16, ptrLen);
+    }
+  
+    xhr.onload = function(e) {
+      saveResponse(fetchAttrLoadToMemory && !fetchAttrStreamData);
+      var len = xhr.response ? xhr.response.byteLength : 0;
+      Fetch.setu64(fetch + 24, 0);
+      if (len) {
+        // If the final XHR.onload handler receives the bytedata to compute total length, report that,
+        // otherwise don't write anything out here, which will retain the latest byte size reported in
+        // the most recent XHR.onprogress handler.
+        Fetch.setu64(fetch + 32, len);
+      }
+      HEAPU16[fetch + 40 >> 1] = xhr.readyState;
+      HEAPU16[fetch + 42 >> 1] = xhr.status;
+      if (xhr.statusText) stringToUTF8(xhr.statusText, fetch + 44, 64);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        if (onsuccess) onsuccess(fetch, xhr, e);
+      } else {
+        if (onerror) onerror(fetch, xhr, e);
+      }
+    };
+    xhr.onerror = function(e) {
+      saveResponse(fetchAttrLoadToMemory);
+      var status = xhr.status; // XXX TODO: Overwriting xhr.status doesn't work here, so don't override anywhere else either.
+      Fetch.setu64(fetch + 24, 0);
+      Fetch.setu64(fetch + 32, xhr.response ? xhr.response.byteLength : 0);
+      HEAPU16[fetch + 40 >> 1] = xhr.readyState;
+      HEAPU16[fetch + 42 >> 1] = status;
+      if (onerror) onerror(fetch, xhr, e);
+    };
+    xhr.ontimeout = function(e) {
+      if (onerror) onerror(fetch, xhr, e);
+    };
+    xhr.onprogress = function(e) {
+      var ptrLen = (fetchAttrLoadToMemory && fetchAttrStreamData && xhr.response) ? xhr.response.byteLength : 0;
+      var ptr = 0;
+      if (fetchAttrLoadToMemory && fetchAttrStreamData) {
+        // Allocate byte data in Emscripten heap for the streamed memory block (freed immediately after onprogress call)
+        ptr = _malloc(ptrLen);
+        HEAPU8.set(new Uint8Array(xhr.response), ptr);
+      }
+      HEAPU32[fetch + 12 >> 2] = ptr;
+      Fetch.setu64(fetch + 16, ptrLen);
+      Fetch.setu64(fetch + 24, e.loaded - ptrLen);
+      Fetch.setu64(fetch + 32, e.total);
+      HEAPU16[fetch + 40 >> 1] = xhr.readyState;
+      if (xhr.readyState >= 3 && xhr.status === 0 && e.loaded > 0) xhr.status = 200; // If loading files from a source that does not give HTTP status code, assume success if we get data bytes
+      HEAPU16[fetch + 42 >> 1] = xhr.status;
+      if (xhr.statusText) stringToUTF8(xhr.statusText, fetch + 44, 64);
+      if (onprogress) onprogress(fetch, xhr, e);
+      if (ptr) {
+        _free(ptr);
+      }
+    };
+    xhr.onreadystatechange = function(e) {
+      HEAPU16[fetch + 40 >> 1] = xhr.readyState;
+      if (xhr.readyState >= 2) {
+        HEAPU16[fetch + 42 >> 1] = xhr.status;
+      }
+      if (onreadystatechange) onreadystatechange(fetch, xhr, e);
+    };
+    try {
+      xhr.send(data);
+    } catch(e) {
+      if (onerror) onerror(fetch, xhr, e);
+    }
+  }
+  
+  function fetchCacheData(db, fetch, data, onsuccess, onerror) {
+    if (!db) {
+      onerror(fetch, 0, 'IndexedDB not available!');
+      return;
+    }
+  
+    var fetch_attr = fetch + 112;
+    var destinationPath = HEAPU32[fetch_attr + 64 >> 2];
+    if (!destinationPath) destinationPath = HEAPU32[fetch + 8 >> 2];
+    var destinationPathStr = UTF8ToString(destinationPath);
+  
+    try {
+      var transaction = db.transaction(['FILES'], 'readwrite');
+      var packages = transaction.objectStore('FILES');
+      var putRequest = packages.put(data, destinationPathStr);
+      putRequest.onsuccess = function(event) {
+        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
+        HEAPU16[fetch + 42 >> 1] = 200; // Mimic XHR HTTP status code 200 "OK"
+        stringToUTF8("OK", fetch + 44, 64);
+        onsuccess(fetch, 0, destinationPathStr);
+      };
+      putRequest.onerror = function(error) {
+        // Most likely we got an error if IndexedDB is unwilling to store any more data for this page.
+        // TODO: Can we identify and break down different IndexedDB-provided errors and convert those
+        // to more HTTP status codes for more information?
+        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
+        HEAPU16[fetch + 42 >> 1] = 413; // Mimic XHR HTTP status code 413 "Payload Too Large"
+        stringToUTF8("Payload Too Large", fetch + 44, 64);
+        onerror(fetch, 0, error);
+      };
+    } catch(e) {
+      onerror(fetch, 0, e);
+    }
+  }
+  
+  function fetchLoadCachedData(db, fetch, onsuccess, onerror) {
+    if (!db) {
+      onerror(fetch, 0, 'IndexedDB not available!');
+      return;
+    }
+  
+    var fetch_attr = fetch + 112;
+    var path = HEAPU32[fetch_attr + 64 >> 2];
+    if (!path) path = HEAPU32[fetch + 8 >> 2];
+    var pathStr = UTF8ToString(path);
+  
+    try {
+      var transaction = db.transaction(['FILES'], 'readonly');
+      var packages = transaction.objectStore('FILES');
+      var getRequest = packages.get(pathStr);
+      getRequest.onsuccess = function(event) {
+        if (event.target.result) {
+          var value = event.target.result;
+          var len = value.byteLength || value.length;
+          // The data pointer malloc()ed here has the same lifetime as the emscripten_fetch_t structure itself has, and is
+          // freed when emscripten_fetch_close() is called.
+          var ptr = _malloc(len);
+          HEAPU8.set(new Uint8Array(value), ptr);
+          HEAPU32[fetch + 12 >> 2] = ptr;
+          Fetch.setu64(fetch + 16, len);
+          Fetch.setu64(fetch + 24, 0);
+          Fetch.setu64(fetch + 32, len);
+          HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
+          HEAPU16[fetch + 42 >> 1] = 200; // Mimic XHR HTTP status code 200 "OK"
+          stringToUTF8("OK", fetch + 44, 64);
+          onsuccess(fetch, 0, value);
+        } else {
+          // Succeeded to load, but the load came back with the value of undefined, treat that as an error since we never store undefined in db.
+          HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
+          HEAPU16[fetch + 42 >> 1] = 404; // Mimic XHR HTTP status code 404 "Not Found"
+          stringToUTF8("Not Found", fetch + 44, 64);
+          onerror(fetch, 0, 'no data');
+        }
+      };
+      getRequest.onerror = function(error) {
+        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
+        HEAPU16[fetch + 42 >> 1] = 404; // Mimic XHR HTTP status code 404 "Not Found"
+        stringToUTF8("Not Found", fetch + 44, 64);
+        onerror(fetch, 0, error);
+      };
+    } catch(e) {
+      onerror(fetch, 0, e);
+    }
+  }
+  
+  function fetchDeleteCachedData(db, fetch, onsuccess, onerror) {
+    if (!db) {
+      onerror(fetch, 0, 'IndexedDB not available!');
+      return;
+    }
+  
+    var fetch_attr = fetch + 112;
+    var path = HEAPU32[fetch_attr + 64 >> 2];
+    if (!path) path = HEAPU32[fetch + 8 >> 2];
+    var pathStr = UTF8ToString(path);
+  
+    try {
+      var transaction = db.transaction(['FILES'], 'readwrite');
+      var packages = transaction.objectStore('FILES');
+      var request = packages.delete(pathStr);
+      request.onsuccess = function(event) {
+        var value = event.target.result;
+        HEAPU32[fetch + 12 >> 2] = 0;
+        Fetch.setu64(fetch + 16, 0);
+        Fetch.setu64(fetch + 24, 0);
+        Fetch.setu64(fetch + 32, 0);
+        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
+        HEAPU16[fetch + 42 >> 1] = 200; // Mimic XHR HTTP status code 200 "OK"
+        stringToUTF8("OK", fetch + 44, 64);
+        onsuccess(fetch, 0, value);
+      };
+      request.onerror = function(error) {
+        HEAPU16[fetch + 40 >> 1] = 4; // Mimic XHR readyState 4 === 'DONE: The operation is complete'
+        HEAPU16[fetch + 42 >> 1] = 404; // Mimic XHR HTTP status code 404 "Not Found"
+        stringToUTF8("Not Found", fetch + 44, 64);
+        onerror(fetch, 0, error);
+      };
+    } catch(e) {
+      onerror(fetch, 0, e);
+    }
+  }
+  function _emscripten_start_fetch(fetch, successcb, errorcb, progresscb, readystatechangecb) {
+    // Avoid shutting down the runtime since we want to wait for the async
+    // response.
+    noExitRuntime = true;
+  
+    var fetch_attr = fetch + 112;
+    var requestMethod = UTF8ToString(fetch_attr);
+    var onsuccess = HEAPU32[fetch_attr + 36 >> 2];
+    var onerror = HEAPU32[fetch_attr + 40 >> 2];
+    var onprogress = HEAPU32[fetch_attr + 44 >> 2];
+    var onreadystatechange = HEAPU32[fetch_attr + 48 >> 2];
+    var fetchAttributes = HEAPU32[fetch_attr + 52 >> 2];
+    var fetchAttrLoadToMemory = !!(fetchAttributes & 1);
+    var fetchAttrStreamData = !!(fetchAttributes & 2);
+    var fetchAttrPersistFile = !!(fetchAttributes & 4);
+    var fetchAttrNoDownload = !!(fetchAttributes & 32);
+    var fetchAttrAppend = !!(fetchAttributes & 8);
+    var fetchAttrReplace = !!(fetchAttributes & 16);
+  
+    var reportSuccess = function(fetch, xhr, e) {
+      if (onsuccess) wasmTable.get(onsuccess)(fetch);
+      else if (successcb) successcb(fetch);
+    };
+  
+    var reportProgress = function(fetch, xhr, e) {
+      if (onprogress) wasmTable.get(onprogress)(fetch);
+      else if (progresscb) progresscb(fetch);
+    };
+  
+    var reportError = function(fetch, xhr, e) {
+      if (onerror) wasmTable.get(onerror)(fetch);
+      else if (errorcb) errorcb(fetch);
+    };
+  
+    var reportReadyStateChange = function(fetch, xhr, e) {
+      if (onreadystatechange) wasmTable.get(onreadystatechange)(fetch);
+      else if (readystatechangecb) readystatechangecb(fetch);
+    };
+  
+    var performUncachedXhr = function(fetch, xhr, e) {
+      fetchXHR(fetch, reportSuccess, reportError, reportProgress, reportReadyStateChange);
+    };
+  
+    var cacheResultAndReportSuccess = function(fetch, xhr, e) {
+      var storeSuccess = function(fetch, xhr, e) {
+        if (onsuccess) wasmTable.get(onsuccess)(fetch);
+        else if (successcb) successcb(fetch);
+      };
+      var storeError = function(fetch, xhr, e) {
+        if (onsuccess) wasmTable.get(onsuccess)(fetch);
+        else if (successcb) successcb(fetch);
+      };
+      fetchCacheData(Fetch.dbInstance, fetch, xhr.response, storeSuccess, storeError);
+    };
+  
+    var performCachedXhr = function(fetch, xhr, e) {
+      fetchXHR(fetch, cacheResultAndReportSuccess, reportError, reportProgress, reportReadyStateChange);
+    };
+  
+    if (requestMethod === 'EM_IDB_STORE') {
+      // TODO(?): Here we perform a clone of the data, because storing shared typed arrays to IndexedDB does not seem to be allowed.
+      var ptr = HEAPU32[fetch_attr + 84 >> 2];
+      fetchCacheData(Fetch.dbInstance, fetch, HEAPU8.slice(ptr, ptr + HEAPU32[fetch_attr + 88 >> 2]), reportSuccess, reportError);
+    } else if (requestMethod === 'EM_IDB_DELETE') {
+      fetchDeleteCachedData(Fetch.dbInstance, fetch, reportSuccess, reportError);
+    } else if (!fetchAttrReplace) {
+      fetchLoadCachedData(Fetch.dbInstance, fetch, reportSuccess, fetchAttrNoDownload ? reportError : (fetchAttrPersistFile ? performCachedXhr : performUncachedXhr));
+    } else if (!fetchAttrNoDownload) {
+      fetchXHR(fetch, fetchAttrPersistFile ? cacheResultAndReportSuccess : reportSuccess, reportError, reportProgress, reportReadyStateChange);
+    } else {
+      return 0; // todo: free
+    }
+    return fetch;
+  }
+
+  var ENV={};
+  
+  function getExecutableName() {
+      return thisProgram || './this.program';
+    }
+  function getEnvStrings() {
+      if (!getEnvStrings.strings) {
+        // Default values.
+        // Browser language detection #8751
+        var lang = ((typeof navigator === 'object' && navigator.languages && navigator.languages[0]) || 'C').replace('-', '_') + '.UTF-8';
+        var env = {
+          'USER': 'web_user',
+          'LOGNAME': 'web_user',
+          'PATH': '/',
+          'PWD': '/',
+          'HOME': '/home/web_user',
+          'LANG': lang,
+          '_': getExecutableName()
+        };
+        // Apply the user-provided values, if any.
+        for (var x in ENV) {
+          env[x] = ENV[x];
+        }
+        var strings = [];
+        for (var x in env) {
+          strings.push(x + '=' + env[x]);
+        }
+        getEnvStrings.strings = strings;
+      }
+      return getEnvStrings.strings;
+    }
   function _environ_get(__environ, environ_buf) {try {
   
       var bufSize = 0;
@@ -6737,6 +6916,12 @@ function update_fps(x){ cppUpdateFPS(x); }
     return e.errno;
   }
   }
+
+  function _exit(status) {
+      // void _exit(int status);
+      // http://pubs.opengroup.org/onlinepubs/000095399/functions/exit.html
+      exit(status);
+    }
 
   function _fd_close(fd) {try {
   
@@ -7117,6 +7302,10 @@ function update_fps(x){ cppUpdateFPS(x); }
                               GL.shaders[shader]);
     }
 
+  function _glBindAttribLocation(program, index, name) {
+      GLctx.bindAttribLocation(GL.programs[program], index, UTF8ToString(name));
+    }
+
   function _glBindBuffer(target, buffer) {
       if (target == 0x8892 /*GL_ARRAY_BUFFER*/) {
         GLctx.currentArrayBufferBinding = buffer;
@@ -7138,6 +7327,12 @@ function update_fps(x){ cppUpdateFPS(x); }
         GLctx.currentPixelUnpackBufferBinding = buffer;
       }
       GLctx.bindBuffer(target, GL.buffers[buffer]);
+    }
+
+  function _glBindFramebuffer(target, framebuffer) {
+  
+      GLctx.bindFramebuffer(target, GL.framebuffers[framebuffer]);
+  
     }
 
   function _glBindTexture(target, texture) {
@@ -7165,9 +7360,18 @@ function update_fps(x){ cppUpdateFPS(x); }
       }
     }
 
+  function _glCheckFramebufferStatus(x0) { return GLctx['checkFramebufferStatus'](x0) }
+
   function _glClear(x0) { GLctx['clear'](x0) }
 
+  function _glClearBufferfv(buffer, drawbuffer, value) {
+  
+      GLctx['clearBufferfv'](buffer, drawbuffer, HEAPF32, value>>2);
+    }
+
   function _glClearColor(x0, x1, x2, x3) { GLctx['clearColor'](x0, x1, x2, x3) }
+
+  function _glClearDepthf(x0) { GLctx['clearDepth'](x0) }
 
   function _glCompileShader(shader) {
       GLctx.compileShader(GL.shaders[shader]);
@@ -7185,6 +7389,17 @@ function update_fps(x){ cppUpdateFPS(x); }
       var id = GL.getNewId(GL.shaders);
       GL.shaders[id] = GLctx.createShader(shaderType);
       return id;
+    }
+
+  function _glDeleteFramebuffers(n, framebuffers) {
+      for (var i = 0; i < n; ++i) {
+        var id = HEAP32[(((framebuffers)+(i*4))>>2)];
+        var framebuffer = GL.framebuffers[id];
+        if (!framebuffer) continue; // GL spec: "glDeleteFramebuffers silently ignores 0s and names that do not correspond to existing framebuffer objects".
+        GLctx.deleteFramebuffer(framebuffer);
+        framebuffer.name = 0;
+        GL.framebuffers[id] = null;
+      }
     }
 
   function _glDeleteProgram(id) {
@@ -7222,6 +7437,12 @@ function update_fps(x){ cppUpdateFPS(x); }
       }
     }
 
+  function _glDepthFunc(x0) { GLctx['depthFunc'](x0) }
+
+  function _glDepthMask(flag) {
+      GLctx.depthMask(!!flag);
+    }
+
   function _glDrawArrays(mode, first, count) {
       // bind any client-side buffers
       GL.preDrawHandleClientVertexAttribBindings(first + count);
@@ -7231,10 +7452,53 @@ function update_fps(x){ cppUpdateFPS(x); }
       GL.postDrawHandleClientVertexAttribBindings();
     }
 
+  var tempFixedLengthArray=[];
+  function _glDrawBuffers(n, bufs) {
+  
+      var bufArray = tempFixedLengthArray[n];
+      for (var i = 0; i < n; i++) {
+        bufArray[i] = HEAP32[(((bufs)+(i*4))>>2)];
+      }
+  
+      GLctx['drawBuffers'](bufArray);
+    }
+
+  function _glDrawElements(mode, count, type, indices) {
+      var buf;
+      if (!GLctx.currentElementArrayBufferBinding) {
+        var size = GL.calcBufLength(1, type, 0, count);
+        buf = GL.getTempIndexBuffer(size);
+        GLctx.bindBuffer(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, buf);
+        GLctx.bufferSubData(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/,
+                                 0,
+                                 HEAPU8.subarray(indices, indices + size));
+        // the index is now 0
+        indices = 0;
+      }
+  
+      // bind any client-side buffers
+      GL.preDrawHandleClientVertexAttribBindings(count);
+  
+      GLctx.drawElements(mode, count, type, indices);
+  
+      GL.postDrawHandleClientVertexAttribBindings(count);
+  
+      if (!GLctx.currentElementArrayBufferBinding) {
+        GLctx.bindBuffer(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, null);
+      }
+    }
+
+  function _glEnable(x0) { GLctx['enable'](x0) }
+
   function _glEnableVertexAttribArray(index) {
       var cb = GL.currentContext.clientBuffers[index];
       cb.enabled = true;
       GLctx.enableVertexAttribArray(index);
+    }
+
+  function _glFramebufferTexture2D(target, attachment, textarget, texture, level) {
+      GLctx.framebufferTexture2D(target, attachment, textarget,
+                                      GL.textures[texture], level);
     }
 
   function __glGenObject(n, buffers, createFunction, objectTable
@@ -7253,6 +7517,11 @@ function update_fps(x){ cppUpdateFPS(x); }
     }
   function _glGenBuffers(n, buffers) {
       __glGenObject(n, buffers, 'createBuffer', GL.buffers
+        );
+    }
+
+  function _glGenFramebuffers(n, ids) {
+      __glGenObject(n, ids, 'createFramebuffer', GL.framebuffers
         );
     }
 
@@ -7694,6 +7963,45 @@ function update_fps(x){ cppUpdateFPS(x); }
         var view = HEAPF32.subarray((value)>>2, (value+count*12)>>2);
       }
       GLctx.uniform3fv(GL.uniforms[location], view);
+    }
+
+  function _glUniformMatrix4fv(location, count, transpose, value) {
+  
+      if (GL.currentContext.version >= 2) { // WebGL 2 provides new garbage-free entry points to call to WebGL. Use those always when possible.
+        GLctx.uniformMatrix4fv(GL.uniforms[location], !!transpose, HEAPF32, value>>2, count*16);
+        return;
+      }
+  
+      if (count <= 18) {
+        // avoid allocation when uploading few enough uniforms
+        var view = miniTempWebGLFloatBuffers[16*count-1];
+        // hoist the heap out of the loop for size and for pthreads+growth.
+        var heap = HEAPF32;
+        value >>= 2;
+        for (var i = 0; i < 16 * count; i += 16) {
+          var dst = value + i;
+          view[i] = heap[dst];
+          view[i + 1] = heap[dst + 1];
+          view[i + 2] = heap[dst + 2];
+          view[i + 3] = heap[dst + 3];
+          view[i + 4] = heap[dst + 4];
+          view[i + 5] = heap[dst + 5];
+          view[i + 6] = heap[dst + 6];
+          view[i + 7] = heap[dst + 7];
+          view[i + 8] = heap[dst + 8];
+          view[i + 9] = heap[dst + 9];
+          view[i + 10] = heap[dst + 10];
+          view[i + 11] = heap[dst + 11];
+          view[i + 12] = heap[dst + 12];
+          view[i + 13] = heap[dst + 13];
+          view[i + 14] = heap[dst + 14];
+          view[i + 15] = heap[dst + 15];
+        }
+      } else
+      {
+        var view = HEAPF32.subarray((value)>>2, (value+count*64)>>2);
+      }
+      GLctx.uniformMatrix4fv(GL.uniforms[location], !!transpose, view);
     }
 
   function _glUniformMatrix4x3fv(location, count, transpose, value) {
@@ -8934,19 +9242,7 @@ function update_fps(x){ cppUpdateFPS(x); }
   function _strftime_l(s, maxsize, format, tm) {
       return _strftime(s, maxsize, format, tm); // no locale support yet
     }
-InternalError = Module['InternalError'] = extendError(Error, 'InternalError');;
-embind_init_charCodes();
-BindingError = Module['BindingError'] = extendError(Error, 'BindingError');;
-init_emval();;
-UnboundTypeError = Module['UnboundTypeError'] = extendError(Error, 'UnboundTypeError');;
-Module["requestFullscreen"] = function Module_requestFullscreen(lockPointer, resizeCanvas) { Browser.requestFullscreen(lockPointer, resizeCanvas) };
-  Module["requestAnimationFrame"] = function Module_requestAnimationFrame(func) { Browser.requestAnimationFrame(func) };
-  Module["setCanvasSize"] = function Module_setCanvasSize(width, height, noUpdates) { Browser.setCanvasSize(width, height, noUpdates) };
-  Module["pauseMainLoop"] = function Module_pauseMainLoop() { Browser.mainLoop.pause() };
-  Module["resumeMainLoop"] = function Module_resumeMainLoop() { Browser.mainLoop.resume() };
-  Module["getUserMedia"] = function Module_getUserMedia() { Browser.getUserMedia() }
-  Module["createContext"] = function Module_createContext(canvas, useWebGL, setInModule, webGLContextAttributes) { return Browser.createContext(canvas, useWebGL, setInModule, webGLContextAttributes) };
-Fetch.staticInit();;
+
 var FSNode = /** @constructor */ function(parent, name, mode, rdev) {
     if (!parent) {
       parent = this;  // root node sets parent to itself
@@ -8992,8 +9288,22 @@ var FSNode = /** @constructor */ function(parent, name, mode, rdev) {
    }
   });
   FS.FSNode = FSNode;
-  FS.staticInit();;
+  FS.staticInit();Module["FS_createPath"] = FS.createPath;Module["FS_createDataFile"] = FS.createDataFile;Module["FS_createPreloadedFile"] = FS.createPreloadedFile;Module["FS_createLazyFile"] = FS.createLazyFile;Module["FS_createDevice"] = FS.createDevice;Module["FS_unlink"] = FS.unlink;;
+InternalError = Module['InternalError'] = extendError(Error, 'InternalError');;
+embind_init_charCodes();
+BindingError = Module['BindingError'] = extendError(Error, 'BindingError');;
+init_emval();;
+UnboundTypeError = Module['UnboundTypeError'] = extendError(Error, 'UnboundTypeError');;
+Module["requestFullscreen"] = function Module_requestFullscreen(lockPointer, resizeCanvas) { Browser.requestFullscreen(lockPointer, resizeCanvas) };
+  Module["requestAnimationFrame"] = function Module_requestAnimationFrame(func) { Browser.requestAnimationFrame(func) };
+  Module["setCanvasSize"] = function Module_setCanvasSize(width, height, noUpdates) { Browser.setCanvasSize(width, height, noUpdates) };
+  Module["pauseMainLoop"] = function Module_pauseMainLoop() { Browser.mainLoop.pause() };
+  Module["resumeMainLoop"] = function Module_resumeMainLoop() { Browser.mainLoop.resume() };
+  Module["getUserMedia"] = function Module_getUserMedia() { Browser.getUserMedia() }
+  Module["createContext"] = function Module_createContext(canvas, useWebGL, setInModule, webGLContextAttributes) { return Browser.createContext(canvas, useWebGL, setInModule, webGLContextAttributes) };
+Fetch.staticInit();;
 var GLctx;;
+for (var i = 0; i < 32; ++i) tempFixedLengthArray.push(new Array(i));;
 var miniTempWebGLFloatBuffersStorage = new Float32Array(288);
   for (/**@suppress{duplicate}*/var i = 0; i < 288; ++i) {
   miniTempWebGLFloatBuffers[i] = miniTempWebGLFloatBuffersStorage.subarray(0, i+1);
@@ -9037,6 +9347,9 @@ var asmLibraryArg = {
   "__cxa_allocate_exception": ___cxa_allocate_exception,
   "__cxa_atexit": ___cxa_atexit,
   "__cxa_throw": ___cxa_throw,
+  "__sys_fcntl64": ___sys_fcntl64,
+  "__sys_ioctl": ___sys_ioctl,
+  "__sys_open": ___sys_open,
   "_embind_finalize_value_array": __embind_finalize_value_array,
   "_embind_finalize_value_object": __embind_finalize_value_object,
   "_embind_register_bool": __embind_register_bool,
@@ -9062,27 +9375,41 @@ var asmLibraryArg = {
   "emscripten_start_fetch": _emscripten_start_fetch,
   "environ_get": _environ_get,
   "environ_sizes_get": _environ_sizes_get,
+  "exit": _exit,
   "fd_close": _fd_close,
   "fd_read": _fd_read,
   "fd_seek": _fd_seek,
   "fd_write": _fd_write,
   "glActiveTexture": _glActiveTexture,
   "glAttachShader": _glAttachShader,
+  "glBindAttribLocation": _glBindAttribLocation,
   "glBindBuffer": _glBindBuffer,
+  "glBindFramebuffer": _glBindFramebuffer,
   "glBindTexture": _glBindTexture,
   "glBindVertexArray": _glBindVertexArray,
   "glBufferData": _glBufferData,
+  "glCheckFramebufferStatus": _glCheckFramebufferStatus,
   "glClear": _glClear,
+  "glClearBufferfv": _glClearBufferfv,
   "glClearColor": _glClearColor,
+  "glClearDepthf": _glClearDepthf,
   "glCompileShader": _glCompileShader,
   "glCreateProgram": _glCreateProgram,
   "glCreateShader": _glCreateShader,
+  "glDeleteFramebuffers": _glDeleteFramebuffers,
   "glDeleteProgram": _glDeleteProgram,
   "glDeleteShader": _glDeleteShader,
   "glDeleteTextures": _glDeleteTextures,
+  "glDepthFunc": _glDepthFunc,
+  "glDepthMask": _glDepthMask,
   "glDrawArrays": _glDrawArrays,
+  "glDrawBuffers": _glDrawBuffers,
+  "glDrawElements": _glDrawElements,
+  "glEnable": _glEnable,
   "glEnableVertexAttribArray": _glEnableVertexAttribArray,
+  "glFramebufferTexture2D": _glFramebufferTexture2D,
   "glGenBuffers": _glGenBuffers,
+  "glGenFramebuffers": _glGenFramebuffers,
   "glGenTextures": _glGenTextures,
   "glGenVertexArrays": _glGenVertexArrays,
   "glGetIntegerv": _glGetIntegerv,
@@ -9102,6 +9429,7 @@ var asmLibraryArg = {
   "glUniform2f": _glUniform2f,
   "glUniform3f": _glUniform3f,
   "glUniform3fv": _glUniform3fv,
+  "glUniformMatrix4fv": _glUniformMatrix4fv,
   "glUniformMatrix4x3fv": _glUniformMatrix4x3fv,
   "glUseProgram": _glUseProgram,
   "glVertexAttribPointer": _glVertexAttribPointer,
@@ -9175,13 +9503,13 @@ var _setThrew = Module["_setThrew"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_jiji = Module["dynCall_jiji"] = function() {
-  return (dynCall_jiji = Module["dynCall_jiji"] = Module["asm"]["dynCall_jiji"]).apply(null, arguments);
+var dynCall_viijii = Module["dynCall_viijii"] = function() {
+  return (dynCall_viijii = Module["dynCall_viijii"] = Module["asm"]["dynCall_viijii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_viijii = Module["dynCall_viijii"] = function() {
-  return (dynCall_viijii = Module["dynCall_viijii"] = Module["asm"]["dynCall_viijii"]).apply(null, arguments);
+var dynCall_jiji = Module["dynCall_jiji"] = function() {
+  return (dynCall_jiji = Module["dynCall_jiji"] = Module["asm"]["dynCall_jiji"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -9205,7 +9533,14 @@ var dynCall_iiiiiijj = Module["dynCall_iiiiiijj"] = function() {
 
 // === Auto-generated postamble setup entry stuff ===
 
-
+Module["addRunDependency"] = addRunDependency;
+Module["removeRunDependency"] = removeRunDependency;
+Module["FS_createPath"] = FS.createPath;
+Module["FS_createDataFile"] = FS.createDataFile;
+Module["FS_createPreloadedFile"] = FS.createPreloadedFile;
+Module["FS_createLazyFile"] = FS.createLazyFile;
+Module["FS_createDevice"] = FS.createDevice;
+Module["FS_unlink"] = FS.unlink;
 
 var calledRun;
 
