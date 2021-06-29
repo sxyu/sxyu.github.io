@@ -1892,7 +1892,7 @@ function isFileURI(filename) {
 }
 
 // end include: URIUtils.js
-var wasmBinaryFile = 'volrend_web.wasm?v=5343537858076900';
+var wasmBinaryFile = 'volrend_web.wasm?v=5808971634606737';
 if (!isDataURI(wasmBinaryFile)) {
   wasmBinaryFile = locateFile(wasmBinaryFile);
 }
