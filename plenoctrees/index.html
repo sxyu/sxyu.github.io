@@ -399,6 +399,12 @@
             return check;
         };
 
+        if (window.location.host.indexOf('alexyu.net') > -1 && window.location.protocol != "https:") {
+            // Force HTTPS
+            window.location.protocol = "https";
+        }
+
+
         if (mobileAndTabletCheck()) {
             document.getElementById('demo-warning').style.display = 'block';
             document.getElementById('demo-container').style.display = 'none';
