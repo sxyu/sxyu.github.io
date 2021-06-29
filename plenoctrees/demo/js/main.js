@@ -482,11 +482,6 @@ let setupHandlers = function() {
 let load_remote = function(remote_path) {
     console.log('Downloading', remote_path);
     Volrend.load_remote(remote_path);
-    let loading_ele = $('#loading');
-    loading_ele.css('display', 'block');
-    setTimeout(function() {
-        loading_ele.css('opacity', '1');
-    }, 10);
 };
 
 let onInit = function() {
@@ -526,6 +521,7 @@ let onInit = function() {
         }, 10);
 
         console.log('Loading local file');
+        showLoadingScreen();
         var reader = new FileReader();
         reader.onload = (function(file) {
             return function(event) {
@@ -547,6 +543,14 @@ let onInit = function() {
         reader.readAsArrayBuffer(files[0]);
     });
 };
+var showLoadingScreen = function() {
+    let loading_ele = $('#loading');
+    loading_ele.css('display', 'block');
+    setTimeout(function() {
+        loading_ele.css('opacity', '1');
+    }, 10);
+};
+
 var cppReportProgress = function(x) {
     let prog_ele = $("#load-progress");
     prog_ele.css("width", x + "%");
@@ -1888,7 +1892,7 @@ function isFileURI(filename) {
 }
 
 // end include: URIUtils.js
-var wasmBinaryFile = 'volrend_web.wasm?v=3758932467048044';
+var wasmBinaryFile = 'volrend_web.wasm?v=5343537858076900';
 if (!isDataURI(wasmBinaryFile)) {
   wasmBinaryFile = locateFile(wasmBinaryFile);
 }
@@ -2037,6 +2041,7 @@ var ASM_CONSTS = {
   
 };
 function report_progress(x){ cppReportProgress(x); }
+function show_loading_screen(){ showLoadingScreen(); }
 function update_fps(x){ cppUpdateFPS(x); }
 
 
@@ -9520,6 +9525,7 @@ var asmLibraryArg = {
   "glfwTerminate": _glfwTerminate,
   "report_progress": report_progress,
   "setTempRet0": _setTempRet0,
+  "show_loading_screen": show_loading_screen,
   "strftime_l": _strftime_l,
   "update_fps": update_fps
 };
