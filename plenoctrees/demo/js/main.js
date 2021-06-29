@@ -1892,7 +1892,7 @@ function isFileURI(filename) {
 }
 
 // end include: URIUtils.js
-var wasmBinaryFile = 'volrend_web.wasm?v=5808971634606737';
+var wasmBinaryFile = 'volrend_web.wasm?v=4298413379057893';
 if (!isDataURI(wasmBinaryFile)) {
   wasmBinaryFile = locateFile(wasmBinaryFile);
 }
@@ -2040,6 +2040,7 @@ var tempI64;
 var ASM_CONSTS = {
   
 };
+function populate_layers(){ populateLayers(); }
 function report_progress(x){ cppReportProgress(x); }
 function show_loading_screen(){ showLoadingScreen(); }
 function update_fps(x){ cppUpdateFPS(x); }
@@ -9523,6 +9524,7 @@ var asmLibraryArg = {
   "glfwPollEvents": _glfwPollEvents,
   "glfwSwapBuffers": _glfwSwapBuffers,
   "glfwTerminate": _glfwTerminate,
+  "populate_layers": populate_layers,
   "report_progress": report_progress,
   "setTempRet0": _setTempRet0,
   "show_loading_screen": show_loading_screen,
