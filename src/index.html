@@ -4,32 +4,29 @@
     <div class="about col-sm-12">
         <h1>About</h1>
         <p>
-        Hi! I am a undergrad senior at UC Berkeley studying CS and applied math.
-        Currently, I am working on 3D computer vision research with Prof. Angjoo Kanazawa.
-        My interest is at the intersection of vision and graphics. Recently, I am particularly interested in volume rendering and neural representations.
-        </p>
-        <p>
-        Over the past few years I have explored several distinct areas of computer science.
-        Last spring, I tried my hands on some problems in complexity theory, specifically in query complexity, advised by Prof. Avishay Tal. Please check out <a href="https://funcplot.com/table">this table</a>.
-        Before that, I worked on some human and hand pose tracking at the FHL Vive Center and anomaly detection models for SETI.
+        Hi! I am a recent graduate from UC Berkeley, where I majored in CS and applied math.
+        Currently, I am working on 3D computer vision research with {{ autolink("Prof. Angjoo Kanazawa") }} and am planning to go to graduate school starting in Fall 2022.
+        My research interest is at the intersection of vision and graphics. Recently, I am particularly interested in volume rendering and neural representations.
         </p>
         <p>
         Prior to Berkeley, I lived in Vancouver, Canada for many years.
-        I was born in Zhejiang province, China.
+        In fact,
+        since the beginning of the Pandemic, I have been based in the Vancouver area with my family and studying remotely.
+        I was born on Zhoushan Island in Zhejiang province, China but spent most of my childhood in Hangzhou.
         </p>
     </div>
-    <div class="col-sm-12">
+    <div class="col-sm-12 pt-2">
         <h2>Experience</h2>
         <ul class="timeline">
             {% for entry in timeline %}
             <li class="timeline-entry">
                 <strong>{{ entry.time }}</strong> | {{ entry.position }}, {{ entry.org }}
-                <p>{{ entry.description }}</p>
+                <p class="timeline-description">{{ entry.description }}</p>
             </li>
             {% endfor %}
         </ul>
     </div>
-    <div class="col-sm-12">
+    <div class="col-sm-12 pt-2">
         <h2>Publications</h2>
         <div id="pubs">
             {% for pub in pubs %}
@@ -42,11 +39,14 @@
                 <div class="col">
                     <h4>{{ pub.title }}</h4>
                     <div class="pub-authors">
-                    {{ pub.authors }}
+                        {% for author in pub.authors %}
+                        {{ autolink(author) }}{{ ", " if not loop.last else "" }}
+                        {% endfor %}
                     </div>
-                    <div class="pub-venue">
+                    <div class="pub-venue pb-1">
                         <small>
                         {{ pub.venue }}
+                        <span class="pub-award"> {{ pub.award }} </span>
                         </small>
                     </div>
                     <div class="pub-links">
@@ -75,7 +75,7 @@
             {% endfor %}
         </div>
     </div>
-    <div class="coursework col-sm-12">
+    <div class="coursework col-sm-12 pt-2">
         <h2>Coursework</h2>
         <p>
         <a class="btn btn-secondary" data-toggle="collapse" href="#coursework-collapse" role="button" aria-expanded="false" aria-controls="coursework-collapse">
@@ -85,6 +85,9 @@
         <div class="collapse" id="coursework-collapse">
             {% include "coursework.html" %}
         </div>
+    </div>
+    <div class="col-sm-12">
+        <a href="https://github.com/sxyu/sxyu.github.io"><small>Source code for this website</small></a>
     </div>
 </div>
 {% endblock %}

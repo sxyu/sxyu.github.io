@@ -1,6 +1,6 @@
 {
     "title": "The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving",
-    "authors": "Matthew Lebofsky et al.",
+    "authors": ["Matthew Lebofsky et al."],
     "venue": "Publications of the Astronomical Society of the Pacific (PASP)",
     "arxiv_link": "https://arxiv.org/abs/1906.07391",
     "image": "img/bl.png",

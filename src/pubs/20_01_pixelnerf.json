@@ -1,6 +1,6 @@
 {
     "title": "pixelNeRF: Neural Radiance Fields from One or Few Images",
-    "authors": "Alex Yu, Vickie Ye, Matt Tancik, Angjoo Kanazawa",
+    "authors": ["Alex Yu", "Vickie Ye", "Matt Tancik", "Angjoo Kanazawa"],
     "venue": "CVPR 2021",
     "arxiv_link": "http://arxiv.org/abs/2012.02190",
     "web_link": "/pixelnerf",

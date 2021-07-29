@@ -10,6 +10,15 @@ body {
     font-size: 1.0em;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 300
+}
+
 img {
     margin: 15px 0;
 }
@@ -39,10 +48,6 @@ img {
 #sidebar .sidebar-header {
     padding: 20px;
     background: #333;
-}
-
-#sidebar .sidebar-header h3 {
-    font-weight: 900;
 }
 
 #sidebar.active {
@@ -130,14 +135,20 @@ ul.publications {
     font-size: 0.9em;
 }
 
-#links ion-icon {
-    position: relative;
-    top: 2px;
-    padding-right: 2px;
-}
-
 .pub-links a {
     padding-right: 0.5em
+}
+
+.pub-award {
+    color: #e83e8c
+}
+
+.link-self {
+    font-weight: 500
+}
+
+.pub-authors a {
+    color: #333
 }
 
 .pub-preview {

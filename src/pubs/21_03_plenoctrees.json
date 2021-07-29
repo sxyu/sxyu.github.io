@@ -1,7 +1,10 @@
 {
     "title": "PlenOctrees for Real-time Rendering of Neural Radiance Fields",
-    "authors": "Alex Yu, Ruilong Li, Matt Tancik, Hao Li, Ren Ng, Angjoo Kanazawa",
-    "venue": "ICCV 2021 (Oral)",
+    "authors": ["Alex Yu", "Ruilong Li", "Matt Tancik",
+        "Hao Li", "Ren Ng", "Angjoo Kanazawa"
+    ],
+    "venue": "ICCV 2021",
+    "award": "Oral",
     "arxiv_link": "https://arxiv.org/abs/2103.14024",
     "web_link": "/plenoctrees",
     "video_link": "https://www.youtube.com/watch?v=obrmH1T5mfI",
