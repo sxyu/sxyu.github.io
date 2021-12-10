@@ -38,8 +38,9 @@ class Site:
             all_jsonlist[json_req] = lst
 
         def autolink(name):
-            if name in self.links:
-                link_data = self.links[name]
+            name_entry = name.strip('*')
+            if name_entry in self.links:
+                link_data = self.links[name_entry]
                 class_str = (' class="' + link_data["class"] + '"') if "class" in link_data else ""
                 return '<a href="' + link_data["link"] + '"' + class_str + '>' + name + '</a>'
             else:
