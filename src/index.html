@@ -54,7 +54,7 @@
                     <a href="{{ pub.arxiv_link }}">arXiv</a>
                     {% endif %}
                     {% if "paper_link" in pub %}
-                    <a href="{{ pub.paper_link }}">paper</a>
+                    <a href="{{ pub.paper_link }}">Paper</a>
                     {% endif %}
                     {% if "web_link" in pub %}
                     <a href="{{ pub.web_link }}">Website</a>
@@ -73,6 +73,9 @@
                 </div>
             </div>
             {% endfor %}
+            <small>
+            * = Equal contribution
+            </small>
         </div>
     </div>
     <div class="coursework col-sm-12 pt-2">
