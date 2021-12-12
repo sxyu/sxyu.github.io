@@ -25,6 +25,12 @@ img {
     margin: 15px 0;
 }
 
+img.banner-image {
+    width: 100%;
+    padding-bottom: 2em;
+    margin: 0
+}
+
 #content {
     padding: 25px 44px;
     position: relative;
@@ -39,7 +45,7 @@ img {
     flex-basis: 250px;
     min-height: 100vh;
     background: #1c1b1b;
-    background-image: url("../img/bug_art1.png");
+    background-image: url("../img/sidebar_bg.png");
     background-repeat: no-repeat;
     background-attachment: fixed;
     color: #fff;
@@ -55,7 +61,16 @@ img {
 
 #sidebar .sidebar-header {
     padding: 20px;
-    background: #333;
+}
+
+#sidebar .sidebar-header .first-name {
+    color: #d38800;
+}
+
+#sidebar .sidebar-header p {
+    margin-bottom: 0.5em;
+    text-transform: uppercase;
+    color: #ccc;
 }
 
 #sidebar.active {
@@ -63,7 +78,7 @@ img {
 }
 
 #sidebar ul.components {
-    padding: 20px 0;
+    padding: 0
 }
 
 #sidebar ul p {
@@ -84,7 +99,7 @@ img {
 
 #sidebar ul li.active>a,
 a[aria-expanded="true"] {
-    background: #a94932;
+    background: #bf7c00;
 }
 
 a,
@@ -184,6 +199,20 @@ ul.publications {
 
 .pub-abstract {
     font-size: 0.9em;
+}
+
+a.btn {
+    border-radius: 0
+}
+
+#coursework-collapse {
+    max-height: 200px;
+    overflow-y: scroll;
+    font-size: 0.9em;
+}
+
+#coursework-collapse>h4 {
+    font-size: 1.4em;
 }
 
 @media only screen and (max-width: 800px) {
