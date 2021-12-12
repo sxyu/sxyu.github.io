@@ -2,5 +2,6 @@
     "time": "Summer 2021",
     "position": "Research Intern",
     "org": "Adobe Research",
-    "description": "Supervisor: <a href='https://research.adobe.com/person/oliver-wang/'>Oliver Wang</a>"
+    "image": "img/timeline/adobe.png",
+    "description": "Host: <a href='https://research.adobe.com/person/oliver-wang/'>Oliver Wang</a>; worked on NeRF without COLMAP"
 }

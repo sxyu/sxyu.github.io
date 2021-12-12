@@ -1,12 +1,18 @@
 {% extends "template.html" %}
 {% block content %}
-<div class="row">
-    <div class="about col-sm-12">
+    <div class="about">
         <h1>About</h1>
         <p>
-        Hi! I will be a founding research scientist at <a href="https://lumalabs.ai">Luma AI</a> starting Spring 2022, and am also planning to start a PhD in Fall 2022.
-        Until the end of winter, I will continue on 3D computer vision research with {{ autolink("Prof. Angjoo Kanazawa") }} in BAIR.
+        Hi! My name is Alex and I am a recent graduate from UC Berkeley, where I majored in CS and applied math.
+        I'll be a founding research scientist at <a href="https://lumalabs.ai">Luma AI</a> starting Spring 2022, and am also planning to start a PhD in Fall 2022.
+        Until the end of winter, I'm working on 3D computer vision research with {{ autolink("Prof. Angjoo Kanazawa") }} in BAIR where I worked as a undergrad researcher.
         My research interest is at the intersection of vision and graphics. Recently, I am particularly interested in differentiable rendering and neural representations.
+        </p>
+        <p>
+        During my undergrad, I also dabbled in CS theory, and worked on research in query complexity
+        with Prof. Avishay Tal, without much success.
+        Due to this I took many theory-related graduate classes, and was
+        was also a member of the undergrad CS Theory club (UGTCS).
         </p>
         <p>
         Prior to Berkeley, I lived in Vancouver, Canada for many years.
@@ -14,25 +20,35 @@
         for my junior and senior years, I was based in the Vancouver area with my family and studying remotely.
         </p>
     </div>
-    <div class="col-sm-12 pt-2">
-        <h2>Experience</h2>
-        <ul class="timeline">
-            {% for entry in timeline %}
-            <li class="timeline-entry">
-                <strong>{{ entry.time }}</strong> | {{ entry.position }}, {{ entry.org }}
-                <p class="timeline-description">{{ entry.description }}</p>
-            </li>
-            {% endfor %}
-        </ul>
+    <div class="timeline pt-2">
+        {% for entry in timeline %}
+        <div class="timeline-entry">
+            <div class="timeline-image-holder">
+            {% if "image" in entry %}
+            <img src="{{ entry.image }}" alt="{{ entry.org }}">
+            {% endif %}
+            </div>
+            <div class="timeline-time">{{ entry.time }}</div>
+            <div class="timeline-org">
+            {{ entry.org }}
+            </div>
+            <div class="timeline-position">
+            {{ entry.position }}
+            </div>
+            <div class="timeline-description">
+            {{ entry.description }}
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    <div class="col-sm-12 pt-2">
+    <div class="pt-4">
         <h2>Publications</h2>
         <div id="pubs">
             {% for pub in pubs %}
             <div class="pub row pt-2 pb-2">
                 <div class="col-sm-2 pub-preview">
                     {% if "image" in pub %}
-                    <img src="{{ pub.image }}" alt="{{ pub.title }} image">
+                    <img src="{{ pub.image }}" alt="{{ pub.title }}">
                     {% endif %}
                 </div>
                 <div class="col">
@@ -77,7 +93,7 @@
             </small>
         </div>
     </div>
-    <div class="coursework col-sm-12 pt-2">
+    <div class="coursework pt-4">
         <h2>Coursework</h2>
         <p>
         <a class="btn btn-secondary" data-toggle="collapse" href="#coursework-collapse" role="button" aria-expanded="false" aria-controls="coursework-collapse">
@@ -88,15 +104,14 @@
             {% include "coursework.html" %}
         </div>
     </div>
-    <div class="coursework col-sm-12 pt-2">
-        <h2>Fun facts</h2>
+    <div class="coursework pt-2">
+        <h2>Misc</h2>
         <ul>
             <li> I was born on Zhoushan Island in Zhejiang province, China but spent most of my childhood in Hangzhou.
 My Chinese name is 余思贤 / 余思賢 
         </ul>
     </div>
-    <div class="col-sm-12">
+    <div>
         <a href="https://github.com/sxyu/sxyu.github.io"><small>Source code for this website</small></a>
     </div>
-</div>
 {% endblock %}

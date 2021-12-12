@@ -1,6 +1,7 @@
 {
-    "time": "Fall 2021",
-    "position": "Research Scholar",
-    "org": "Kanazawa AI Research @ BAIR",
-    "description": ""
+    "time": "Summer 2020-Fall 2021",
+    "position": "Undergrad / Researcher",
+    "org": "Berkeley AI Research",
+    "image": "img/timeline/bair.png",
+    "description": "Advisor: <a href='https://angjookanazawa.com/'>Angjoo Kanazawa</a>; worked on research related to NeRFs (see below)"
 }
