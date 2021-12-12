@@ -45,7 +45,7 @@
         <h2>Publications</h2>
         <div id="pubs">
             {% for pub in pubs %}
-            <div class="pub row pt-2 pb-2">
+            <div class="pub row pt-3 pb-3">
                 <div class="col-sm-2 pub-preview">
                     {% if "image" in pub %}
                     <img src="{{ pub.image }}" alt="{{ pub.title }}">
@@ -106,12 +106,10 @@
     </div>
     <div class="coursework pt-2">
         <h2>Misc</h2>
-        <ul>
-            <li> I was born on Zhoushan Island in Zhejiang province, China but spent most of my childhood in Hangzhou.
+        I was born on Zhoushan Island in Zhejiang province, China but spent most of my childhood in Hangzhou.
 My Chinese name is 余思贤 / 余思賢 
-        </ul>
     </div>
-    <div>
+    <div class="pt-2">
         <a href="https://github.com/sxyu/sxyu.github.io"><small>Source code for this website</small></a>
     </div>
 {% endblock %}

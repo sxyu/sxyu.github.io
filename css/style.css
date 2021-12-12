@@ -3,13 +3,13 @@ body>.wrapper {
     width: 100vw;
     flex-flow: row;
     position: relative;
+    background-color: #fafafa;
 }
 
 body {
-    background: #fafafa;
     font-family: Roboto, sans-serif;
     font-size: 1.0em;
-    overflow-x: hidden
+    overflow-x: hidden;
 }
 
 h1,
@@ -39,6 +39,9 @@ img {
     flex-basis: 250px;
     min-height: 100vh;
     background: #1c1b1b;
+    background-image: url("../img/bug_art1.png");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: #fff;
     transition: all 0.3s;
 }
@@ -47,6 +50,7 @@ img {
     width: 250px;
     min-height: 100vh;
     position: fixed;
+    background-color: rgba(0.0, 0.0, 0.0, 0.8);
 }
 
 #sidebar .sidebar-header {
