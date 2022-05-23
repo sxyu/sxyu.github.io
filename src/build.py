@@ -6,7 +6,7 @@ def main():
     # Register the pages here: path/url to file, name for sidebar, json listings to include
     site.register_page('index.html', 'About', ['pubs', 'timeline'])
     site.register_page('projects.html', 'Projects')
-    site.register_page('contests.html', 'Contests + Interests')
+    #  site.register_page('contests.html', 'Contests + Interests')
     #  register('teaching.html', 'Teaching')
 
     site.build()
