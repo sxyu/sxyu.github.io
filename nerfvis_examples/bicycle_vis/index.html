@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+        <title></title>
+        <meta name="description" content="nerfvis">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+        <style>
+html {
+    box-sizing: border-box
+}
+body {
+    font-family: monospace;
+}
+#nerfvis-title {
+    top: 20px;
+    left: 30px;
+    position: absolute;
+    width: 100vw;
+}
+#main-wrapper {
+    position: relative;
+    width: 100%;
+    max-height: 100vh;
+    overflow:hidden;
+}
+
+#loading {
+    display: none;
+    opacity: 0;
+    transition: all 0.3s ease;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: transparent;
+    width: 500px;
+    height: 150px;
+    z-index: 10000;
+}
+
+#loading>div {
+    text-align: center;
+    width: 400px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -70%);
+    user-select: none;
+}
+
+#loading p {
+    font-size: 1em;
+    margin-bottom: 0.5em;
+    margin-top: 1em 0.7em;
+}
+
+#load-progress {
+    transition: none;
+}
+
+#header .back-link {
+    position: relative;
+    top: -0.05em;
+    padding-right: 0.5em;
+    text-decoration: none;
+}
+
+#header .back-link svg {
+    width: 25px;
+}
+
+.navbar-light>.nav-link {
+    color: rgba(0, 0, 0, .5)
+}
+
+#slider-time {
+    padding-left: 1em;
+    padding-right: 1em;
+    border: none;
+    background: transparent;
+    outline: none;
+    box-shadow: none
+}
+#slider-time-form ,
+#slider-time-form > span {
+    user-select:none;
+    font-size:0.9em;
+}
+
+#slider-time-label {
+    margin: 0
+}
+
+#options .options-section {
+    padding-bottom: 1em;
+}
+
+/* FPS counter */
+#fps-counter {
+    font-family: monospace;
+    font-size: 0.8em;
+    color: #444;
+}
+
+/* Layers */
+#layers {
+    position:absolute;
+    left: 0;
+    top: 0;
+    padding-top: 20px;
+    padding-left: 30px;
+    min-width: 300px;
+    max-width: 500px;
+    width: 15%;
+    padding-top: 65px;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+#layers-container {
+    max-height: 100%;
+    position: relative;
+    padding-bottom: 6em;
+    overflow-y: auto;
+}
+
+#layers-items {
+    max-height: 100%;
+    overflow-y: auto;
+    font-size: 0.9em;
+}
+
+#layers-btn {
+    display: none;
+}
+
+.layers-item,
+.layers-collection {
+    cursor: pointer;
+    font-size: 0.9em;
+    user-select: none;
+}
+
+.layers-item.layers-item-invisible {
+    opacity: 0.6
+}
+
+.layers-item-color {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    position: relative;
+    top: 2px;
+    user-select: none;
+}
+
+.layers-item-name {
+    padding: 0 0 0 0.3em;
+    display: inline-block;
+    user-select: none;
+}
+
+.layers-collection-name {
+    padding: 0 1em 0 0.3em;
+    display: inline-block;
+    user-select: none;
+}
+
+.layers-collection-action {
+    padding: 0 0.3em;
+}
+
+.layers-collection-collapse {
+    text-decoration: none
+}
+
+.layers-collection-collapse:hover {
+    text-decoration: none
+}
+
+.layers-collection-collapse[aria-expanded="true"] svg {
+    transform: rotate(90deg);
+}
+.layers-item-show-grid {
+    cursor: pointer;
+    color: #777;
+    position:relative;
+    top:-2px;
+}
+.layers-item-show-grid-visible {
+    color: #c73;
+}
+.layers-item-mesh .layers-item-show-grid {
+    display: none;
+}
+
+        </style>
+    </head>
+
+    <body>
+        <div id="main-wrapper">
+            <div id="loading">
+                <div>
+                    <p id="load-text">Loading</p>
+                </div>
+            </div>
+            <div id="content">
+                <div>
+                    <div class="emscripten_border">
+                        <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+                    </div>
+                </div>
+                <h5 id="nerfvis-title" class="pb-2">nerfvis 0.1 demo scene</h5>
+                <div id="layers">
+                    <form class="d-flex pt-1 pb-2" id="slider-time-form">
+                        <label for="slider-time" id="slider-time-label">
+                            time
+                        </label>
+                        <input type="range" class="form-control custom-range" min="0" max="0" value="0" step="1" id="slider-time">
+                        <span id="slider-time-label-curr">0</span> /
+                        <span id="slider-time-label-max">0</span>
+                    </form>
+                    <div id="layers-container" class="custom-popup-container pt-1">
+                        <div id="layers-items">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="js/main.js?v=8950611734611102"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+
+
+    <script type="text/template" id="layers-collection-template">
+        <div class="layers-collection{classes}" collection="{name}" style="margin-left:{mleft}"
+             collection-id="{full_name}">
+            <a class="layers-collection-collapse" data-toggle="collapse"
+                    href="#collapse-{id}" role="button" aria-expanded="false" aria-controls="collapse-{id}">
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
+                </svg>
+            </a>
+            <span class="layers-collection-name">{name}</span>
+            <a class="layers-collection-action layers-collection-action-all">all</a>
+            <a class="layers-collection-action layers-collection-action-none">none</a>
+        </div>
+        <div class="layers-collection-subitems collapse" collection="{name}" id="collapse-{id}"
+            style="margin-left:{mleft}">
+    </script>
+    <script type="text/template" id="layers-item-template">
+        <div class="layers-item{classes}" layer="{id}"
+            full-name="{full_name}" style="margin-left:{mleft}" id="layer-item-{id}">
+            <span class="layers-item-color" layer-color="{border_color}" id="layer-item-color-{id}"
+                  style="background:{bg_color};border:2px solid {border_color}"></span>
+            <span class="layers-item-name">{name}</span>
+            <span class="layers-item-show-grid" id="layer-item-show-grid-{id}" title="Visualize octree volume">
+                <svg style="width:17px;height:17px" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M10,21V18H3L8,13H5L10,8H7L12,3L17,8H14L19,13H16L21,18H14V21H10Z" />
+                </svg>
+            </span>
+        </div>
+    </script>
+
+    <script>
+        Volrend.onRuntimeInitialized = function() {
+            $(document).ready(function() {
+                onInit();
+                let opt = Volrend.get_options();
+opt.step_size = 2e-3;
+opt.stop_thresh = 1e-1;
+opt.sigma_thresh = 1e-1;
+Volrend.set_options(opt);
+Volrend.set_title("colmap dataset: bicycle");
+load_remote("volrend.draw.npz");
+Volrend.set_world_up([-1.5207155147441427e-17, -1.0, 6.356590851630516e-17]);
+Volrend.set_cam_center([-5.075699166322774, -0.8237860697367072, -4.035550584535281]);
+Volrend.set_cam_back([-0.7710446689944858, -0.07843501656000612, -0.6319320110521507]);
+Volrend.set_cam_origin([-0.28476223921586347, -0.3364249189156737, -0.10899933670824512]);
+            });
+        }
+    </script>
+</body>
+
+</html>
