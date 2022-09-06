@@ -215,7 +215,7 @@ body {
                         <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
                     </div>
                 </div>
-                <h5 id="nerfvis-title" class="pb-2">Loading</h5>
+                <h5 id="nerfvis-title" class="pb-2">loading</h5>
                 <div id="layers">
                     <form class="d-flex pt-1 pb-2" id="slider-time-form">
                         <label for="slider-time" id="slider-time-label">
@@ -234,7 +234,7 @@ body {
         </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="js/main.js?v=8950611734611102"></script>
+    <script type="text/javascript" src="js/main.js?v=5185296868829585"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
 
 
@@ -277,12 +277,11 @@ opt.step_size = 2e-3;
 opt.stop_thresh = 1e-1;
 opt.sigma_thresh = 1e-1;
 Volrend.set_options(opt);
-Volrend.set_title("colmap dataset: bicycle");
+Volrend.set_title("Scene");
 load_remote("volrend.draw.npz");
-Volrend.set_world_up([-1.5207155147441427e-17, -1.0, 6.356590851630516e-17]);
-Volrend.set_cam_center([-5.075699166322774, -0.8237860697367072, -4.035550584535281]);
-Volrend.set_cam_back([-0.7710446689944858, -0.07843501656000612, -0.6319320110521507]);
-Volrend.set_cam_origin([-0.28476223921586347, -0.3364249189156737, -0.10899933670824512]);
+Volrend.set_cam_center([-5.18969712, 1.0, 6.93969712]);
+Volrend.set_cam_back([-0.7071068, -0.0, 0.7071068]);
+Volrend.set_cam_origin([0.0, 0.0, 0.0]);
             });
         }
     </script>
