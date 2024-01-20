@@ -8,6 +8,7 @@
     "arxiv_link": "https://arxiv.org/abs/2112.05131",
     "web_link": "/plenoxels",
     "video_link": "https://www.youtube.com/watch?v=ElnuwpQEqTA&feature=emb_title",
+    "two_minute_link": "https://www.youtube.com/watch?v=yptwRRpPEBM", 
     "image": "img/plenoxels.gif",
     "abstract": "We introduce Plenoxels (plenoptic voxels), a system for photorealistic view synthesis. Plenoxels represent a scene as a sparse 3D grid with spherical harmonics. This representation can be optimized from calibrated images via gradient methods and regularization without any neural components. On standard, benchmark tasks, Plenoxels are optimized two orders of magnitude faster than Neural Radiance Fields with no loss in visual quality."
 }

@@ -41,7 +41,7 @@
                 </div>
 
                 <ul class="list-unstyled components">
-                     <li class="active" > <a href="index.html">About</a> </li>  <li> <a href="projects.html">Projects</a> </li> 
+                     <li class="active" > <a href="index.html">About</a> </li> 
                 </ul>
                 <ul id="links" class="list-unstyled">
                     <li>
@@ -79,215 +79,25 @@
 
         <div id="content">
             
-    <div class="about">
-        <img class="banner-image" src="img/banner.jpg" title="Pacific Spirit park">
-
-        <p>
-        Hi! My name is Alex and I'm now a co-founder at <a href="https://lumalabs.ai">Luma AI</a>, a generative AI startup!
-        Please see <a href="https://lumalabs.ai/join">this link</a> for open positions or
-        <a href="https://lumalabs.ai/internship-summer-2024">this link for internships</a>.
-        </p>
-        <p>
-        Previously I graduated from UC Berkeley, where I majored in CS and applied math, and
-        worked on 3D computer vision research related to NeRFs with <a href="https://people.eecs.berkeley.edu/~kanazawa/">Prof. Angjoo Kanazawa</a> in BAIR.
-        </p>
-        <p>
-        Prior to Berkeley, I lived in Vancouver, Canada for many years.
-        </p>
-    </div>
-    <div class="pt-4">
-        <h2>Publications</h2>
-        <div id="pubs">
-            
-            <div class="pub row pt-3 pb-3">
-                <div class="col-sm-2 pub-preview">
-                    
-                    <img src="img/plenoxels.gif" alt="Plenoxels: Radiance Fields Without Neural Networks">
-                    
-                </div>
-                <div class="col">
-                    <h4>Plenoxels: Radiance Fields Without Neural Networks</h4>
-                    <div class="pub-authors">
-                        
-                        <a href="https://alexyu.net" class="link-self">Alex Yu*</a>, 
-                        
-                        <a href="https://people.eecs.berkeley.edu/~sfk/">Sara Fridovich-Keil*</a>, 
-                        
-                        <a href="https://www.matthewtancik.com">Matt Tancik</a>, 
-                        
-                        <a href="https://www.linkedin.com/in/qinhong-chen/">Qinhong Chen</a>, 
-                        
-                        Benjamin Recht, 
-                        
-                        <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
-                        
-                    </div>
-                    <div class="pub-venue pb-1">
-                        <small>
-                        CVPR 2022
-                        <span class="pub-award"> Oral </span>
-                        </small>
-                    </div>
-                    <div class="pub-links">
-                    
-                    <a href="https://arxiv.org/abs/2112.05131">arXiv</a>
-                    
-                    
-                    
-                    <a href="/plenoxels">Website</a>
-                    
-                    
-                    <a href="https://www.youtube.com/watch?v=ElnuwpQEqTA&feature=emb_title">Video</a>
-                    
-                    </div>
-                    <div class="pub-description pt-1">
-                        
-                        <p class="pub-abstract">
-                        We introduce Plenoxels (plenoptic voxels), a system for photorealistic view synthesis. Plenoxels represent a scene as a sparse 3D grid with spherical harmonics. This representation can be optimized from calibrated images via gradient methods and regularization without any neural components. On standard, benchmark tasks, Plenoxels are optimized two orders of magnitude faster than Neural Radiance Fields with no loss in visual quality.
-                        </p>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <div class="pub row pt-3 pb-3">
-                <div class="col-sm-2 pub-preview">
-                    
-                    <img src="img/plenoctrees.jpg" alt="PlenOctrees for Real-time Rendering of Neural Radiance Fields">
-                    
-                </div>
-                <div class="col">
-                    <h4>PlenOctrees for Real-time Rendering of Neural Radiance Fields</h4>
-                    <div class="pub-authors">
-                        
-                        <a href="https://alexyu.net" class="link-self">Alex Yu</a>, 
-                        
-                        <a href="https://www.liruilong.cn">Ruilong Li</a>, 
-                        
-                        <a href="https://www.matthewtancik.com">Matt Tancik</a>, 
-                        
-                        <a href="https://www.hao-li.com">Hao Li</a>, 
-                        
-                        <a href="https://www2.eecs.berkeley.edu/Faculty/Homepages/yirenng.html">Ren Ng</a>, 
-                        
-                        <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
-                        
-                    </div>
-                    <div class="pub-venue pb-1">
-                        <small>
-                        ICCV 2021
-                        <span class="pub-award"> Oral </span>
-                        </small>
-                    </div>
-                    <div class="pub-links">
-                    
-                    <a href="https://arxiv.org/abs/2103.14024">arXiv</a>
-                    
-                    
-                    
-                    <a href="/plenoctrees">Website</a>
-                    
-                    
-                    <a href="https://www.youtube.com/watch?v=obrmH1T5mfI">Video</a>
-                    
-                    </div>
-                    <div class="pub-description pt-1">
-                        
-                        <p class="pub-abstract">
-                        We introduce a method to render Neural Radiance Fields (NeRFs) in real time using PlenOctrees, an octree-based 3D representation which supports view-dependent effects. Our method can render 800x800 images at more than 150 FPS,  which is over 3000 times faster than conventional NeRFs.  We do so without sacrificing quality while preserving the ability of NeRFs to perform free-viewpoint rendering of scenes with arbitrary geometry and view-dependent effects.  Real-time performance is achieved by pre-tabulating the NeRF into a PlenOctree. In order to preserve view-dependent effects such as specularities, we  factorize the appearance via closed-form spherical basis functions.  Specifically, we show that it is possible to train NeRFs to predict a spherical harmonic representation of radiance, removing the viewing direction as an input to the neural network.  Furthermore, we show that PlenOctrees can be directly optimized to further minimize the reconstruction loss, which leads to equal or better quality compared to competing methods.  Moreover, this octree optimization step can be used to reduce the training time, as we no longer need to wait for the NeRF training to converge fully.  Our real-time neural rendering approach may potentially enable new applications such as 6-DOF industrial and product visualizations, as well as next generation AR/VR systems.  PlenOctrees are amenable to in-browser rendering as well; please visit the project page for the interactive online demo.
-                        </p>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <div class="pub row pt-3 pb-3">
-                <div class="col-sm-2 pub-preview">
-                    
-                    <img src="img/pixelnerf.jpg" alt="pixelNeRF: Neural Radiance Fields from One or Few Images">
-                    
-                </div>
-                <div class="col">
-                    <h4>pixelNeRF: Neural Radiance Fields from One or Few Images</h4>
-                    <div class="pub-authors">
-                        
-                        <a href="https://alexyu.net" class="link-self">Alex Yu</a>, 
-                        
-                        <a href="https://people.eecs.berkeley.edu/~vye">Vickie Ye</a>, 
-                        
-                        <a href="https://www.matthewtancik.com">Matt Tancik</a>, 
-                        
-                        <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
-                        
-                    </div>
-                    <div class="pub-venue pb-1">
-                        <small>
-                        CVPR 2021
-                        <span class="pub-award">  </span>
-                        </small>
-                    </div>
-                    <div class="pub-links">
-                    
-                    <a href="http://arxiv.org/abs/2012.02190">arXiv</a>
-                    
-                    
-                    
-                    <a href="/pixelnerf">Website</a>
-                    
-                    
-                    <a href="https://youtu.be/voebZx7f32g">Video</a>
-                    
-                    </div>
-                    <div class="pub-description pt-1">
-                        
-                        <p class="pub-abstract">
-                        We propose pixelNeRF, a learning framework that predicts a continuous neural scene representation conditioned on one or few input images. The existing approach for constructing neural radiance fields involves optimizing the representation to every scene independently, requiring many calibrated views and significant compute time. We take a step towards resolving these shortcomings by introducing an architecture that conditions a NeRF on image inputs in a fully convolutional manner. This allows the network to be trained across multiple scenes to learn a scene prior, enabling it to perform novel view synthesis in a feed-forward manner from a sparse set of views (as few as one).
-                        </p>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <div class="pub row pt-3 pb-3">
-                <div class="col-sm-2 pub-preview">
-                    
-                    <img src="img/bl.png" alt="The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving">
-                    
-                </div>
-                <div class="col">
-                    <h4>The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving</h4>
-                    <div class="pub-authors">
-                        
-                        Matthew Lebofsky et al.
-                        
-                    </div>
-                    <div class="pub-venue pb-1">
-                        <small>
-                        Publications of the Astronomical Society of the Pacific (PASP)
-                        <span class="pub-award">  </span>
-                        </small>
-                    </div>
-                    <div class="pub-links">
-                    
-                    <a href="https://arxiv.org/abs/1906.07391">arXiv</a>
-                    
-                    
-                    
-                    
-                    </div>
-                    <div class="pub-description pt-1">
-                        
-                        <p class="pub-abstract">
-                        Breakthrough Listen is the most comprehensive and sensitive search for extraterrestrial intelligence (SETI) to date, employing a collection of international observational facilities including both radio and optical telescopes. During the first three years of the Listen program, thousands of targets have been observed with the Green Bank Telescope (GBT), Parkes Telescope and Automated Planet Finder. At GBT and Parkes, observations have been performed ranging from 700 MHz to 26 GHz, with raw data volumes averaging over 1PB / day... In this paper, we describe the hardware and software pipeline used for collection, reduction, archival, and public dissemination of Listen data.
-                        </p>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <small>
-            * = Equal contribution
-            </small>
+    <div id="top-container">
+        <div id="profile-image">
+            <img src="img/photo.jpg" title="Photo of Alex" style="width:128px;height:128px;margin-right:2em;border-radius:50%">
+        </div>
+        <div class="about">
+            <p>
+            Hi! My name is Alex and I'm a co-founder at <a href="https://lumalabs.ai">Luma AI</a>, where I am working on generative models, including 
+            <a href="https://lumalabs.ai/genie">genie</a>, a text-to-3d model.<br/>
+            For those interested: Please see <a href="https://lumalabs.ai/join">this link</a> for open positions or
+            <a href="https://lumalabs.ai/internship-summer-2024">this link for internships</a>.
+            </p>
+            <p>
+            Previously, I graduated from UC Berkeley, where I majored in CS and applied math, and
+            worked on 3D computer vision research related to NeRFs with <a href="https://people.eecs.berkeley.edu/~kanazawa/">Prof. Angjoo Kanazawa</a> in BAIR.
+            During this time, I interned at Google and Adobe, worked at SETI: Breakthrough Listen, and
+            released various open source projects on <a href="https://github.com/sxyu">Github</a>.
+            <br/>
+            Prior to Berkeley, I lived in Vancouver, Canada for many years.
+            </p>
         </div>
     </div>
     <div class="timeline pt-2">
@@ -419,6 +229,219 @@
         </div>
         
     </div>
+    <div class="pt-4">
+        <iframe id="luma-gallery"
+            src=""
+            style="height:450px;width:100%;padding-bottom:0.5em;padding-top:0.1em" frameborder="0" title="luma interactive scene, captured by me" style="border: none;"> </iframe>
+
+    </div>
+    <div class="pt-4">
+        <h2>Research Works</h2>
+        <p>
+        While at Luma, I am now working on generative models,
+        I started doing research right around the time that NeRFs (neural radiance fields) came out, and my focus was around making them more practical for real-world uses,
+        including works that sped up rendering, training, and one of the first attempts at sparse-view NeRFs (pixelNeRF).
+        </ul>
+        </p>
+        <div id="pubs">
+            
+            <div class="pub row pt-3 pb-3">
+                <div class="col-sm-2 pub-preview">
+                    
+                    <img src="img/plenoxels.gif" alt="Plenoxels: Radiance Fields Without Neural Networks">
+                    
+                </div>
+                <div class="col">
+                    <h4>Plenoxels: Radiance Fields Without Neural Networks</h4>
+                    <div class="pub-authors">
+                        
+                        <a href="https://alexyu.net" class="link-self">Alex Yu*</a>, 
+                        
+                        <a href="https://people.eecs.berkeley.edu/~sfk/">Sara Fridovich-Keil*</a>, 
+                        
+                        <a href="https://www.matthewtancik.com">Matt Tancik</a>, 
+                        
+                        <a href="https://www.linkedin.com/in/qinhong-chen/">Qinhong Chen</a>, 
+                        
+                        Benjamin Recht, 
+                        
+                        <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
+                        
+                    </div>
+                    <div class="pub-venue pb-1">
+                        <small>
+                        CVPR 2022
+                        <span class="pub-award"> Oral </span>
+                        </small>
+                    </div>
+                    <div class="pub-links">
+                    
+                    <a href="https://arxiv.org/abs/2112.05131">arXiv</a>
+                    
+                    
+                    
+                    <a href="/plenoxels">Website</a>
+                    
+                    
+                    <a href="https://www.youtube.com/watch?v=ElnuwpQEqTA&feature=emb_title">Video</a>
+                    
+                    
+                    <a href="https://www.youtube.com/watch?v=yptwRRpPEBM">Two minute papers</a>
+                    
+                    </div>
+                    <div class="pub-description pt-1">
+                        
+                        <p class="pub-abstract">
+                        We introduce Plenoxels (plenoptic voxels), a system for photorealistic view synthesis. Plenoxels represent a scene as a sparse 3D grid with spherical harmonics. This representation can be optimized from calibrated images via gradient methods and regularization without any neural components. On standard, benchmark tasks, Plenoxels are optimized two orders of magnitude faster than Neural Radiance Fields with no loss in visual quality.
+                        </p>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pub row pt-3 pb-3">
+                <div class="col-sm-2 pub-preview">
+                    
+                    <img src="img/plenoctrees.jpg" alt="PlenOctrees for Real-time Rendering of Neural Radiance Fields">
+                    
+                </div>
+                <div class="col">
+                    <h4>PlenOctrees for Real-time Rendering of Neural Radiance Fields</h4>
+                    <div class="pub-authors">
+                        
+                        <a href="https://alexyu.net" class="link-self">Alex Yu</a>, 
+                        
+                        <a href="https://www.liruilong.cn">Ruilong Li</a>, 
+                        
+                        <a href="https://www.matthewtancik.com">Matt Tancik</a>, 
+                        
+                        <a href="https://www.hao-li.com">Hao Li</a>, 
+                        
+                        <a href="https://www2.eecs.berkeley.edu/Faculty/Homepages/yirenng.html">Ren Ng</a>, 
+                        
+                        <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
+                        
+                    </div>
+                    <div class="pub-venue pb-1">
+                        <small>
+                        ICCV 2021
+                        <span class="pub-award"> Oral </span>
+                        </small>
+                    </div>
+                    <div class="pub-links">
+                    
+                    <a href="https://arxiv.org/abs/2103.14024">arXiv</a>
+                    
+                    
+                    
+                    <a href="/plenoctrees">Website</a>
+                    
+                    
+                    <a href="https://www.youtube.com/watch?v=obrmH1T5mfI">Video</a>
+                    
+                    
+                    </div>
+                    <div class="pub-description pt-1">
+                        
+                        <p class="pub-abstract">
+                        We introduce a method to render Neural Radiance Fields (NeRFs) in real time using PlenOctrees, an octree-based 3D representation which supports view-dependent effects. Our method can render 800x800 images at more than 150 FPS,  which is over 3000 times faster than conventional NeRFs.  We do so without sacrificing quality while preserving the ability of NeRFs to perform free-viewpoint rendering of scenes with arbitrary geometry and view-dependent effects.  Real-time performance is achieved by pre-tabulating the NeRF into a PlenOctree. In order to preserve view-dependent effects such as specularities, we  factorize the appearance via closed-form spherical basis functions.  Specifically, we show that it is possible to train NeRFs to predict a spherical harmonic representation of radiance, removing the viewing direction as an input to the neural network.  Furthermore, we show that PlenOctrees can be directly optimized to further minimize the reconstruction loss, which leads to equal or better quality compared to competing methods.  Moreover, this octree optimization step can be used to reduce the training time, as we no longer need to wait for the NeRF training to converge fully.  Our real-time neural rendering approach may potentially enable new applications such as 6-DOF industrial and product visualizations, as well as next generation AR/VR systems.  PlenOctrees are amenable to in-browser rendering as well; please visit the project page for the interactive online demo.
+                        </p>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pub row pt-3 pb-3">
+                <div class="col-sm-2 pub-preview">
+                    
+                    <img src="img/pixelnerf.jpg" alt="pixelNeRF: Neural Radiance Fields from One or Few Images">
+                    
+                </div>
+                <div class="col">
+                    <h4>pixelNeRF: Neural Radiance Fields from One or Few Images</h4>
+                    <div class="pub-authors">
+                        
+                        <a href="https://alexyu.net" class="link-self">Alex Yu</a>, 
+                        
+                        <a href="https://people.eecs.berkeley.edu/~vye">Vickie Ye</a>, 
+                        
+                        <a href="https://www.matthewtancik.com">Matt Tancik</a>, 
+                        
+                        <a href="https://people.eecs.berkeley.edu/~kanazawa/">Angjoo Kanazawa</a>
+                        
+                    </div>
+                    <div class="pub-venue pb-1">
+                        <small>
+                        CVPR 2021
+                        <span class="pub-award">  </span>
+                        </small>
+                    </div>
+                    <div class="pub-links">
+                    
+                    <a href="http://arxiv.org/abs/2012.02190">arXiv</a>
+                    
+                    
+                    
+                    <a href="/pixelnerf">Website</a>
+                    
+                    
+                    <a href="https://youtu.be/voebZx7f32g">Video</a>
+                    
+                    
+                    </div>
+                    <div class="pub-description pt-1">
+                        
+                        <p class="pub-abstract">
+                        We propose pixelNeRF, a learning framework that predicts a continuous neural scene representation conditioned on one or few input images. The existing approach for constructing neural radiance fields involves optimizing the representation to every scene independently, requiring many calibrated views and significant compute time. We take a step towards resolving these shortcomings by introducing an architecture that conditions a NeRF on image inputs in a fully convolutional manner. This allows the network to be trained across multiple scenes to learn a scene prior, enabling it to perform novel view synthesis in a feed-forward manner from a sparse set of views (as few as one).
+                        </p>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pub row pt-3 pb-3">
+                <div class="col-sm-2 pub-preview">
+                    
+                    <img src="img/bl.png" alt="The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving">
+                    
+                </div>
+                <div class="col">
+                    <h4>The Breakthrough Listen Search for Intelligent Life: Data Formats, Reduction and Archiving</h4>
+                    <div class="pub-authors">
+                        
+                        Matthew Lebofsky et al.
+                        
+                    </div>
+                    <div class="pub-venue pb-1">
+                        <small>
+                        Publications of the Astronomical Society of the Pacific (PASP)
+                        <span class="pub-award">  </span>
+                        </small>
+                    </div>
+                    <div class="pub-links">
+                    
+                    <a href="https://arxiv.org/abs/1906.07391">arXiv</a>
+                    
+                    
+                    
+                    
+                    
+                    </div>
+                    <div class="pub-description pt-1">
+                        
+                        <p class="pub-abstract">
+                        Breakthrough Listen is the most comprehensive and sensitive search for extraterrestrial intelligence (SETI) to date, employing a collection of international observational facilities including both radio and optical telescopes. During the first three years of the Listen program, thousands of targets have been observed with the Green Bank Telescope (GBT), Parkes Telescope and Automated Planet Finder. At GBT and Parkes, observations have been performed ranging from 700 MHz to 26 GHz, with raw data volumes averaging over 1PB / day... In this paper, we describe the hardware and software pipeline used for collection, reduction, archival, and public dissemination of Listen data.
+                        </p>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <small>
+            * = Equal contribution
+            </small>
+        </div>
+    </div>
     <div class="coursework pt-2">
         <h2>Misc</h2>
         My Chinese name is 余思贤 / 余思賢.
@@ -426,6 +449,14 @@
     <div class="pt-2">
         <a href="https://github.com/sxyu/sxyu.github.io"><small>Source code for this website</small></a>
     </div>
+    <script>
+        (function() {
+            let lumaScenes = ['e24b0a79-1701-440f-b778-f8e6ac309b0e', '27d03b0e-2392-4ad9-adbf-9870969c65e9', 'af0ca347-8944-4d12-ac4f-21515a1fd04d', 'f1f0a102-8e5e-429d-ac09-181fa7a8edf4', '987de995-16a8-4322-b6df-71cb814bd148', '56b36e97-2fa6-4b4a-9e1d-3c7f1cecd990', '824c9005-7639-4b41-ab10-87a1d09e9745', '80c80dac-3154-4d5d-ad60-2372c4789c78', '6c1e44b7-baad-4af7-8551-b6f2f54f3873', '0b258a32-717d-49d7-8595-4bb481216396', '695eb78c-1a9e-4eff-8cd5-a9dcb391ec71', '04f59e29-4a67-4442-aa29-de5d4b7c7cd7']
+            let randomScene = lumaScenes[Math.floor(Math.random() * lumaScenes.length)];
+            let galleryElem = document.getElementById('luma-gallery');
+            galleryElem.src = 'https://lumalabs.ai/embed/' + randomScene + '?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false';
+        })();
+    </script
 
         </div>
     </div>

@@ -52,6 +52,14 @@ img.banner-image {
     transition: all 0.3s;
 }
 
+#top-container {
+    display: flex;
+}
+
+.about p {
+    line-height: 1.7
+}
+
 #sidebar-wrapper {
     width: 250px;
     min-height: 100vh;

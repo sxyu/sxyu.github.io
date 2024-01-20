@@ -1,23 +1,61 @@
 {% extends "template.html" %}
 {% block content %}
-    <div class="about">
-        <img class="banner-image" src="img/banner.jpg" title="Pacific Spirit park">
-
-        <p>
-        Hi! My name is Alex and I'm now a co-founder at <a href="https://lumalabs.ai">Luma AI</a>, a generative AI startup!
-        Please see <a href="https://lumalabs.ai/join">this link</a> for open positions or
-        <a href="https://lumalabs.ai/internship-summer-2024">this link for internships</a>.
-        </p>
-        <p>
-        Previously I graduated from UC Berkeley, where I majored in CS and applied math, and
-        worked on 3D computer vision research related to NeRFs with <a href="https://people.eecs.berkeley.edu/~kanazawa/">Prof. Angjoo Kanazawa</a> in BAIR.
-        </p>
-        <p>
-        Prior to Berkeley, I lived in Vancouver, Canada for many years.
-        </p>
+    <div id="top-container">
+        <div id="profile-image">
+            <img src="img/photo.jpg" title="Photo of Alex" style="width:128px;height:128px;margin-right:2em;border-radius:50%">
+        </div>
+        <div class="about">
+            <p>
+            Hi! My name is Alex and I'm a co-founder at <a href="https://lumalabs.ai">Luma AI</a>, where I am working on generative models, including 
+            <a href="https://lumalabs.ai/genie">genie</a>, a text-to-3d model.<br/>
+            For those interested: Please see <a href="https://lumalabs.ai/join">this link</a> for open positions or
+            <a href="https://lumalabs.ai/internship-summer-2024">this link for internships</a>.
+            </p>
+            <p>
+            Previously, I graduated from UC Berkeley, where I majored in CS and applied math, and
+            worked on 3D computer vision research related to NeRFs with <a href="https://people.eecs.berkeley.edu/~kanazawa/">Prof. Angjoo Kanazawa</a> in BAIR.
+            During this time, I interned at Google and Adobe, worked at SETI: Breakthrough Listen, and
+            released various open source projects on <a href="https://github.com/sxyu">Github</a>.
+            <br/>
+            Prior to Berkeley, I lived in Vancouver, Canada for many years.
+            </p>
+        </div>
+    </div>
+    <div class="timeline pt-2">
+        {% for entry in timeline %}
+        <div class="timeline-entry">
+            <div class="timeline-image-holder">
+            {% if "image" in entry %}
+            <img src="{{ entry.image }}" alt="{{ entry.org }}">
+            {% endif %}
+            </div>
+            <div class="timeline-time">{{ entry.time }}</div>
+            <div class="timeline-org">
+            {{ entry.org }}
+            </div>
+            <div class="timeline-position">
+            {{ entry.position }}
+            </div>
+            <div class="timeline-description">
+            {{ entry.description }}
+            </div>
+        </div>
+        {% endfor %}
     </div>
     <div class="pt-4">
-        <h2>Publications</h2>
+        <iframe id="luma-gallery"
+            src=""
+            style="height:450px;width:100%;padding-bottom:0.5em;padding-top:0.1em" frameborder="0" title="luma interactive scene, captured by me" style="border: none;"> </iframe>
+
+    </div>
+    <div class="pt-4">
+        <h2>Research Works</h2>
+        <p>
+        While at Luma, I am now working on generative models,
+        I started doing research right around the time that NeRFs (neural radiance fields) came out, and my focus was around making them more practical for real-world uses,
+        including works that sped up rendering, training, and one of the first attempts at sparse-view NeRFs (pixelNeRF).
+        </ul>
+        </p>
         <div id="pubs">
             {% for pub in pubs %}
             <div class="pub row pt-3 pb-3">
@@ -52,6 +90,9 @@
                     {% if "video_link" in pub %}
                     <a href="{{ pub.video_link }}">Video</a>
                     {% endif %}
+                    {% if "two_minute_link" in pub %}
+                    <a href="{{ pub.two_minute_link }}">Two minute papers</a>
+                    {% endif %}
                     </div>
                     <div class="pub-description pt-1">
                         {% if "abstract" in pub %}
@@ -68,27 +109,6 @@
             </small>
         </div>
     </div>
-    <div class="timeline pt-2">
-        {% for entry in timeline %}
-        <div class="timeline-entry">
-            <div class="timeline-image-holder">
-            {% if "image" in entry %}
-            <img src="{{ entry.image }}" alt="{{ entry.org }}">
-            {% endif %}
-            </div>
-            <div class="timeline-time">{{ entry.time }}</div>
-            <div class="timeline-org">
-            {{ entry.org }}
-            </div>
-            <div class="timeline-position">
-            {{ entry.position }}
-            </div>
-            <div class="timeline-description">
-            {{ entry.description }}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
     <div class="coursework pt-2">
         <h2>Misc</h2>
         My Chinese name is 余思贤 / 余思賢.
@@ -96,4 +116,12 @@
     <div class="pt-2">
         <a href="https://github.com/sxyu/sxyu.github.io"><small>Source code for this website</small></a>
     </div>
+    <script>
+        (function() {
+            let lumaScenes = ['e24b0a79-1701-440f-b778-f8e6ac309b0e', '27d03b0e-2392-4ad9-adbf-9870969c65e9', 'af0ca347-8944-4d12-ac4f-21515a1fd04d', 'f1f0a102-8e5e-429d-ac09-181fa7a8edf4', '987de995-16a8-4322-b6df-71cb814bd148', '56b36e97-2fa6-4b4a-9e1d-3c7f1cecd990', '824c9005-7639-4b41-ab10-87a1d09e9745', '80c80dac-3154-4d5d-ad60-2372c4789c78', '6c1e44b7-baad-4af7-8551-b6f2f54f3873', '0b258a32-717d-49d7-8595-4bb481216396', '695eb78c-1a9e-4eff-8cd5-a9dcb391ec71', '04f59e29-4a67-4442-aa29-de5d4b7c7cd7']
+            let randomScene = lumaScenes[Math.floor(Math.random() * lumaScenes.length)];
+            let galleryElem = document.getElementById('luma-gallery');
+            galleryElem.src = 'https://lumalabs.ai/embed/' + randomScene + '?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false';
+        })();
+    </script
 {% endblock %}
