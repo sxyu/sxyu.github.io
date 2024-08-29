@@ -1,0 +1,9 @@
+{
+    "title": "Dream Machine",
+    "authors": [],
+    "venue": "June 2024",
+    "award": "",
+    "web_link": "https://lumalabs.ai/dream-machine",
+    "video": "img/dream-machine-landing.mp4",
+    "abstract": "A generative video model that generates 120 frames of high-fidelity video from a image or text prompt, in under 120 seconds. Built on a transformer architecture and trained directly on videos, dream machine shows a promising level of 3D and physical consistency. We followed this with advanced control capabilities such as keyframe-control and looping."
+}

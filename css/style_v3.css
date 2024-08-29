@@ -200,7 +200,7 @@ ul.publications {
     width: 10%;
 }
 
-.pub-preview img {
+.pub-preview img, .pub-preview video {
     width: 100%;
     margin: 0;
 }

@@ -1,0 +1,9 @@
+{
+    "title": "Genie: Text to 3D foundation model",
+    "authors": [],
+    "venue": "November 2023",
+    "award": "",
+    "web_link": "https://lumalabs.ai/genie",
+    "video": "img/genie-landing.mp4",
+    "abstract": "A foundation model for generating 3D assets from a text prompt within 10 seconds, along with a refine process to achieve higher quality models."
+}
