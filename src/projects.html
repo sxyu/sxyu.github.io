@@ -2,29 +2,65 @@
 {% block content %}
  <div class="row">
     <div class="projs col-sm-12">
-        <h1>Personal Projects</h1>
+        <h1>Personal Projects (High School)</h1>
+        Since I was young I have been passionate about create complex systems for various problems I encountered in life. I started off building various Flash games
+        such as mazes. Later, I learned to develop Windows applications and web apps as well.
         <ul>
+            <li>
+                <strong>Cantus</strong>
+                (<a href="https://github.com/sxyu/Cantus-Core">github</a>):
+                A Python-like programming language, graphing calculator, and IDE.
+                Named after <a href="https://myanimelist.net/anime/13125/Shinsekai_yori">Shinsekai Yori</a>, one of my favorite animes
+                <div>
+                <img src="img/cantus.png" alt="Cantus" class="img-fluid">
+                </div>
+            </li>
+            <li>
+                <strong></strong>
+                (<a href="https://github.com/sxyu/Entity">github</a>):
+                During high school I was responsible for lighting control backstage in the school theatre.
+                I developed a complicated system to visually control lights, audio, backdrop in the school theatre using DMX512 interfaces.
+                Also features ways to communicate between multiple backstage workers.
+                <div>
+                <img src="img/entity.png" alt="Entity" class="img-fluid">
+                </div>
+            </li>
+            <li>Jiggly: a online multi-player jigsaw game for language learning. I demoed this in class and let everyone play together! (Image TODO)</li>
+            <li>Harmony: a music transcription tool. First place in Startup Weekend Vancouver (Image TODO)</li>
+            <li>OngakuBeats: a online music library and player (Image TODO)</li>
+        </ul>
+        <h1>Personal Projects (University)</h1>
+        During University I started to specialize more in 3D graphics and computer vision.
+        <ul>
+            <li>
+                <strong>avatar</strong> (<a href="https://drive.google.com/file/d/1kq0g_r77x80c6wbfktxefvsno9f1itxw/view?usp=sharing">demo video</a>): 
+                a fast real-time system to fit smpl (human body) model to a point cloud in real time on a cpu, similar to smplify.
+                i trained a random-forest part segmentation system to segment the human point cloud using synthetic rendered data.
+                <div>
+                <img src="img/avatar-new.png" alt="avatar tracking demo" class="img-fluid">
+                </div>
+            <li>
+                I won the hog contest, a class contest where you create a strategy which competes against the rest of the class, in Fall 2017 (my first semester), using dynamic programming in addition to some self-play system I made up, similar to evolutionary algorithms.
+                Later, I became a TA and ran the contest. Bacon2, a Python C++ extension, is a system for doing so very efficiently and updating status live.
+                <a href="https://github.com/sxyu/bacon">Project page</a>
             <li>
                 <strong>Nivalis plotter</strong>
                 (<a href="https://funcplot.com">funcplot.com</a>):
                 an open-source graphing calculator written in C++, with both desktop and online (using emscripten/wasm) versions.
-                It is not feature-complete compared to Desmos and Geogebra, but it is pretty good at plotting/critical point finding
-                Documentation/project page: <a href="https://github.com/sxyu/nivalis">see github</a>
+                Github: <a href="https://github.com/sxyu/nivalis">nivalis</a>
                 <div>
                 <img src="img/nivalis.png" alt="Nivalis" class="img-fluid">
                 </div>
-                This is the successor of the Cantus project which I made in high school.
+                This is in some sense the successor of the Cantus project which I made in high school.
+            <li>
+                <a href="https://github.com/sxyu/watplot">watplot</a> is a fast interactive visualization system for <em>SETI: Breakthrough Listen</em> radio telescope data written in C++.
+            <li>
+                <a href="http://seti.berkeley.edu/opendata">Open data archive</a> is a data catalog for SETI: Breakthrough Listen radio telescope data, providing petabyte-scale radio telescope data to the public.
             <li>
                 <strong>SMPL-X ++</strong>: SMPL-X, SMPL+H, SMPL implementation in C++ with built-in mesh visualizer.
                 <a href="https://github.com/sxyu/smplxpp">Project page</a>
                 <div>
                 <img src="img/smpl-visual.png" alt="SMPL-X demo" class="img-fluid">
-                </div>
-            <li>
-                <strong>Avatar</strong> (<a href="https://drive.google.com/file/d/1KQ0g_R77x80c6WbFKTXefvsNO9F1ITxW/view?usp=sharing">demo video</a>): 
-                Fitting SMPL (human body) model to a point cloud in real time on a CPU. 
-                <div>
-                <img src="img/avatar-new.png" alt="Avatar Tracking Demo" class="img-fluid">
                 </div>
             <li>
                 <strong>Boolean Function Complexity Measures</strong> (<a href="https://funcplot.com/table">link</a>): an editable and interactive online Boolean function complexity measure table
@@ -33,23 +69,12 @@
                 <div>
                 <img src="img/bldata.png" alt="Breakthrough Listen Open Data Archive" class="img-fluid">
                 </div>
-        </ul>
-        <h2>Miscellaneous</h2>
-        <ul>
             <li>
                 <a href="https://github.com/sxyu/Quaternion-SR-UKF">Quaternion SRUKF</a> is a modern C++ implementation of Square Root Unscented Kalman Filter with support for quaternion vectors.
             <li>
-                <strong>meshview</strong>: Simple OpenGL mesh and point cloud viewer in C++ for rapid prototyping.
-                <a href="https://github.com/sxyu/meshview">Project page</a>
-                <div>
-                <img src="img/depth-cam.png" alt="meshview" class="img-fluid">
-                </div>
+                <strong>Crowdy</strong>: 1st place in CS170 algorithms competition, a solver for graph partitioning problems 
             <li>
-                Bacon2, a Python C++ extension, is a system for running the Hog Contest in CS 61A (the code is now private to prevent students from taking advantage of it). This is the successor to Bacon, which I created previously for the same purpose.
-            <li>
-                Transmitting text using sound: this was my final project in EE 126. I was able to get it to achieve a 200 bits-per-minute transmission rate with good robustness using frequeuency modulation, Reed-Solomon and Huffman coding, which was one of the best in the class.
-            <li>
-                <a href="https://github.com/sxyu/watplot">watplot</a> is a fast interactive visualization system for <em>SETI: Breakthrough Listen</em> radio telescope data written in C++.
+                <strong>Transmitting text using sound</strong>: this was my final project in EE 126. I was able to get it to achieve a 200 bits-per-minute transmission rate with good robustness using frequeuency modulation, Reed-Solomon and Huffman coding, which was one of the best in the class.
         </ul>
     </div>
 </div>
