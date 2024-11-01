@@ -28,7 +28,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/style_v2.css">
+    <link rel="stylesheet" href="css/style_v3.css">
 </head>
 
 <body>
@@ -49,7 +49,7 @@
                             <svg style="width:20px;height:20px" class="mr-1" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" />
                             </svg>
-                            &#097;&#108;&#101;&#120;&#032;&#097;&#116;&#032;<span style="display:none">&#100;&#x65;</span>&#108;&#117;&#109;&#097;&#108;&#097;&#098;&#115;&#046;&#097;&#105;
+                            <script type="text/javascript">document.write('\u0073\u0078\u0079\u0075\u0040\u0062\u0065\u0072\u006b\u0065\u006c\u0065\u0079\u002e\u0065\u0064\u0075')</script>
                         </a>
                     </li>
                     <li>
@@ -66,13 +66,6 @@
                             </svg>
                             sxyu</a>
                     </li>
-                    <li> <a href="https://twitter.com/alexyu00">
-                            <svg style="width:20px;height:20px" class="mr-1" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M22.46,6C21.69,6.35 20.86,6.58 20,6.69C20.88,6.16 21.56,5.32 21.88,4.31C21.05,4.81 20.13,5.16 19.16,5.36C18.37,4.5 17.26,4 16,4C13.65,4 11.73,5.92 11.73,8.29C11.73,8.63 11.77,8.96 11.84,9.27C8.28,9.09 5.11,7.38 3,4.79C2.63,5.42 2.42,6.16 2.42,6.94C2.42,8.43 3.17,9.75 4.33,10.5C3.62,10.5 2.96,10.3 2.38,10C2.38,10 2.38,10 2.38,10.03C2.38,12.11 3.86,13.85 5.82,14.24C5.46,14.34 5.08,14.39 4.69,14.39C4.42,14.39 4.15,14.36 3.89,14.31C4.43,16 6,17.26 7.89,17.29C6.43,18.45 4.58,19.13 2.56,19.13C2.22,19.13 1.88,19.11 1.54,19.07C3.44,20.29 5.7,21 8.12,21C16,21 20.33,14.46 20.33,8.79C20.33,8.6 20.33,8.42 20.32,8.23C21.16,7.63 21.88,6.87 22.46,6Z" />
-                            </svg>
-                            alexyu00
-                        </a>
-                    </li>
                 </ul>
             </div>
         </nav>
@@ -81,29 +74,65 @@
             
  <div class="row">
     <div class="projs col-sm-12">
-        <h1>Personal Projects</h1>
+        <h1>Personal Projects (High School)</h1>
+        Since I was young I have been passionate about create complex systems for various problems I encountered in life. I started off building various Flash games
+        such as mazes. Later, I learned to develop Windows applications and web apps as well.
         <ul>
+            <li>
+                <strong>Cantus</strong>
+                (<a href="https://github.com/sxyu/Cantus-Core">github</a>):
+                A Python-like programming language, graphing calculator, and IDE.
+                Named after <a href="https://myanimelist.net/anime/13125/Shinsekai_yori">Shinsekai Yori</a>, one of my favorite animes
+                <div>
+                <img src="img/cantus.png" alt="Cantus" class="img-fluid">
+                </div>
+            </li>
+            <li>
+                <strong></strong>
+                (<a href="https://github.com/sxyu/Entity">github</a>):
+                During high school I was responsible for lighting control backstage in the school theatre.
+                I developed a complicated system to visually control lights, audio, backdrop in the school theatre using DMX512 interfaces.
+                Also features ways to communicate between multiple backstage workers.
+                <div>
+                <img src="img/entity.png" alt="Entity" class="img-fluid">
+                </div>
+            </li>
+            <li>Jiggly: a online multi-player jigsaw game for language learning. I demoed this in class and let everyone play together! (Image TODO)</li>
+            <li>Harmony: a music transcription tool. First place in Startup Weekend Vancouver (Image TODO)</li>
+            <li>OngakuBeats: a online music library and player (Image TODO)</li>
+        </ul>
+        <h1>Personal Projects (University)</h1>
+        During University I started to specialize more in 3D graphics and computer vision.
+        <ul>
+            <li>
+                <strong>avatar</strong> (<a href="https://drive.google.com/file/d/1kq0g_r77x80c6wbfktxefvsno9f1itxw/view?usp=sharing">demo video</a>): 
+                a fast real-time system to fit smpl (human body) model to a point cloud in real time on a cpu, similar to smplify.
+                i trained a random-forest part segmentation system to segment the human point cloud using synthetic rendered data.
+                <div>
+                <img src="img/avatar-new.png" alt="avatar tracking demo" class="img-fluid">
+                </div>
+            <li>
+                I won the hog contest, a class contest where you create a strategy which competes against the rest of the class, in Fall 2017 (my first semester), using dynamic programming in addition to some self-play system I made up, similar to evolutionary algorithms.
+                Later, I became a TA and ran the contest. Bacon2, a Python C++ extension, is a system for doing so very efficiently and updating status live.
+                <a href="https://github.com/sxyu/bacon">Project page</a>
             <li>
                 <strong>Nivalis plotter</strong>
                 (<a href="https://funcplot.com">funcplot.com</a>):
                 an open-source graphing calculator written in C++, with both desktop and online (using emscripten/wasm) versions.
-                It is not feature-complete compared to Desmos and Geogebra, but it is pretty good at plotting/critical point finding
-                Documentation/project page: <a href="https://github.com/sxyu/nivalis">see github</a>
+                Github: <a href="https://github.com/sxyu/nivalis">nivalis</a>
                 <div>
                 <img src="img/nivalis.png" alt="Nivalis" class="img-fluid">
                 </div>
-                This is the successor of the Cantus project which I made in high school.
+                This is in some sense the successor of the Cantus project which I made in high school.
+            <li>
+                <a href="https://github.com/sxyu/watplot">watplot</a> is a fast interactive visualization system for <em>SETI: Breakthrough Listen</em> radio telescope data written in C++.
+            <li>
+                <a href="http://seti.berkeley.edu/opendata">Open data archive</a> is a data catalog for SETI: Breakthrough Listen radio telescope data, providing petabyte-scale radio telescope data to the public.
             <li>
                 <strong>SMPL-X ++</strong>: SMPL-X, SMPL+H, SMPL implementation in C++ with built-in mesh visualizer.
                 <a href="https://github.com/sxyu/smplxpp">Project page</a>
                 <div>
                 <img src="img/smpl-visual.png" alt="SMPL-X demo" class="img-fluid">
-                </div>
-            <li>
-                <strong>Avatar</strong> (<a href="https://drive.google.com/file/d/1KQ0g_R77x80c6WbFKTXefvsNO9F1ITxW/view?usp=sharing">demo video</a>): 
-                Fitting SMPL (human body) model to a point cloud in real time on a CPU. 
-                <div>
-                <img src="img/avatar-new.png" alt="Avatar Tracking Demo" class="img-fluid">
                 </div>
             <li>
                 <strong>Boolean Function Complexity Measures</strong> (<a href="https://funcplot.com/table">link</a>): an editable and interactive online Boolean function complexity measure table
@@ -112,23 +141,12 @@
                 <div>
                 <img src="img/bldata.png" alt="Breakthrough Listen Open Data Archive" class="img-fluid">
                 </div>
-        </ul>
-        <h2>Miscellaneous</h2>
-        <ul>
             <li>
                 <a href="https://github.com/sxyu/Quaternion-SR-UKF">Quaternion SRUKF</a> is a modern C++ implementation of Square Root Unscented Kalman Filter with support for quaternion vectors.
             <li>
-                <strong>meshview</strong>: Simple OpenGL mesh and point cloud viewer in C++ for rapid prototyping.
-                <a href="https://github.com/sxyu/meshview">Project page</a>
-                <div>
-                <img src="img/depth-cam.png" alt="meshview" class="img-fluid">
-                </div>
+                <strong>Crowdy</strong>: 1st place in CS170 algorithms competition, a solver for graph partitioning problems 
             <li>
-                Bacon2, a Python C++ extension, is a system for running the Hog Contest in CS 61A (the code is now private to prevent students from taking advantage of it). This is the successor to Bacon, which I created previously for the same purpose.
-            <li>
-                Transmitting text using sound: this was my final project in EE 126. I was able to get it to achieve a 200 bits-per-minute transmission rate with good robustness using frequeuency modulation, Reed-Solomon and Huffman coding, which was one of the best in the class.
-            <li>
-                <a href="https://github.com/sxyu/watplot">watplot</a> is a fast interactive visualization system for <em>SETI: Breakthrough Listen</em> radio telescope data written in C++.
+                <strong>Transmitting text using sound</strong>: this was my final project in EE 126. I was able to get it to achieve a 200 bits-per-minute transmission rate with good robustness using frequeuency modulation, Reed-Solomon and Huffman coding, which was one of the best in the class.
         </ul>
     </div>
 </div>
